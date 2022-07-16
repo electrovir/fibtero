@@ -1,8 +1,8 @@
+import {JiraJqlResponse, JiraRequest} from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {JiraJqlResponse, JiraRequest} from '../../../common/src/data/jira-data';
 import {FibInput} from './input.element';
 
 async function makeJiraRequest(

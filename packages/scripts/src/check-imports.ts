@@ -71,7 +71,7 @@ async function checkPackageImports() {
     const crossPackageLines = (
         await Promise.all(
             getEnumTypedValues(Package).map(async (packageName) =>
-                cleanTsGrep(`\\.\\./${packageName}`),
+                cleanTsGrep(`\\.\\./${packageName}/`),
             ),
         )
     ).flat();
