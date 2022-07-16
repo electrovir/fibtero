@@ -1,0 +1,22 @@
+{
+    "ignorePaths": [
+        "./build-resources/",
+        "./test-files/"
+    ],
+    "import": ".cspell-base.json",
+    "words": [
+        "asar",
+        "boxcat",
+        "browserslistrc",
+        "fibtero",
+        "globbing",
+        "jsonpack",
+        "killall",
+        "precompile",
+        "preload",
+        "samuelmeuli",
+        "unallowed",
+        "vite",
+        "vitejs"
+    ]
+}

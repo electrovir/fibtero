@@ -1,0 +1,61 @@
+{
+    "name": "fibtero",
+    "version": "0.0.0",
+    "private": true,
+    "description": "",
+    "homepage": "https://github.com/electrovir/fibtero#readme",
+    "bugs": {
+        "url": "https://github.com/electrovir/fibtero/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/electrovir/fibtero.git"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "electrovir",
+        "url": "https://github.com/electrovir"
+    },
+    "main": "packages/main/dist/index.cjs",
+    "scripts": {
+        "build": "ts-node -P ./packages/scripts/tsconfig.json -r tsconfig-paths/register ./packages/scripts/src/build.ts",
+        "check-imports": "ts-node -P ./packages/scripts/tsconfig.json -r tsconfig-paths/register ./packages/scripts/src/check-imports.ts",
+        "compile": "rm -rf dist && cross-env MODE=production npm run build &&electron-builder build --config .electron-builder.config.js",
+        "format": "virmator format write --no-write-config",
+        "frontend": "npm install && cd packages/renderer && vite --force --open --config ./vite/vite.config.ts",
+        "spellcheck": "virmator spellcheck",
+        "start": "ts-node -P ./packages/scripts/tsconfig.json -r tsconfig-paths/register ./packages/scripts/src/watch.ts",
+        "test": "jest --config ./packages/jest/jest.config.ts",
+        "test:full": "npm run type-check && npm test && npm run spellcheck && virmator format check && npm run check-imports",
+        "type-check": "ts-node -P ./packages/scripts/tsconfig.json -r tsconfig-paths/register ./packages/scripts/src/type-check.ts"
+    },
+    "dependencies": {
+        "augment-vir": "2.3.0",
+        "axios": "0.27.2",
+        "electron-updater": "5.0.5",
+        "element-vir": "5.6.1"
+    },
+    "devDependencies": {
+        "@babel/preset-typescript": "7.18.6",
+        "@types/electron-devtools-installer": "2.2.2",
+        "@types/jest": "28.1.6",
+        "@types/jsonpack": "1.1.1",
+        "@types/node": "18.0.5",
+        "chalk": "4.1.2",
+        "cross-env": "7.0.3",
+        "electron": "19.0.8",
+        "electron-builder": "23.1.0",
+        "electron-devtools-installer": "3.2.0",
+        "fs-extra": "10.1.0",
+        "jsonpack": "1.1.5",
+        "ts-jest": "28.0.6",
+        "ts-node": "10.9.1",
+        "tsconfig-paths": "4.0.0",
+        "virmator": "2.0.7",
+        "vite": "3.0.0"
+    },
+    "engines": {
+        "node": ">=v16.13",
+        "npm": ">=8.1"
+    }
+}
