@@ -138,7 +138,9 @@ export const FibAppElement = defineFunctionalElement({
         const pageTemplate =
             props.currentPage === MainRendererPage.Home
                 ? html`
-                      <${FibHomePage}></${FibHomePage}>
+                      <${FibHomePage}
+                        ${assign(FibHomePage.props.electronApi, props.electronApi)}
+                      ></${FibHomePage}>
                   `
                 : props.currentPage === MainRendererPage.CreateJiraView
                 ? html`

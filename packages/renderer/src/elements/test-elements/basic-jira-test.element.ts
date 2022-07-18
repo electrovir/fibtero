@@ -99,15 +99,9 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
         issue: {
-            // cspell:disable-next-line
-            key: 'UXENG-1363',
+            key: '',
             fields: {
-                summary: 'Fibtero test issue has been updated',
-                // description: 'this message has been overridden',
-                // assignee: {
-                // // cspell:disable-next-line
-                //     name: 'cwood'
-                // },
+                summary: 'Fibtero test issue has been updated again',
             },
             id: '',
             self: '',

@@ -7,6 +7,7 @@ import {
 import {get, put} from '../axios-wrapper';
 
 const apiRoute = '/rest/api/3/';
+const customFieldKey = 'customfield';
 
 export async function search(request: SearchRequest): Promise<JiraJqlResponse> {
     if (request.jql) {
@@ -33,15 +34,20 @@ export async function getField(request: JiraRequest): Promise<Map<string, string
             username: request.credentials.username,
         },
     });
+
     const mapping = result.data.reduce(
         (map: {[x: string]: any}, field: {key: string | number; name: any}) => {
-            if (typeof field.key == 'string' && typeof field.name == 'string') {
+            if (isCustomFieldKey(field.key) && typeof field.name == 'string') {
                 map[field.key] = field.name;
             }
             return map;
         },
     );
     return mapping;
+}
+
+function isCustomFieldKey(key: any) {
+    return typeof key === 'string' && key.includes(customFieldKey);
 }
 
 export async function updateIssue(request: UpdateIssueRequest): Promise<boolean> {
