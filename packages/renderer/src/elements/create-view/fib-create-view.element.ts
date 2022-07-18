@@ -1,4 +1,9 @@
-import {createNewView, JiraView, ViewDirection} from '@packages/common/src/data/jira-view';
+import {
+    createEmptyViewSection,
+    createNewView,
+    JiraView,
+    ViewDirection,
+} from '@packages/common/src/data/jira-view';
 import {getEnumTypedValues, isEnumValue, isTruthy, randomString} from 'augment-vir';
 import {
     assign,
@@ -10,8 +15,7 @@ import {
     onDomCreated,
 } from 'element-vir';
 import {repeat} from 'lit/directives/repeat.js';
-import {createEmptyViewSection} from '../../../../common/src/data/jira-view';
-import {FibInput} from '../fib-input.element';
+import {FibInput} from '../core-elements/fib-input.element';
 import {FibCreateViewSection} from './fib-create-view-section.element';
 
 function validateCreateView(view: JiraView): string {

@@ -8,7 +8,7 @@ import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-req
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {FibInput} from './fib-input.element';
+import {FibInput} from '../core-elements/fib-input.element';
 
 async function search(
     searchRequest: SearchRequest,
@@ -99,11 +99,13 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
         issue: {
+            // cspell:disable-next-line
             key: 'UXENG-1363',
             fields: {
                 summary: 'Fibtero test issue has been updated',
                 // description: 'this message has been overridden',
                 // assignee: {
+                // // cspell:disable-next-line
                 //     name: 'cwood'
                 // },
             },

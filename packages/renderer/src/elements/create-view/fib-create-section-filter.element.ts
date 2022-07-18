@@ -1,11 +1,11 @@
-import {randomString} from 'augment-vir';
-import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
-import {css} from 'lit';
 import {
     createEmptyViewSectionFilter,
     JiraViewSectionFilter,
-} from '../../../../common/src/data/jira-view';
-import {FibInput} from '../fib-input.element';
+} from '@packages/common/src/data/jira-view';
+import {randomString} from 'augment-vir';
+import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
+import {css} from 'lit';
+import {FibInput} from '../core-elements/fib-input.element';
 
 export const FibCreateViewSectionFilter = defineFunctionalElement({
     tagName: 'fib-create-view-section-filter',

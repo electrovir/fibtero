@@ -1,9 +1,8 @@
-import {JiraViewSection} from '@packages/common/src/data/jira-view';
+import {createEmptyViewSectionFilter, JiraViewSection} from '@packages/common/src/data/jira-view';
 import {randomString} from 'augment-vir';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {repeat} from 'lit/directives/repeat.js';
-import {createEmptyViewSectionFilter} from '../../../../common/src/data/jira-view';
-import {FibInput} from '../fib-input.element';
+import {FibInput} from '../core-elements/fib-input.element';
 import {FibCreateViewSectionFilter} from './fib-create-section-filter.element';
 
 export const FibCreateViewSection = defineFunctionalElement({

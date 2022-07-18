@@ -1,7 +1,7 @@
+import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {capitalizeFirstLetter, getEnumTypedValues} from 'augment-vir';
 import {defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {MainRendererPage} from '../../../common/src/data/main-renderer-page';
 
 function prettifyMainPageValue(value: MainRendererPage): string {
     return capitalizeFirstLetter(
