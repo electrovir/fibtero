@@ -6,6 +6,7 @@ import {
     JiraIssueTypesResponse,
     JiraJqlSearchRequest,
     JiraProjectsResponse,
+    UpdateIssueLabelsRequest,
     UpdateIssueRequest,
 } from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
@@ -150,6 +151,23 @@ async function updateIssue(
     }
 }
 
+async function updateIssueLabels(
+    updateIssueLabelsRequest: UpdateIssueLabelsRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<boolean> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.UpdateIssueLabels,
+        data: updateIssueLabelsRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
 const cachedJiraDataKey = 'cached-jira-data';
 
 function setCachedData(data: JiraJqlSearchRequest) {
@@ -230,6 +248,24 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
     };
 }
 
+function makeUpdateLabelsRequestData(props: typeof BasicJiraTest['init']['props']) {
+    const labelsToAdd = props.labelsToAdd.split(',').map((label: string) => (label = label.trim()));
+    const labelsToRemove = props.labelsToRemove
+        .split(',')
+        .map((label: string) => (label = label.trim()));
+
+    return {
+        domain: props.domain,
+        issueKey: props.ticketKey,
+        labelsToAdd: labelsToAdd,
+        labelsToRemove: labelsToRemove,
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
 function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
@@ -273,6 +309,8 @@ export const BasicJiraTest = defineFunctionalElement({
         projectIdOrKey: '',
         issueTypeIdOrName: '',
         createdSummary: '',
+        labelsToAdd: '',
+        labelsToRemove: '',
         electronApi: undefined as undefined | ElectronWindowInterface,
     },
     events: {
@@ -312,7 +350,7 @@ export const BasicJiraTest = defineFunctionalElement({
     renderCallback: ({props, setProps, dispatch, events}) => {
         return html`
             <h2>
-                Basic Jira Test
+                Jira (Search) Test
             </h2>
             <form
                 ${listen('submit', async (event) => {
@@ -360,7 +398,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 <input class="submit" type="submit" value="Trigger Jira Query" />
             </form>
             <h2>
-                Basic Update Issue Test
+                Update Issue Test
             </h2>
             <${FibInput}
                 ${listen(FibInput.events.valueChange, (event) => {
@@ -393,7 +431,43 @@ export const BasicJiraTest = defineFunctionalElement({
                 Run Test
             </button>
             <h2>
-                Basic Create Issue Test
+                Update Issue Labels Test
+            </h2>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({ticketKey: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Ticket key')}
+                ${assign(FibInput.props.value, props.ticketKey)}
+            ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({labelsToAdd: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Labels to add')}
+                ${assign(FibInput.props.value, props.labelsToAdd)}
+            ></${FibInput}>
+            <${FibInput}
+            ${listen(FibInput.events.valueChange, (event) => {
+                setProps({labelsToRemove: event.detail});
+            })}
+                ${assign(FibInput.props.label, 'Labels to remove')}
+                ${assign(FibInput.props.value, props.labelsToRemove)}
+            ></${FibInput}>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await updateIssueLabels(
+                            makeUpdateLabelsRequestData(props),
+                            props.electronApi,
+                        );
+                    }
+                })}
+            >
+                Run Test
+            </button>
+            <h2>
+                Create Issue Test
             </h2>
             <${FibInput}
                 ${listen(FibInput.events.valueChange, (event) => {
@@ -458,7 +532,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 Run Test
             </button>
             <h2>
-                Basic Get Issue Types for Project Test
+                Get Issue Types for Project Test
             </h2>
             <${FibInput}
                 ${listen(FibInput.events.valueChange, (event) => {
@@ -477,7 +551,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 Run Test
             </button>
             <h2>
-                Basic Get Projects Test
+                Get Projects Test
             </h2>
             <button
                 ${listen('click', async () => {

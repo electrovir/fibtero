@@ -28,6 +28,12 @@ export type UpdateIssueRequest = JiraAuth & {
     issue: JiraIssue;
 };
 
+export type UpdateIssueLabelsRequest = JiraAuth & {
+    issueKey: string;
+    labelsToAdd: string[];
+    labelsToRemove: string[];
+};
+
 const jiraRequestValidationChecker: JiraAuth = {
     domain: '',
     credentials: {
@@ -81,6 +87,12 @@ export function searchRequestValidator(request: unknown): request is JiraJqlSear
 }
 
 export function updateIssueRequestValidator(request: unknown): request is UpdateIssueRequest {
+    return true;
+}
+
+export function updateIssueLabelsRequestValidator(
+    request: unknown,
+): request is UpdateIssueLabelsRequest {
     return true;
 }
 

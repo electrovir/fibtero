@@ -12,14 +12,14 @@ export async function getUsers(request: JiraAuth): Promise<JiraUser[]> {
             username: request.credentials.username,
         },
     });
-    console.log({jiraUserSearch: result});
+
     return result.data;
 }
 
 export async function searchUsers(request: JiraJqlSearchRequest): Promise<JiraUser[]> {
     if (request.jql) {
         const url = `https://${request.domain}${apiRoute}user/picker?query=${request.jql}`;
-        console.log(url);
+
         const result = await get(url, {
             auth: {
                 password: request.credentials.apiKey,

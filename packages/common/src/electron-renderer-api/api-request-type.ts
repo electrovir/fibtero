@@ -15,6 +15,8 @@ import {
     jiraProjectsResponseValidator,
     jiraRequestValidator,
     searchRequestValidator,
+    UpdateIssueLabelsRequest,
+    updateIssueLabelsRequestValidator,
     UpdateIssueRequest,
     updateIssueRequestValidator,
 } from '../data/jira-data';
@@ -49,6 +51,7 @@ export enum ApiRequestType {
     GetProjects = 'jira-get-projects',
     JqlSearch = 'jira-search',
     UpdateIssue = 'jira-update-issue',
+    UpdateIssueLabels = 'jira-update-issue-labels',
     GetUsers = 'jira-get-user',
     SearchUsers = 'jira-search-user',
 }
@@ -66,6 +69,7 @@ export type ApiRequestData = {
     [ApiRequestType.GetProjects]: JiraAuth;
     [ApiRequestType.JqlSearch]: JiraJqlSearchRequest;
     [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
+    [ApiRequestType.UpdateIssueLabels]: UpdateIssueLabelsRequest;
     [ApiRequestType.GetUsers]: JiraAuth;
     [ApiRequestType.SearchUsers]: JiraJqlSearchRequest;
 };
@@ -83,6 +87,7 @@ export type ApiResponseData = {
     [ApiRequestType.GetProjects]: JiraProjectsResponse;
     [ApiRequestType.JqlSearch]: JiraIssue[];
     [ApiRequestType.UpdateIssue]: boolean;
+    [ApiRequestType.UpdateIssueLabels]: boolean;
     [ApiRequestType.GetUsers]: JiraIssue[];
     [ApiRequestType.SearchUsers]: JiraIssue[];
 };
@@ -140,6 +145,10 @@ export const apiValidators: {
     },
     [ApiRequestType.UpdateIssue]: {
         request: updateIssueRequestValidator,
+        response: typeofValidators.boolean,
+    },
+    [ApiRequestType.UpdateIssueLabels]: {
+        request: updateIssueLabelsRequestValidator,
         response: typeofValidators.boolean,
     },
     [ApiRequestType.GetUsers]: {

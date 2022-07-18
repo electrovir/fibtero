@@ -13,7 +13,7 @@ import {getIssueTypes} from '../jira-api/get-issue-types-request';
 import {getProjects} from '../jira-api/get-projects-request';
 import {getUsers, searchUsers} from '../jira-api/get-users-request';
 import {runJiraJqlSearch} from '../jira-api/jql-search-request';
-import {updateIssue} from '../jira-api/update-issue-request';
+import {updateIssue, updateIssueLabels} from '../jira-api/update-issue-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
@@ -39,6 +39,7 @@ const apiHandlers: {
     [ApiRequestType.GetUsers]: getUsers,
     [ApiRequestType.SearchUsers]: searchUsers,
     [ApiRequestType.UpdateIssue]: updateIssue,
+    [ApiRequestType.UpdateIssueLabels]: updateIssueLabels,
 };
 
 export type ApiOptions = {
@@ -87,6 +88,9 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
         allowLogging: false,
     },
     [ApiRequestType.UpdateIssue]: {
+        allowLogging: false,
+    },
+    [ApiRequestType.UpdateIssueLabels]: {
         allowLogging: false,
     },
 };
