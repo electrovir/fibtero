@@ -99,7 +99,7 @@ export const FibAppElement = defineFunctionalElement({
         :host {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: stretch;
             box-sizing: border-box;
             width: 100%;
             height: 100%;
@@ -108,6 +108,15 @@ export const FibAppElement = defineFunctionalElement({
 
         ${FibAppPageNav} {
             align-self: stretch;
+        }
+
+        main {
+            flex-grow: 1;
+        }
+
+        main > * {
+            min-width: 100%;
+            min-height: 100%;
         }
     `,
     initCallback: ({props, setProps}) => {
@@ -155,7 +164,9 @@ export const FibAppElement = defineFunctionalElement({
                     `
                 : props.currentPage === MainRendererPage.ExportJiraView
                 ? html`
-                    <${FibExportJiraViewPage}></${FibExportJiraViewPage}>
+                    <${FibExportJiraViewPage}
+                        ${assign(FibExportJiraViewPage.props.userPreferences, userPreferences)}
+                    ></${FibExportJiraViewPage}>
                   `
                 : html`
                       ERROR: Current page not supported: ${props.currentPage}

@@ -1,7 +1,8 @@
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {capitalizeFirstLetter, getEnumTypedValues} from 'augment-vir';
-import {defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
+import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
+import {FibButton} from '../core-elements/fib-button.element';
 
 function prettifyMainPageValue(value: MainRendererPage): string {
     return capitalizeFirstLetter(
@@ -28,29 +29,6 @@ export const FibAppPageNav = defineFunctionalElement({
             gap: 32px;
             flex-wrap: wrap;
         }
-
-        button {
-            padding: 8px 16px;
-            font-size: 1.2em;
-            border: 2px solid dodgerblue;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        button:not(.selected):hover {
-            background: #c7e3ff;
-        }
-
-        button:not(.selected):active {
-            background: #ebf5ff;
-        }
-
-        .selected {
-            cursor: default;
-            border-color: #ccc;
-        }
     `,
     renderCallback: ({props, dispatch, events}) => {
         return html`
@@ -59,17 +37,16 @@ export const FibAppPageNav = defineFunctionalElement({
                 const isThisPage = pageValue === props.currentPage;
 
                 return html`
-                    <button
-                        class="${isThisPage ? 'selected' : ''}"
-                        ?disabled=${isThisPage}
+                    <${FibButton}
+                        ${assign(FibButton.props.disabled, isThisPage)}
+                        ${assign(FibButton.props.label, pageName)}
                         ${listen('click', () => {
                             if (!isThisPage) {
                                 dispatch(new events.pageChange(pageValue));
                             }
                         })}
                     >
-                        ${pageName}
-                    </button>
+                    </${FibButton}>
                 `;
             })}
         `;

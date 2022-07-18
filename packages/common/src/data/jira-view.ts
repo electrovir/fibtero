@@ -1,3 +1,12 @@
+export function serializeJiraView(input: Readonly<JiraView>): string {
+    try {
+        return JSON.stringify(input);
+    } catch (error) {
+        console.error(error);
+        return `ERROR: failed to serialize jira view.`;
+    }
+}
+
 export enum ViewDirection {
     Vertical = 'vertical',
     Horizontal = 'horizontal',
