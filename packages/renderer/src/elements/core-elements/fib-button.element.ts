@@ -1,7 +1,5 @@
 import {css, defineFunctionalElement, html} from 'element-vir';
 
-export type TextInputTypes = 'email' | 'password' | 'search' | 'text' | 'url';
-
 export const FibButton = defineFunctionalElement({
     tagName: 'fib-button',
     props: {
@@ -9,7 +7,13 @@ export const FibButton = defineFunctionalElement({
         disabled: false,
     },
     styles: css`
+        :host {
+            display: flex;
+        }
+
         button {
+            width: 100%;
+            height: 100%;
             padding: 8px 16px;
             font-size: 1.2em;
             border: 2px solid dodgerblue;

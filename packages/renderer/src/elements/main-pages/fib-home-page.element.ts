@@ -7,7 +7,7 @@ export const FibHomePage = defineFunctionalElement({
     props: {
         electronApi: undefined as undefined | ElectronWindowInterface,
     },
-    renderCallback: ({props}) => {
+    renderCallback: ({props, dispatch, events}) => {
         return html`
             <${BasicJiraTest} 
                 ${assign(BasicJiraTest.props.useCachedData, true)}

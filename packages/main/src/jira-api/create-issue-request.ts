@@ -1,6 +1,6 @@
 import {CreateIssueRequest, JiraIssueResponse} from '@packages/common/src/data/jira-data';
 import {post} from '../axios-wrapper';
-import {apiRoute} from './shared';
+import {apiRoute} from './jira-routing';
 
 export async function createIssue(request: CreateIssueRequest): Promise<JiraIssueResponse> {
     const url = `https://${request.domain}${apiRoute}issue`;

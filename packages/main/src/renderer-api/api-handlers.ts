@@ -12,7 +12,7 @@ import {getFields} from '../jira-api/get-fields-request';
 import {getIssueTypes} from '../jira-api/get-issue-types-request';
 import {getProjects} from '../jira-api/get-projects-request';
 import {getUsers, searchUsers} from '../jira-api/get-users-request';
-import {search} from '../jira-api/search-request';
+import {runJiraJqlSearch} from '../jira-api/jql-search-request';
 import {updateIssue} from '../jira-api/update-issue-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
@@ -35,7 +35,7 @@ const apiHandlers: {
     [ApiRequestType.GetFields]: getFields,
     [ApiRequestType.GetIssueTypes]: getIssueTypes,
     [ApiRequestType.GetProjects]: getProjects,
-    [ApiRequestType.Search]: search,
+    [ApiRequestType.JqlSearch]: (input) => runJiraJqlSearch(input),
     [ApiRequestType.GetUsers]: getUsers,
     [ApiRequestType.SearchUsers]: searchUsers,
     [ApiRequestType.UpdateIssue]: updateIssue,
@@ -82,7 +82,7 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
     [ApiRequestType.SearchUsers]: {
         allowLogging: false,
     },
-    [ApiRequestType.Search]: {
+    [ApiRequestType.JqlSearch]: {
         // turn logging off here so we don't log api keys (which are sensitive data) all over
         allowLogging: false,
     },

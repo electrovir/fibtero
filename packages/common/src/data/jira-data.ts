@@ -5,28 +5,30 @@ export type JiraCredentials = {
     apiKey: string;
 };
 
-export type JiraRequest = {
+export type JiraUser = any;
+
+export type JiraAuth = {
     domain: string;
     credentials: JiraCredentials;
 };
 
-export type CreateIssueRequest = JiraRequest & {
+export type CreateIssueRequest = JiraAuth & {
     fields: JiraIssueFields;
 };
 
-export type IssueTypesRequest = JiraRequest & {
+export type IssueTypesRequest = JiraAuth & {
     projectIdOrKey: string;
 };
 
-export type SearchRequest = JiraRequest & {
+export type JiraJqlSearchRequest = JiraAuth & {
     jql: string;
 };
 
-export type UpdateIssueRequest = JiraRequest & {
+export type UpdateIssueRequest = JiraAuth & {
     issue: JiraIssue;
 };
 
-const jiraRequestValidationChecker: JiraRequest = {
+const jiraRequestValidationChecker: JiraAuth = {
     domain: '',
     credentials: {
         apiKey: '',
@@ -34,7 +36,7 @@ const jiraRequestValidationChecker: JiraRequest = {
     },
 };
 
-export function jiraRequestValidator(request: unknown): request is JiraRequest {
+export function jiraRequestValidator(request: unknown): request is JiraAuth {
     return (
         matchesShallowObjectSignature(request, jiraRequestValidationChecker) &&
         matchesShallowObjectSignature(
@@ -55,7 +57,7 @@ export function issueTypeRequestValidator(request: unknown): request is IssueTyp
     return true;
 }
 
-const searchRequestValidationChecker: SearchRequest = {
+const searchRequestValidationChecker: JiraJqlSearchRequest = {
     jql: '',
     domain: '',
     credentials: {
@@ -64,7 +66,7 @@ const searchRequestValidationChecker: SearchRequest = {
     },
 };
 
-export function searchRequestValidator(request: unknown): request is SearchRequest {
+export function searchRequestValidator(request: unknown): request is JiraJqlSearchRequest {
     return (
         matchesShallowObjectSignature(request, searchRequestValidationChecker) &&
         matchesShallowObjectSignature(
@@ -135,14 +137,6 @@ export type JiraProjectsResponse = {
 
 export type JiraIssueResponse = JiraIssue;
 
-export type JiraJqlResponse = {
-    expand: string;
-    issues: JiraIssue[];
-    maxResults: number;
-    startAt: number;
-    total: number;
-};
-
 export function jiraIssueTypesResponseValidator(
     response: unknown,
 ): response is JiraIssueTypesResponse {
@@ -151,11 +145,6 @@ export function jiraIssueTypesResponseValidator(
 }
 
 export function jiraIssueResponseValidator(response: unknown): response is JiraIssueResponse {
-    // just pass on whatever Jira gives us
-    return true;
-}
-
-export function jiraJqlResponseValidator(response: unknown): response is JiraJqlResponse {
     // just pass on whatever Jira gives us
     return true;
 }

@@ -4,6 +4,7 @@ import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-req
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isTruthy} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen, onDomCreated} from 'element-vir';
+import {ReloadUserPreferences} from '../../global-events/reload-user-preferences.event';
 import {FibButton} from '../core-elements/fib-button.element';
 
 export const FibImportJiraViewPage = defineFunctionalElement({
@@ -38,7 +39,7 @@ export const FibImportJiraViewPage = defineFunctionalElement({
             font-size: 1.2em;
         }
     `,
-    renderCallback: ({setProps, props}) => {
+    renderCallback: ({setProps, props, genericDispatch}) => {
         if (!props.electronApi) {
             return html`
                 Loading...
@@ -96,12 +97,6 @@ export const FibImportJiraViewPage = defineFunctionalElement({
                             console.error(tryError);
                             errorMessage += 'JSON parse failed.';
                         }
-
-                        console.log({
-                            currentJiraView,
-                            userPreferences: props.userPreferences,
-                        });
-
                         if (currentJiraView) {
                             // for types this is getting reassigned
                             const definedJiraView = currentJiraView;
@@ -147,12 +142,12 @@ export const FibImportJiraViewPage = defineFunctionalElement({
                                     importedString: '',
                                     successMessage: 'success!',
                                 });
+                                genericDispatch(new ReloadUserPreferences());
                             } else {
                                 setProps({
                                     error: result.error,
                                 });
                             }
-                            console.log(result);
                         }
                     }
                 })}

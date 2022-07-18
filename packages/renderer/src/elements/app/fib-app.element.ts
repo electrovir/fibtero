@@ -1,9 +1,8 @@
+import {JiraAuth} from '@packages/common/src/data/jira-data';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {getElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
-import {GetPathType} from '@packages/common/src/electron-renderer-api/get-path-type';
-import {ResetType} from '@packages/common/src/electron-renderer-api/reset';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ReloadUserPreferences} from '../../global-events/reload-user-preferences.event';
@@ -11,56 +10,12 @@ import {FibCreateJiraViewPage} from '../main-pages/fib-create-jira-view-page.ele
 import {FibExportJiraViewPage} from '../main-pages/fib-export-jira-view-page.element';
 import {FibHomePage} from '../main-pages/fib-home-page.element';
 import {FibImportJiraViewPage} from '../main-pages/fib-import-jira-view-page.element';
+import {FibMyViews} from '../main-pages/fib-my-views.element';
 import {BasicJiraTest} from '../test-elements/basic-jira-test.element';
-import {ViewDisplay} from '../view-display.element';
 import {FibAppPageNav} from './fib-app-page-nav.element';
 
 const electronApi = getElectronWindowInterface();
 console.info(electronApi.versions);
-electronApi.apiRequest({type: ApiRequestType.GetPreferences}).then((event) => {
-    const preferences = event.data;
-    console.log(preferences);
-});
-
-const testConfigTemplate = html`
-    <button
-        ${listen('click', async () => {
-            const configPath = await electronApi.apiRequest({
-                type: ApiRequestType.GetConfigPath,
-                data: GetPathType.ConfigDir,
-            });
-
-            if (!configPath.success) {
-                throw new Error(`Failed to get config dir.`);
-            }
-
-            await electronApi.apiRequest({
-                type: ApiRequestType.ViewFilePath,
-                data: configPath.data,
-            });
-        })}
-    >
-        Show Configs Dir
-    </button>
-    <button
-        ${listen('click', async () => {
-            await electronApi.apiRequest({
-                type: ApiRequestType.ResetConfig,
-                data: ResetType.All,
-            });
-        })}
-    >
-        Reset All Configs
-    </button>
-`;
-
-const jiraTestTemplate = html`
-    <${BasicJiraTest}
-        ${assign(BasicJiraTest.props.electronApi, electronApi)}
-        ${assign(BasicJiraTest.props.useCachedData, true)}
-    ></${BasicJiraTest}>
-    <${ViewDisplay}></${ViewDisplay}>
-`;
 
 function loadUserPreferences(
     props: typeof FibAppElement['init']['props'],
@@ -94,6 +49,8 @@ export const FibAppElement = defineFunctionalElement({
             | Promise<UserPreferences>
             | UserPreferences,
         loaded: false,
+        authLoaded: false,
+        jiraAuth: undefined as undefined | JiraAuth,
     },
     styles: css`
         :host {
@@ -130,18 +87,23 @@ export const FibAppElement = defineFunctionalElement({
         }
 
         const userPreferences: UserPreferences = props.currentUserPreferences;
-        console.log({userPreferences});
 
-        if (!props.loaded) {
-            setProps({loaded: true});
-            setProps({
-                currentPage: userPreferences.lastPage,
-            });
-        }
+        if (props.authLoaded) {
+            if (!props.loaded) {
+                setProps({loaded: true});
+                setProps({
+                    currentPage: userPreferences.lastPage,
+                });
+            }
 
-        // default to home if an invalid page is given
-        if (!isEnumValue(props.currentPage, MainRendererPage)) {
-            setProps({currentPage: MainRendererPage.Home});
+            // default to home if an invalid page is given
+            if (!isEnumValue(props.currentPage, MainRendererPage)) {
+                setProps({currentPage: MainRendererPage.Home});
+            }
+
+            if (!props.jiraAuth) {
+                setProps({currentPage: MainRendererPage.Home});
+            }
         }
 
         const pageTemplate =
@@ -149,6 +111,12 @@ export const FibAppElement = defineFunctionalElement({
                 ? html`
                       <${FibHomePage}
                         ${assign(FibHomePage.props.electronApi, props.electronApi)}
+                        ${listen(BasicJiraTest.events.jiraAuthInput, (event) => {
+                            setProps({jiraAuth: event.detail});
+                        })}
+                        ${listen(BasicJiraTest.events.authLoaded, (event) => {
+                            setProps({authLoaded: true});
+                        })}
                       ></${FibHomePage}>
                   `
                 : props.currentPage === MainRendererPage.CreateJiraView
@@ -171,6 +139,14 @@ export const FibAppElement = defineFunctionalElement({
                         ${assign(FibExportJiraViewPage.props.userPreferences, userPreferences)}
                     ></${FibExportJiraViewPage}>
                   `
+                : props.currentPage === MainRendererPage.MyViews
+                ? html`
+                    <${FibMyViews}
+                        ${assign(FibMyViews.props.userPreferences, userPreferences)}
+                        ${assign(FibMyViews.props.jiraAuth, props.jiraAuth)}
+                        ${assign(FibMyViews.props.electronApi, props.electronApi)}
+                    ></${FibMyViews}>
+                `
                 : html`
                       ERROR: Current page not supported: ${props.currentPage}
                   `;

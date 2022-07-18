@@ -51,8 +51,6 @@ export const FibCreateView = defineFunctionalElement({
         }
     `,
     renderCallback: ({props, setProps, dispatch, events}) => {
-        console.log(props.viewDefinition);
-
         function updateCreatedView(newView: JiraView) {
             setProps({viewDefinition: newView});
             dispatch(new events.viewChange(newView));

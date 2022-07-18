@@ -4,17 +4,16 @@ import {
     createIssueRequestValidator,
     issueTypeRequestValidator,
     IssueTypesRequest,
+    JiraAuth,
+    JiraIssue,
     JiraIssueResponse,
     jiraIssueResponseValidator,
     JiraIssueTypesResponse,
     jiraIssueTypesResponseValidator,
-    JiraJqlResponse,
-    jiraJqlResponseValidator,
+    JiraJqlSearchRequest,
     JiraProjectsResponse,
     jiraProjectsResponseValidator,
-    JiraRequest,
     jiraRequestValidator,
-    SearchRequest,
     searchRequestValidator,
     UpdateIssueRequest,
     updateIssueRequestValidator,
@@ -48,7 +47,7 @@ export enum ApiRequestType {
     GetFields = 'jira-get-fields',
     GetIssueTypes = 'jira-get-issue-types',
     GetProjects = 'jira-get-projects',
-    Search = 'jira-search',
+    JqlSearch = 'jira-search',
     UpdateIssue = 'jira-update-issue',
     GetUsers = 'jira-get-user',
     SearchUsers = 'jira-search-user',
@@ -62,13 +61,13 @@ export type ApiRequestData = {
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
     [ApiRequestType.CreateIssue]: CreateIssueRequest;
-    [ApiRequestType.GetFields]: JiraRequest;
+    [ApiRequestType.GetFields]: JiraAuth;
     [ApiRequestType.GetIssueTypes]: IssueTypesRequest;
-    [ApiRequestType.GetProjects]: JiraRequest;
-    [ApiRequestType.Search]: SearchRequest;
+    [ApiRequestType.GetProjects]: JiraAuth;
+    [ApiRequestType.JqlSearch]: JiraJqlSearchRequest;
     [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
-    [ApiRequestType.GetUsers]: JiraRequest;
-    [ApiRequestType.SearchUsers]: SearchRequest;
+    [ApiRequestType.GetUsers]: JiraAuth;
+    [ApiRequestType.SearchUsers]: JiraJqlSearchRequest;
 };
 
 export type ApiResponseData = {
@@ -82,10 +81,10 @@ export type ApiResponseData = {
     [ApiRequestType.GetFields]: Map<string, string>;
     [ApiRequestType.GetIssueTypes]: JiraIssueTypesResponse;
     [ApiRequestType.GetProjects]: JiraProjectsResponse;
-    [ApiRequestType.Search]: JiraJqlResponse;
+    [ApiRequestType.JqlSearch]: JiraIssue[];
     [ApiRequestType.UpdateIssue]: boolean;
-    [ApiRequestType.GetUsers]: JiraJqlResponse;
-    [ApiRequestType.SearchUsers]: JiraJqlResponse;
+    [ApiRequestType.GetUsers]: JiraIssue[];
+    [ApiRequestType.SearchUsers]: JiraIssue[];
 };
 
 export const apiValidators: {
@@ -135,9 +134,9 @@ export const apiValidators: {
         request: createIssueRequestValidator,
         response: jiraIssueResponseValidator,
     },
-    [ApiRequestType.Search]: {
+    [ApiRequestType.JqlSearch]: {
         request: searchRequestValidator,
-        response: jiraJqlResponseValidator,
+        response: createArrayValidator(jiraIssueResponseValidator),
     },
     [ApiRequestType.UpdateIssue]: {
         request: updateIssueRequestValidator,
@@ -145,11 +144,11 @@ export const apiValidators: {
     },
     [ApiRequestType.GetUsers]: {
         request: jiraRequestValidator,
-        response: jiraJqlResponseValidator,
+        response: createArrayValidator(jiraIssueResponseValidator),
     },
     [ApiRequestType.SearchUsers]: {
         request: searchRequestValidator,
-        response: jiraJqlResponseValidator,
+        response: createArrayValidator(jiraIssueResponseValidator),
     },
 };
 

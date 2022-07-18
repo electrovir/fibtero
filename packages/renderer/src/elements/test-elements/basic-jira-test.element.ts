@@ -1,17 +1,16 @@
 import {
     CreateIssueRequest,
     IssueTypesRequest,
+    JiraAuth,
     JiraIssue,
     JiraIssueTypesResponse,
-    JiraJqlResponse,
+    JiraJqlSearchRequest,
     JiraProjectsResponse,
-    JiraRequest,
-    SearchRequest,
     UpdateIssueRequest,
 } from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
-import {assign, defineFunctionalElement, html, listen} from 'element-vir';
+import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
 import {FibInput} from '../core-elements/fib-input.element';
 
@@ -33,12 +32,12 @@ async function createIssue(
 }
 
 async function getFields(
-    jiraRequest: JiraRequest,
+    jiraAuth: JiraAuth,
     electronApi: ElectronWindowInterface,
 ): Promise<Map<string, string>> {
     const response = await electronApi.apiRequest({
         type: ApiRequestType.GetFields,
-        data: jiraRequest,
+        data: jiraAuth,
     });
 
     if (response.success) {
@@ -66,46 +65,12 @@ async function getIssueTypes(
     }
 }
 
-async function getProjects(
-    jiraRequest: JiraRequest,
+async function searchUsers(
+    searchRequest: JiraJqlSearchRequest,
     electronApi: ElectronWindowInterface,
-): Promise<JiraProjectsResponse> {
+): Promise<JiraIssue[]> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetProjects,
-        data: jiraRequest,
-    });
-
-    if (response.success) {
-        console.log(response.data);
-        return response.data;
-    } else {
-        throw new Error(`Jira request failed: ${response.error}`);
-    }
-}
-
-async function getUsers(
-    jiraRequest: JiraRequest,
-    electronApi: ElectronWindowInterface,
-): Promise<JiraJqlResponse> {
-    const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetUsers,
-        data: jiraRequest,
-    });
-
-    if (response.success) {
-        console.log(response.data);
-        return response.data;
-    } else {
-        throw new Error(`Jira request failed: ${response.error}`);
-    }
-}
-
-async function search(
-    searchRequest: SearchRequest,
-    electronApi: ElectronWindowInterface,
-): Promise<JiraJqlResponse> {
-    const response = await electronApi.apiRequest({
-        type: ApiRequestType.Search,
+        type: ApiRequestType.SearchUsers,
         data: searchRequest,
     });
 
@@ -117,12 +82,46 @@ async function search(
     }
 }
 
-async function searchUsers(
-    searchRequest: SearchRequest,
+async function getProjects(
+    jiraAuth: JiraAuth,
     electronApi: ElectronWindowInterface,
-): Promise<JiraJqlResponse> {
+): Promise<JiraProjectsResponse> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.SearchUsers,
+        type: ApiRequestType.GetProjects,
+        data: jiraAuth,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function getUsers(
+    jiraAuth: JiraAuth,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraIssue[]> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.GetUsers,
+        data: jiraAuth,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function search(
+    searchRequest: JiraJqlSearchRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraIssue[]> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.JqlSearch,
         data: searchRequest,
     });
 
@@ -153,11 +152,11 @@ async function updateIssue(
 
 const cachedJiraDataKey = 'cached-jira-data';
 
-function setCachedData(data: SearchRequest) {
+function setCachedData(data: JiraJqlSearchRequest) {
     window.localStorage.setItem(cachedJiraDataKey, JSON.stringify(data));
 }
 
-function getCachedData(): undefined | SearchRequest {
+function getCachedData(): undefined | JiraJqlSearchRequest {
     const cached = window.localStorage.getItem(cachedJiraDataKey);
     if (cached) {
         return JSON.parse(cached);
@@ -253,10 +252,8 @@ function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']) {
 async function submitForm(props: typeof BasicJiraTest['init']['props']) {
     if (props.electronApi) {
         const results = await search(makeSearchRequestData(props), props.electronApi);
-        console.log('Search Results');
-        console.log(results);
 
-        results.issues[0]!.fields;
+        results[0]!.fields;
     } else {
         throw new Error(`Electron api is undefined.`);
     }
@@ -278,6 +275,10 @@ export const BasicJiraTest = defineFunctionalElement({
         createdSummary: '',
         electronApi: undefined as undefined | ElectronWindowInterface,
     },
+    events: {
+        authLoaded: defineElementEvent<void>(),
+        jiraAuthInput: defineElementEvent<JiraAuth>(),
+    },
     styles: css`
         :host {
             display: flex;
@@ -289,8 +290,9 @@ export const BasicJiraTest = defineFunctionalElement({
             padding: 16px;
         }
     `,
-    initCallback({props, setProps}) {
+    initCallback({props, setProps, dispatch, events}) {
         if (props.useCachedData && props.apiKey && props.domain && props.jql && props.username) {
+            dispatch(new events.jiraAuthInput(makeSearchRequestData(props)));
             // fire a request if all the data is cached already
             submitForm(props);
         }
@@ -305,8 +307,9 @@ export const BasicJiraTest = defineFunctionalElement({
         if (props.electronApi) {
             getFields(makeJiraRequestData(props), props.electronApi);
         }
+        dispatch(new events.authLoaded());
     },
-    renderCallback: ({props, setProps}) => {
+    renderCallback: ({props, setProps, dispatch, events}) => {
         return html`
             <h2>
                 Basic Jira Test
@@ -315,6 +318,8 @@ export const BasicJiraTest = defineFunctionalElement({
                 ${listen('submit', async (event) => {
                     // prevent page navigation
                     event.preventDefault();
+
+                    dispatch(new events.jiraAuthInput(makeSearchRequestData(props)));
                     await submitForm(props);
                 })}
             >

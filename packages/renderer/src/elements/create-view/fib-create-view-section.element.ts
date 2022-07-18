@@ -30,8 +30,6 @@ export const FibCreateViewSection = defineFunctionalElement({
         }
     `,
     renderCallback: ({props, setProps, dispatch, events}) => {
-        console.log({sectionDefinition: props.sectionDefinition});
-
         return html`
             <${FibInput}
                 ${assign(FibInput.props.value, props.sectionDefinition.name)}
@@ -45,7 +43,6 @@ export const FibCreateViewSection = defineFunctionalElement({
                     setProps({
                         sectionDefinition: newSection,
                     });
-                    console.log({name, section: props.sectionDefinition});
                     dispatch(new events.sectionChange(newSection));
                 })}
                 class="name-input"

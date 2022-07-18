@@ -1,10 +1,10 @@
-import {JiraRequest} from '@packages/common/src/data/jira-data';
+import {JiraAuth} from '@packages/common/src/data/jira-data';
 import {get} from '../axios-wrapper';
-import {apiRoute} from './shared';
+import {apiRoute} from './jira-routing';
 
 const customFieldKey = 'customfield';
 
-export async function getFields(request: JiraRequest): Promise<Map<string, string>> {
+export async function getFields(request: JiraAuth): Promise<Map<string, string>> {
     const url = `https://${request.domain}${apiRoute}field`;
 
     const result = await get(url, {
