@@ -13,6 +13,7 @@ import {getIssueTypes} from '../jira-api/get-issue-types-request';
 import {getProjects} from '../jira-api/get-projects-request';
 import {getUsers, searchUsers} from '../jira-api/get-users-request';
 import {search} from '../jira-api/search-request';
+import {updateIssue} from '../jira-api/update-issue-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
@@ -37,6 +38,7 @@ const apiHandlers: {
     [ApiRequestType.Search]: search,
     [ApiRequestType.GetUsers]: getUsers,
     [ApiRequestType.SearchUsers]: searchUsers,
+    [ApiRequestType.UpdateIssue]: updateIssue,
 };
 
 export type ApiOptions = {

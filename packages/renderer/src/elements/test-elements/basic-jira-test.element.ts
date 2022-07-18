@@ -1,7 +1,10 @@
 import {
     CreateIssueRequest,
+    IssueTypesRequest,
     JiraIssue,
+    JiraIssueTypesResponse,
     JiraJqlResponse,
+    JiraProjectsResponse,
     JiraRequest,
     SearchRequest,
     UpdateIssueRequest,
@@ -46,6 +49,40 @@ async function getFields(
     }
 }
 
+async function getIssueTypes(
+    issueTypesRequest: IssueTypesRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraIssueTypesResponse> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.GetIssueTypes,
+        data: issueTypesRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function getProjects(
+    jiraRequest: JiraRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraProjectsResponse> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.GetProjects,
+        data: jiraRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
 async function getUsers(
     jiraRequest: JiraRequest,
     electronApi: ElectronWindowInterface,
@@ -53,6 +90,23 @@ async function getUsers(
     const response = await electronApi.apiRequest({
         type: ApiRequestType.GetUsers,
         data: jiraRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function search(
+    searchRequest: SearchRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraJqlResponse> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.Search,
+        data: searchRequest,
     });
 
     if (response.success) {
@@ -80,22 +134,6 @@ async function searchUsers(
     }
 }
 
-async function search(
-    searchRequest: SearchRequest,
-    electronApi: ElectronWindowInterface,
-): Promise<JiraJqlResponse> {
-    const response = await electronApi.apiRequest({
-        type: ApiRequestType.Search,
-        data: searchRequest,
-    });
-
-    if (response.success) {
-        return response.data;
-    } else {
-        throw new Error(`Jira request failed: ${response.error}`);
-    }
-}
-
 async function updateIssue(
     updateIssueRequest: UpdateIssueRequest,
     electronApi: ElectronWindowInterface,
@@ -106,6 +144,7 @@ async function updateIssue(
     });
 
     if (response.success) {
+        console.log(response.data);
         return response.data;
     } else {
         throw new Error(`Jira request failed: ${response.error}`);
@@ -127,6 +166,27 @@ function getCachedData(): undefined | SearchRequest {
     }
 }
 
+function makeIssueTypesRequestData(props: typeof BasicJiraTest['init']['props']) {
+    return {
+        projectIdOrKey: props.projectIdOrKey,
+        domain: props.domain,
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
+function makeJiraRequestData(props: typeof BasicJiraTest['init']['props']) {
+    return {
+        domain: props.domain,
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
 function makeSearchRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
@@ -138,23 +198,13 @@ function makeSearchRequestData(props: typeof BasicJiraTest['init']['props']) {
     };
 }
 
-function makeGetRequestData(props: typeof BasicJiraTest['init']['props']) {
-    return {
-        domain: props.domain,
-        credentials: {
-            apiKey: props.apiKey,
-            username: props.username,
-        },
-    };
-}
-
 function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
         issue: {
-            key: '',
+            key: props.ticketKey,
             fields: {
-                summary: 'Fibtero test issue has been updated again',
+                summary: '[FIBTERO TEST] ' + props.updatedSummary,
                 description: {
                     type: 'doc',
                     version: 1,
@@ -164,7 +214,7 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
                             content: [
                                 {
                                     type: 'text',
-                                    text: 'this description has been updated',
+                                    text: props.updatedDescriptionText,
                                 },
                             ],
                         },
@@ -186,11 +236,11 @@ function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']) {
         domain: props.domain,
         fields: {
             project: {
-                key: '',
+                key: props.projectIdOrKey,
             },
-            summary: 'New Fibtero test issue 2',
+            summary: '[FIBTERO TEST] ' + props.createdSummary,
             issuetype: {
-                name: 'Bug',
+                name: props.issueTypeIdOrName,
             },
         },
         credentials: {
@@ -220,6 +270,12 @@ export const BasicJiraTest = defineFunctionalElement({
         apiKey: getCachedData()?.credentials.apiKey ?? '',
         jql: getCachedData()?.jql ?? '',
         domain: getCachedData()?.domain ?? '',
+        ticketKey: '',
+        updatedSummary: '',
+        updatedDescriptionText: '',
+        projectIdOrKey: '',
+        issueTypeIdOrName: '',
+        createdSummary: '',
         electronApi: undefined as undefined | ElectronWindowInterface,
     },
     styles: css`
@@ -247,7 +303,7 @@ export const BasicJiraTest = defineFunctionalElement({
             });
         }
         if (props.electronApi) {
-            getFields(makeGetRequestData(props), props.electronApi);
+            getFields(makeJiraRequestData(props), props.electronApi);
         }
     },
     renderCallback: ({props, setProps}) => {
@@ -301,6 +357,27 @@ export const BasicJiraTest = defineFunctionalElement({
             <h2>
                 Basic Update Issue Test
             </h2>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({ticketKey: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Ticket key')}
+                ${assign(FibInput.props.value, props.ticketKey)}
+            ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({updatedSummary: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Summary')}
+                ${assign(FibInput.props.value, props.updatedSummary)}
+            ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({updatedDescriptionText: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Description text')}
+                ${assign(FibInput.props.value, props.updatedDescriptionText)}
+            ></${FibInput}>
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
@@ -313,6 +390,27 @@ export const BasicJiraTest = defineFunctionalElement({
             <h2>
                 Basic Create Issue Test
             </h2>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({projectIdOrKey: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Project id or key')}
+                ${assign(FibInput.props.value, props.projectIdOrKey)}
+            ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({issueTypeIdOrName: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Issue type id or name')}
+                ${assign(FibInput.props.value, props.issueTypeIdOrName)}
+            ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({createdSummary: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Summary')}
+                ${assign(FibInput.props.value, props.createdSummary)}
+            ></${FibInput}>
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
@@ -328,7 +426,7 @@ export const BasicJiraTest = defineFunctionalElement({
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
-                        await getUsers(makeGetRequestData(props), props.electronApi);
+                        await getUsers(makeJiraRequestData(props), props.electronApi);
                     }
                 })}
             >
@@ -338,14 +436,45 @@ export const BasicJiraTest = defineFunctionalElement({
                 Search Users
             </h2>
             <button
-            ${listen('click', async () => {
-                if (props.electronApi) {
-                    await searchUsers(makeSearchRequestData(props), props.electronApi);
-                }
-            })}
-        >
-            Run Test
-        </button>
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await searchUsers(makeSearchRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
+            <h2>
+                Basic Get Issue Types for Project Test
+            </h2>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({projectIdOrKey: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Project id or key')}
+                ${assign(FibInput.props.value, props.projectIdOrKey)}
+            ></${FibInput}>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await getIssueTypes(makeIssueTypesRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
+            <h2>
+                Basic Get Projects Test
+            </h2>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await getProjects(makeJiraRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
         `;
     },
 });
