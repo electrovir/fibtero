@@ -60,5 +60,5 @@ export async function updateIssue(request: UpdateIssueRequest): Promise<boolean>
         },
     );
 
-    return result.data;
+    return result.status === 204;
 }

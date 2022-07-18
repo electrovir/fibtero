@@ -74,10 +74,20 @@ function getCachedData(): undefined | SearchRequest {
     }
 }
 
-function makeRequestData(props: typeof BasicJiraTest['init']['props']) {
+function makeSearchRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
         jql: props.jql,
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
+function makeGetFieldsRequestData(props: typeof BasicJiraTest['init']['props']) {
+    return {
+        domain: props.domain,
         credentials: {
             apiKey: props.apiKey,
             username: props.username,
@@ -109,7 +119,7 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
 
 async function submitForm(props: typeof BasicJiraTest['init']['props']) {
     if (props.electronApi) {
-        const results = await search(makeRequestData(props), props.electronApi);
+        const results = await search(makeSearchRequestData(props), props.electronApi);
         console.log('Search Results');
         console.log(results);
 
@@ -154,7 +164,7 @@ export const BasicJiraTest = defineFunctionalElement({
             });
         }
         if (props.electronApi) {
-            getFields(makeRequestData(props), props.electronApi);
+            getFields(makeGetFieldsRequestData(props), props.electronApi);
         }
     },
     renderCallback: ({props, setProps}) => {
@@ -172,7 +182,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
                         setProps({domain: event.detail});
-                        setCachedData(makeRequestData(props));
+                        setCachedData(makeSearchRequestData(props));
                     })}
                     ${assign(FibInput.props.label, 'Jira Cloud domain')}
                     ${assign(FibInput.props.value, props.domain)}
@@ -180,7 +190,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
                         setProps({username: event.detail});
-                        setCachedData(makeRequestData(props));
+                        setCachedData(makeSearchRequestData(props));
                     })}
                     ${assign(FibInput.props.label, 'Jira username')}
                     ${assign(FibInput.props.value, props.username)}
@@ -188,7 +198,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
                         setProps({apiKey: event.detail});
-                        setCachedData(makeRequestData(props));
+                        setCachedData(makeSearchRequestData(props));
                     })}
                     ${assign(FibInput.props.label, 'Jira API key')}
                     ${assign(FibInput.props.value, props.apiKey)}
@@ -197,7 +207,7 @@ export const BasicJiraTest = defineFunctionalElement({
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
                         setProps({jql: event.detail});
-                        setCachedData(makeRequestData(props));
+                        setCachedData(makeSearchRequestData(props));
                     })}
                     ${assign(FibInput.props.label, 'JQL query')}
                     ${assign(FibInput.props.value, props.jql)}
