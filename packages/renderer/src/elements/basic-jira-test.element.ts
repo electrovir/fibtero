@@ -1,17 +1,17 @@
-import {JiraJqlResponse, JiraRequest} from '@packages/common/src/data/jira-data';
+import {JiraJqlResponse, JiraRequest, SearchRequest} from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
 import {FibInput} from './input.element';
 
-async function makeJiraRequest(
-    jiraRequest: JiraRequest,
+async function search(
+    searchRequest: SearchRequest,
     electronApi: ElectronWindowInterface,
 ): Promise<JiraJqlResponse> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.JiraRequest,
-        data: jiraRequest,
+        type: ApiRequestType.Search,
+        data: searchRequest,
     });
 
     if (response.success) {
@@ -24,7 +24,7 @@ async function makeJiraRequest(
 async function getFields(
     jiraRequest: JiraRequest,
     electronApi: ElectronWindowInterface,
-): Promise<Map<string,string>> {
+): Promise<Map<string, string>> {
     const response = await electronApi.apiRequest({
         type: ApiRequestType.GetField,
         data: jiraRequest,
@@ -40,11 +40,11 @@ async function getFields(
 
 const cachedJiraDataKey = 'cached-jira-data';
 
-function setCachedData(data: JiraRequest) {
+function setCachedData(data: SearchRequest) {
     window.localStorage.setItem(cachedJiraDataKey, JSON.stringify(data));
 }
 
-function getCachedData(): undefined | JiraRequest {
+function getCachedData(): undefined | SearchRequest {
     const cached = window.localStorage.getItem(cachedJiraDataKey);
     if (cached) {
         return JSON.parse(cached);
@@ -66,7 +66,7 @@ function makeRequestData(props: typeof BasicJiraTest['init']['props']) {
 
 async function submitForm(props: typeof BasicJiraTest['init']['props']) {
     if (props.electronApi) {
-        const results = await makeJiraRequest(makeRequestData(props), props.electronApi);
+        const results = await search(makeRequestData(props), props.electronApi);
         console.log(results);
 
         results.issues[0]!.fields;
@@ -109,8 +109,8 @@ export const BasicJiraTest = defineFunctionalElement({
                 username: '',
             });
         }
-        if(props.electronApi){
-            getFields(makeRequestData(props),props.electronApi);
+        if (props.electronApi) {
+            getFields(makeRequestData(props), props.electronApi);
         }
     },
     renderCallback: ({props, setProps}) => {

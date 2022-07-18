@@ -6,13 +6,19 @@ export type JiraCredentials = {
 };
 
 export type JiraRequest = {
-    jql: string;
     domain: string;
     credentials: JiraCredentials;
 };
 
-const requestValidationChecker: JiraRequest = {
-    jql: '',
+export type SearchRequest = {
+    jql: string;
+} & JiraRequest;
+
+export type UpdateRequest = {
+    issue: JiraIssue;
+} & JiraRequest;
+
+const jiraRequestValidationChecker: JiraRequest = {
     domain: '',
     credentials: {
         apiKey: '',
@@ -22,12 +28,42 @@ const requestValidationChecker: JiraRequest = {
 
 export function jiraRequestValidator(request: unknown): request is JiraRequest {
     return (
-        matchesShallowObjectSignature(request, requestValidationChecker) &&
-        matchesShallowObjectSignature(request.credentials, requestValidationChecker.credentials) &&
+        matchesShallowObjectSignature(request, jiraRequestValidationChecker) &&
+        matchesShallowObjectSignature(
+            request.credentials,
+            jiraRequestValidationChecker.credentials,
+        ) &&
         !!request.credentials.apiKey &&
         !!request.credentials.username &&
         !!request.domain
     );
+}
+
+const searchRequestValidationChecker: SearchRequest = {
+    jql: '',
+    domain: '',
+    credentials: {
+        apiKey: '',
+        username: '',
+    },
+};
+
+export function searchRequestValidator(request: unknown): request is SearchRequest {
+    return (
+        matchesShallowObjectSignature(request, searchRequestValidationChecker) &&
+        matchesShallowObjectSignature(
+            request.credentials,
+            searchRequestValidationChecker.credentials,
+        ) &&
+        !!request.credentials.apiKey &&
+        !!request.credentials.username &&
+        !!request.domain &&
+        !!request.jql
+    );
+}
+
+export function updateRequestValidator(request: unknown): request is UpdateRequest {
+    return true;
 }
 
 export type JiraIssueFields = Record<string, unknown> & {

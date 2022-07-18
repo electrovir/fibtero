@@ -25,7 +25,7 @@ const apiHandlers: {
     [ApiRequestType.GetConfigPath]: (input, app) => getPath(input, app),
     [ApiRequestType.ViewFilePath]: (input) => viewPath(input),
     [ApiRequestType.ResetConfig]: resetConfig,
-    [ApiRequestType.JiraRequest]: search,
+    [ApiRequestType.Search]: search,
     [ApiRequestType.GetField]: getField,
 };
 
@@ -52,13 +52,13 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
     [ApiRequestType.ResetConfig]: {
         allowLogging: true,
     },
-    [ApiRequestType.JiraRequest]: {
+    [ApiRequestType.Search]: {
         // turn logging off here so we don't log api keys (which are sensitive data) all over
         allowLogging: false,
     },
     [ApiRequestType.GetField]: {
         allowLogging: false,
-    }
+    },
 };
 
 export function getGenericApiHandler(

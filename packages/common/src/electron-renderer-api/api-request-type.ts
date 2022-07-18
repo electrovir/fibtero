@@ -4,6 +4,8 @@ import {
     JiraRequest,
     jiraRequestValidator,
     jiraResponseValidator,
+    SearchRequest,
+    searchRequestValidator,
 } from '../data/jira-data';
 import {isValidUserPreferences, UserPreferences} from '../data/user-preferences';
 import {
@@ -30,8 +32,8 @@ export enum ApiRequestType {
     /** Open a given file path in the system's default file browser. */
     ViewFilePath = 'view-file-path',
     ResetConfig = 'reset-config',
-    JiraRequest = 'jira-request',
-    GetField = 'get-field',
+    Search = 'jira-search',
+    GetField = 'jira-get-field',
 }
 
 export type ApiRequestData = {
@@ -41,7 +43,7 @@ export type ApiRequestData = {
     [ApiRequestType.GetConfigPath]: GetPathType;
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
-    [ApiRequestType.JiraRequest]: JiraRequest;
+    [ApiRequestType.Search]: SearchRequest;
     [ApiRequestType.GetField]: JiraRequest;
 };
 
@@ -52,8 +54,8 @@ export type ApiResponseData = {
     [ApiRequestType.GetConfigPath]: string;
     [ApiRequestType.ViewFilePath]: void;
     [ApiRequestType.ResetConfig]: boolean;
-    [ApiRequestType.JiraRequest]: JiraJqlResponse;
-    [ApiRequestType.GetField]: Map<string,string>;
+    [ApiRequestType.Search]: JiraJqlResponse;
+    [ApiRequestType.GetField]: Map<string, string>;
 };
 
 export const apiValidators: {
@@ -83,18 +85,18 @@ export const apiValidators: {
         request: typeofValidators.string,
         response: undefined,
     },
-    [ApiRequestType.JiraRequest]: {
-        request: jiraRequestValidator,
-        response: jiraResponseValidator,
-    },
     [ApiRequestType.ResetConfig]: {
         request: createEnumValidator(ResetType),
         response: typeofValidators.boolean,
     },
-    [ApiRequestType.GetField]:{
+    [ApiRequestType.Search]: {
+        request: searchRequestValidator,
+        response: jiraResponseValidator,
+    },
+    [ApiRequestType.GetField]: {
         request: jiraRequestValidator,
         response: createMapValidator,
-    }
+    },
 };
 
 export type ApiValidator<
