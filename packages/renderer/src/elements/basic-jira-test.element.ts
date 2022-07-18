@@ -1,4 +1,9 @@
-import {JiraJqlResponse, JiraRequest, SearchRequest} from '@packages/common/src/data/jira-data';
+import {
+    JiraJqlResponse,
+    JiraRequest,
+    SearchRequest,
+    UpdateIssueRequest,
+} from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, defineFunctionalElement, html, listen} from 'element-vir';
@@ -38,6 +43,22 @@ async function getFields(
     }
 }
 
+async function updateIssue(
+    updateIssueRequest: UpdateIssueRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<boolean> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.UpdateIssue,
+        data: updateIssueRequest,
+    });
+
+    if (response.success) {
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
 const cachedJiraDataKey = 'cached-jira-data';
 
 function setCachedData(data: SearchRequest) {
@@ -64,9 +85,32 @@ function makeRequestData(props: typeof BasicJiraTest['init']['props']) {
     };
 }
 
+function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
+    return {
+        domain: props.domain,
+        issue: {
+            key: 'UXENG-1363',
+            fields: {
+                summary: 'Fibtero test issue has been updated',
+                // description: 'this message has been overridden',
+                // assignee: {
+                //     name: 'cwood'
+                // },
+            },
+            id: '',
+            self: '',
+        },
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
 async function submitForm(props: typeof BasicJiraTest['init']['props']) {
     if (props.electronApi) {
         const results = await search(makeRequestData(props), props.electronApi);
+        console.log('Search Results');
         console.log(results);
 
         results.issues[0]!.fields;
@@ -161,6 +205,18 @@ export const BasicJiraTest = defineFunctionalElement({
                 <br>
                 <input class="submit" type="submit" value="Trigger Jira Query" />
             </form>
+            <h2>
+                Basic Update Test
+            </h2>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await updateIssue(makeUpdateRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
         `;
     },
 });

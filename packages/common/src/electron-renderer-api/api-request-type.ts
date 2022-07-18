@@ -6,6 +6,8 @@ import {
     jiraResponseValidator,
     SearchRequest,
     searchRequestValidator,
+    UpdateIssueRequest,
+    updateIssueRequestValidator,
 } from '../data/jira-data';
 import {isValidUserPreferences, UserPreferences} from '../data/user-preferences';
 import {
@@ -34,6 +36,7 @@ export enum ApiRequestType {
     ResetConfig = 'reset-config',
     Search = 'jira-search',
     GetField = 'jira-get-field',
+    UpdateIssue = 'jira-update-issue',
 }
 
 export type ApiRequestData = {
@@ -45,6 +48,7 @@ export type ApiRequestData = {
     [ApiRequestType.ResetConfig]: ResetType;
     [ApiRequestType.Search]: SearchRequest;
     [ApiRequestType.GetField]: JiraRequest;
+    [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
 };
 
 export type ApiResponseData = {
@@ -56,6 +60,7 @@ export type ApiResponseData = {
     [ApiRequestType.ResetConfig]: boolean;
     [ApiRequestType.Search]: JiraJqlResponse;
     [ApiRequestType.GetField]: Map<string, string>;
+    [ApiRequestType.UpdateIssue]: boolean;
 };
 
 export const apiValidators: {
@@ -96,6 +101,10 @@ export const apiValidators: {
     [ApiRequestType.GetField]: {
         request: jiraRequestValidator,
         response: createMapValidator,
+    },
+    [ApiRequestType.UpdateIssue]: {
+        request: updateIssueRequestValidator,
+        response: typeofValidators.boolean,
     },
 };
 

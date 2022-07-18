@@ -7,7 +7,7 @@ import {ElectronApp} from '../augments/electron';
 import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
 import {readUserPreferences, saveUserPreferences} from '../config/user-preferences';
-import {getField, search} from '../jira-api/make-jira-request';
+import {getField, search, updateIssue} from '../jira-api/make-jira-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
@@ -27,6 +27,7 @@ const apiHandlers: {
     [ApiRequestType.ResetConfig]: resetConfig,
     [ApiRequestType.Search]: search,
     [ApiRequestType.GetField]: getField,
+    [ApiRequestType.UpdateIssue]: updateIssue,
 };
 
 export type ApiOptions = {
@@ -58,6 +59,9 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
     },
     [ApiRequestType.GetField]: {
         allowLogging: false,
+    },
+    [ApiRequestType.UpdateIssue]: {
+        allowLogging: true,
     },
 };
 

@@ -6,7 +6,12 @@ import axiosImport from 'axios/lib/axios.js';
 axiosImport.defaults.adapter = require('axios/lib/adapters/http.js');
 export const axios = axiosImport as typeof AxiosType;
 
-export async function makeRequest(url: string, options: AxiosRequestConfig) {
+export async function get(url: string, options: AxiosRequestConfig) {
     const response = await axios.get(url, options);
+    return response;
+}
+
+export async function put(url: string, data: any, options: AxiosRequestConfig) {
+    const response = await axios.put(url, data, options);
     return response;
 }

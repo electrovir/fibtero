@@ -2,17 +2,17 @@ import {
     JiraJqlResponse,
     JiraRequest,
     SearchRequest,
-    UpdateRequest,
+    UpdateIssueRequest,
 } from '@packages/common/src/data/jira-data';
-import {makeRequest} from '../axios-wrapper';
+import {get, put} from '../axios-wrapper';
 
 const apiRoute = '/rest/api/3/';
 
 export async function search(request: SearchRequest): Promise<JiraJqlResponse> {
     if (request.jql) {
-        const exampleUrl = `https://${request.domain}${apiRoute}search?jql=${request.jql}`;
+        const url = `https://${request.domain}${apiRoute}search?jql=${request.jql}`;
 
-        const result = await makeRequest(exampleUrl, {
+        const result = await get(url, {
             auth: {
                 password: request.credentials.apiKey,
                 username: request.credentials.username,
@@ -25,9 +25,9 @@ export async function search(request: SearchRequest): Promise<JiraJqlResponse> {
 }
 
 export async function getField(request: JiraRequest): Promise<Map<string, string>> {
-    const exampleUrl = `https://${request.domain}${apiRoute}field`;
+    const url = `https://${request.domain}${apiRoute}field`;
 
-    const result = await makeRequest(exampleUrl, {
+    const result = await get(url, {
         auth: {
             password: request.credentials.apiKey,
             username: request.credentials.username,
@@ -44,19 +44,21 @@ export async function getField(request: JiraRequest): Promise<Map<string, string
     return mapping;
 }
 
-export async function update(request: UpdateRequest): Promise<boolean> {
-    const exampleUrl = `https://${request.domain}${apiRoute}issue/${request.issue.key}`;
+export async function updateIssue(request: UpdateIssueRequest): Promise<boolean> {
+    const url = `https://${request.domain}${apiRoute}issue/${request.issue.key}`;
 
-    const result = await makeRequest(exampleUrl, {
-        auth: {
-            password: request.credentials.apiKey,
-            username: request.credentials.username,
-        },
-        data: {
+    const result = await put(
+        url,
+        {
             fields: request.issue.fields,
         },
-    });
+        {
+            auth: {
+                password: request.credentials.apiKey,
+                username: request.credentials.username,
+            },
+        },
+    );
 
-    console.log(result);
-    return true;
+    return result.data;
 }

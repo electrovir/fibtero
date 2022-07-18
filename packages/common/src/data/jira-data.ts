@@ -14,7 +14,7 @@ export type SearchRequest = {
     jql: string;
 } & JiraRequest;
 
-export type UpdateRequest = {
+export type UpdateIssueRequest = {
     issue: JiraIssue;
 } & JiraRequest;
 
@@ -62,19 +62,21 @@ export function searchRequestValidator(request: unknown): request is SearchReque
     );
 }
 
-export function updateRequestValidator(request: unknown): request is UpdateRequest {
+export function updateIssueRequestValidator(request: unknown): request is UpdateIssueRequest {
     return true;
 }
 
 export type JiraIssueFields = Record<string, unknown> & {
-    status: unknown;
-    parent: unknown;
-    priority: unknown;
-    project: unknown;
-    reporter: unknown;
-    watches: unknown;
-    creator: unknown;
-    assignee: unknown;
+    assignee?: unknown;
+    creator?: unknown;
+    description?: unknown;
+    parent?: unknown;
+    priority?: unknown;
+    project?: unknown;
+    reporter?: unknown;
+    status?: unknown;
+    summary?: unknown;
+    watches?: unknown;
 };
 
 export type JiraIssue = {
