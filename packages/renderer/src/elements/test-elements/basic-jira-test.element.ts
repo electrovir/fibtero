@@ -46,6 +46,40 @@ async function getFields(
     }
 }
 
+async function getUsers(
+    jiraRequest: JiraRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraJqlResponse> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.GetUser,
+        data: jiraRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function searchUsers(
+    searchRequest: SearchRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraJqlResponse> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.SearchUser,
+        data: searchRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
 async function search(
     searchRequest: SearchRequest,
     electronApi: ElectronWindowInterface,
@@ -104,7 +138,7 @@ function makeSearchRequestData(props: typeof BasicJiraTest['init']['props']) {
     };
 }
 
-function makeGetFieldsRequestData(props: typeof BasicJiraTest['init']['props']) {
+function makeGetRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
         credentials: {
@@ -213,7 +247,7 @@ export const BasicJiraTest = defineFunctionalElement({
             });
         }
         if (props.electronApi) {
-            getFields(makeGetFieldsRequestData(props), props.electronApi);
+            getFields(makeGetRequestData(props), props.electronApi);
         }
     },
     renderCallback: ({props, setProps}) => {
@@ -288,6 +322,30 @@ export const BasicJiraTest = defineFunctionalElement({
             >
                 Run Test
             </button>
+            <h2>
+                Get Users
+            </h2>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await getUsers(makeGetRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
+            <h2>
+                Search Users
+            </h2>
+            <button
+            ${listen('click', async () => {
+                if (props.electronApi) {
+                    await searchUsers(makeSearchRequestData(props), props.electronApi);
+                }
+            })}
+        >
+            Run Test
+        </button>
         `;
     },
 });

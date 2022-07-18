@@ -11,8 +11,8 @@ import {createIssue} from '../jira-api/create-issue-request';
 import {getFields} from '../jira-api/get-fields-request';
 import {getIssueTypes} from '../jira-api/get-issue-types-request';
 import {getProjects} from '../jira-api/get-projects-request';
+import {getUser, searchUser} from '../jira-api/get-users-request';
 import {search} from '../jira-api/search-request';
-import {updateIssue} from '../jira-api/update-issue-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
@@ -35,7 +35,8 @@ const apiHandlers: {
     [ApiRequestType.GetIssueTypes]: getIssueTypes,
     [ApiRequestType.GetProjects]: getProjects,
     [ApiRequestType.Search]: search,
-    [ApiRequestType.UpdateIssue]: updateIssue,
+    [ApiRequestType.GetUser]: getUser,
+    [ApiRequestType.SearchUser]: searchUser,
 };
 
 export type ApiOptions = {
@@ -71,6 +72,12 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
         allowLogging: false,
     },
     [ApiRequestType.GetProjects]: {
+        allowLogging: false,
+    },
+    [ApiRequestType.GetUser]: {
+        allowLogging: false,
+    },
+    [ApiRequestType.SearchUser]: {
         allowLogging: false,
     },
     [ApiRequestType.Search]: {

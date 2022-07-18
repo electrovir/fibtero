@@ -50,6 +50,8 @@ export enum ApiRequestType {
     GetProjects = 'jira-get-projects',
     Search = 'jira-search',
     UpdateIssue = 'jira-update-issue',
+    GetUser = 'jira-get-user',
+    SearchUser = 'jira-search-user',
 }
 
 export type ApiRequestData = {
@@ -65,6 +67,8 @@ export type ApiRequestData = {
     [ApiRequestType.GetProjects]: JiraRequest;
     [ApiRequestType.Search]: SearchRequest;
     [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
+    [ApiRequestType.GetUser]: JiraRequest;
+    [ApiRequestType.SearchUser]: SearchRequest;
 };
 
 export type ApiResponseData = {
@@ -80,6 +84,8 @@ export type ApiResponseData = {
     [ApiRequestType.GetProjects]: JiraProjectsResponse;
     [ApiRequestType.Search]: JiraJqlResponse;
     [ApiRequestType.UpdateIssue]: boolean;
+    [ApiRequestType.GetUser]: JiraJqlResponse;
+    [ApiRequestType.SearchUser]: JiraJqlResponse;
 };
 
 export const apiValidators: {
@@ -136,6 +142,14 @@ export const apiValidators: {
     [ApiRequestType.UpdateIssue]: {
         request: updateIssueRequestValidator,
         response: typeofValidators.boolean,
+    },
+    [ApiRequestType.GetUser]: {
+        request: jiraRequestValidator,
+        response: jiraJqlResponseValidator,
+    },
+    [ApiRequestType.SearchUser]: {
+        request: searchRequestValidator,
+        response: jiraJqlResponseValidator,
     },
 };
 
