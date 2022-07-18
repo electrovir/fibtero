@@ -1,4 +1,6 @@
 import {
+    CreateIssueRequest,
+    JiraIssue,
     JiraJqlResponse,
     JiraRequest,
     SearchRequest,
@@ -10,16 +12,17 @@ import {assign, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
 import {FibInput} from '../core-elements/fib-input.element';
 
-async function search(
-    searchRequest: SearchRequest,
+async function createIssue(
+    createIssueRequest: CreateIssueRequest,
     electronApi: ElectronWindowInterface,
-): Promise<JiraJqlResponse> {
+): Promise<JiraIssue> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.Search,
-        data: searchRequest,
+        type: ApiRequestType.CreateIssue,
+        data: createIssueRequest,
     });
 
     if (response.success) {
+        console.log(response.data);
         return response.data;
     } else {
         throw new Error(`Jira request failed: ${response.error}`);
@@ -37,6 +40,22 @@ async function getFields(
 
     if (response.success) {
         console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function search(
+    searchRequest: SearchRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraJqlResponse> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.Search,
+        data: searchRequest,
+    });
+
+    if (response.success) {
         return response.data;
     } else {
         throw new Error(`Jira request failed: ${response.error}`);
@@ -102,9 +121,43 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
             key: '',
             fields: {
                 summary: 'Fibtero test issue has been updated again',
+                description: {
+                    type: 'doc',
+                    version: 1,
+                    content: [
+                        {
+                            type: 'paragraph',
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: 'this description has been updated',
+                                },
+                            ],
+                        },
+                    ],
+                },
             },
             id: '',
             self: '',
+        },
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
+function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']) {
+    return {
+        domain: props.domain,
+        fields: {
+            project: {
+                key: '',
+            },
+            summary: 'New Fibtero test issue 2',
+            issuetype: {
+                name: 'Bug',
+            },
         },
         credentials: {
             apiKey: props.apiKey,
@@ -212,12 +265,24 @@ export const BasicJiraTest = defineFunctionalElement({
                 <input class="submit" type="submit" value="Trigger Jira Query" />
             </form>
             <h2>
-                Basic Update Test
+                Basic Update Issue Test
             </h2>
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
                         await updateIssue(makeUpdateRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
+            <h2>
+                Basic Create Issue Test
+            </h2>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await createIssue(makeCreateRequestData(props), props.electronApi);
                     }
                 })}
             >

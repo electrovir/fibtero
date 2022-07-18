@@ -1,9 +1,13 @@
 import {OpenDialogProperty} from '@packages/common/src/electron-renderer-api/electron-types';
 import {
+    CreateIssueRequest,
+    createIssueRequestValidator,
+    JiraIssueResponse,
+    jiraIssueResponseValidator,
     JiraJqlResponse,
+    jiraJqlResponseValidator,
     JiraRequest,
     jiraRequestValidator,
-    jiraResponseValidator,
     SearchRequest,
     searchRequestValidator,
     UpdateIssueRequest,
@@ -34,8 +38,9 @@ export enum ApiRequestType {
     /** Open a given file path in the system's default file browser. */
     ViewFilePath = 'view-file-path',
     ResetConfig = 'reset-config',
-    Search = 'jira-search',
+    CreateIssue = 'jira-create-issue',
     GetField = 'jira-get-field',
+    Search = 'jira-search',
     UpdateIssue = 'jira-update-issue',
 }
 
@@ -46,8 +51,9 @@ export type ApiRequestData = {
     [ApiRequestType.GetConfigPath]: GetPathType;
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
-    [ApiRequestType.Search]: SearchRequest;
+    [ApiRequestType.CreateIssue]: CreateIssueRequest;
     [ApiRequestType.GetField]: JiraRequest;
+    [ApiRequestType.Search]: SearchRequest;
     [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
 };
 
@@ -58,8 +64,9 @@ export type ApiResponseData = {
     [ApiRequestType.GetConfigPath]: string;
     [ApiRequestType.ViewFilePath]: void;
     [ApiRequestType.ResetConfig]: boolean;
-    [ApiRequestType.Search]: JiraJqlResponse;
+    [ApiRequestType.CreateIssue]: JiraIssueResponse;
     [ApiRequestType.GetField]: Map<string, string>;
+    [ApiRequestType.Search]: JiraJqlResponse;
     [ApiRequestType.UpdateIssue]: boolean;
 };
 
@@ -94,13 +101,17 @@ export const apiValidators: {
         request: createEnumValidator(ResetType),
         response: typeofValidators.boolean,
     },
-    [ApiRequestType.Search]: {
-        request: searchRequestValidator,
-        response: jiraResponseValidator,
-    },
     [ApiRequestType.GetField]: {
         request: jiraRequestValidator,
         response: createMapValidator,
+    },
+    [ApiRequestType.CreateIssue]: {
+        request: createIssueRequestValidator,
+        response: jiraIssueResponseValidator,
+    },
+    [ApiRequestType.Search]: {
+        request: searchRequestValidator,
+        response: jiraJqlResponseValidator,
     },
     [ApiRequestType.UpdateIssue]: {
         request: updateIssueRequestValidator,

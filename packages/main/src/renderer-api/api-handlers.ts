@@ -7,7 +7,7 @@ import {ElectronApp} from '../augments/electron';
 import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
 import {readUserPreferences, saveUserPreferences} from '../config/user-preferences';
-import {getField, search, updateIssue} from '../jira-api/make-jira-request';
+import {createIssue, getField, search, updateIssue} from '../jira-api/make-jira-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
@@ -25,8 +25,9 @@ const apiHandlers: {
     [ApiRequestType.GetConfigPath]: (input, app) => getPath(input, app),
     [ApiRequestType.ViewFilePath]: (input) => viewPath(input),
     [ApiRequestType.ResetConfig]: resetConfig,
-    [ApiRequestType.Search]: search,
+    [ApiRequestType.CreateIssue]: createIssue,
     [ApiRequestType.GetField]: getField,
+    [ApiRequestType.Search]: search,
     [ApiRequestType.UpdateIssue]: updateIssue,
 };
 
@@ -53,15 +54,18 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
     [ApiRequestType.ResetConfig]: {
         allowLogging: true,
     },
-    [ApiRequestType.Search]: {
-        // turn logging off here so we don't log api keys (which are sensitive data) all over
+    [ApiRequestType.CreateIssue]: {
         allowLogging: false,
     },
     [ApiRequestType.GetField]: {
         allowLogging: false,
     },
+    [ApiRequestType.Search]: {
+        // turn logging off here so we don't log api keys (which are sensitive data) all over
+        allowLogging: false,
+    },
     [ApiRequestType.UpdateIssue]: {
-        allowLogging: true,
+        allowLogging: false,
     },
 };
 

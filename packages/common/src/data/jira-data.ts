@@ -10,6 +10,10 @@ export type JiraRequest = {
     credentials: JiraCredentials;
 };
 
+export type CreateIssueRequest = {
+    fields: JiraIssueFields;
+} & JiraRequest;
+
 export type SearchRequest = {
     jql: string;
 } & JiraRequest;
@@ -39,6 +43,10 @@ export function jiraRequestValidator(request: unknown): request is JiraRequest {
     );
 }
 
+export function createIssueRequestValidator(request: unknown): request is CreateIssueRequest {
+    return true;
+}
+
 const searchRequestValidationChecker: SearchRequest = {
     jql: '',
     domain: '',
@@ -66,13 +74,34 @@ export function updateIssueRequestValidator(request: unknown): request is Update
     return true;
 }
 
+export type JiraDocument = {
+    type: string;
+    version?: number;
+    content?: JiraDocument[];
+    text?: string;
+};
+
+export type JiraDescription = JiraDocument;
+
+export type JiraProject = {
+    id?: string;
+    key?: string;
+    name?: string;
+};
+
+export type JiraIssueType = {
+    name?: string;
+    id?: string;
+};
+
 export type JiraIssueFields = Record<string, unknown> & {
     assignee?: unknown;
     creator?: unknown;
-    description?: unknown;
+    description?: JiraDescription;
+    issuetype?: JiraIssueType;
     parent?: unknown;
     priority?: unknown;
-    project?: unknown;
+    project?: JiraProject;
     reporter?: unknown;
     status?: unknown;
     summary?: unknown;
@@ -82,11 +111,13 @@ export type JiraIssueFields = Record<string, unknown> & {
 export type JiraIssue = {
     /** Jira key. Like "THING-1234" */
     key: string;
-    fields: JiraIssueFields;
+    fields?: JiraIssueFields;
     id: string;
     /** URL to request just this issue from the API */
     self: string;
 };
+
+export type JiraIssueResponse = JiraIssue;
 
 export type JiraJqlResponse = {
     expand: string;
@@ -96,7 +127,12 @@ export type JiraJqlResponse = {
     total: number;
 };
 
-export function jiraResponseValidator(response: unknown): response is JiraJqlResponse {
+export function jiraIssueResponseValidator(response: unknown): response is JiraIssueResponse {
+    // just pass on whatever Jira gives us
+    return true;
+}
+
+export function jiraJqlResponseValidator(response: unknown): response is JiraJqlResponse {
     // just pass on whatever Jira gives us
     return true;
 }

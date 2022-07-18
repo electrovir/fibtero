@@ -11,6 +11,11 @@ export async function get(url: string, options: AxiosRequestConfig) {
     return response;
 }
 
+export async function post(url: string, data: any, options: AxiosRequestConfig) {
+    const response = await axios.post(url, data, options);
+    return response;
+}
+
 export async function put(url: string, data: any, options: AxiosRequestConfig) {
     const response = await axios.put(url, data, options);
     return response;
