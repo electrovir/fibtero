@@ -435,6 +435,14 @@ export const BasicJiraTest = defineFunctionalElement({
             <h2>
                 Search Users
             </h2>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({jql: event.detail});
+                    setCachedData(makeSearchRequestData(props));
+                })}
+                ${assign(FibInput.props.label, 'JQL query')}
+                ${assign(FibInput.props.value, props.jql)}
+            ></${FibInput}>
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
