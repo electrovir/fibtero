@@ -51,7 +51,7 @@ async function getUsers(
     electronApi: ElectronWindowInterface,
 ): Promise<JiraJqlResponse> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetUser,
+        type: ApiRequestType.GetUsers,
         data: jiraRequest,
     });
 
@@ -68,7 +68,7 @@ async function searchUsers(
     electronApi: ElectronWindowInterface,
 ): Promise<JiraJqlResponse> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.SearchUser,
+        type: ApiRequestType.SearchUsers,
         data: searchRequest,
     });
 

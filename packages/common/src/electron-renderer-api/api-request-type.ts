@@ -50,8 +50,8 @@ export enum ApiRequestType {
     GetProjects = 'jira-get-projects',
     Search = 'jira-search',
     UpdateIssue = 'jira-update-issue',
-    GetUser = 'jira-get-user',
-    SearchUser = 'jira-search-user',
+    GetUsers = 'jira-get-user',
+    SearchUsers = 'jira-search-user',
 }
 
 export type ApiRequestData = {
@@ -67,8 +67,8 @@ export type ApiRequestData = {
     [ApiRequestType.GetProjects]: JiraRequest;
     [ApiRequestType.Search]: SearchRequest;
     [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
-    [ApiRequestType.GetUser]: JiraRequest;
-    [ApiRequestType.SearchUser]: SearchRequest;
+    [ApiRequestType.GetUsers]: JiraRequest;
+    [ApiRequestType.SearchUsers]: SearchRequest;
 };
 
 export type ApiResponseData = {
@@ -84,8 +84,8 @@ export type ApiResponseData = {
     [ApiRequestType.GetProjects]: JiraProjectsResponse;
     [ApiRequestType.Search]: JiraJqlResponse;
     [ApiRequestType.UpdateIssue]: boolean;
-    [ApiRequestType.GetUser]: JiraJqlResponse;
-    [ApiRequestType.SearchUser]: JiraJqlResponse;
+    [ApiRequestType.GetUsers]: JiraJqlResponse;
+    [ApiRequestType.SearchUsers]: JiraJqlResponse;
 };
 
 export const apiValidators: {
@@ -143,11 +143,11 @@ export const apiValidators: {
         request: updateIssueRequestValidator,
         response: typeofValidators.boolean,
     },
-    [ApiRequestType.GetUser]: {
+    [ApiRequestType.GetUsers]: {
         request: jiraRequestValidator,
         response: jiraJqlResponseValidator,
     },
-    [ApiRequestType.SearchUser]: {
+    [ApiRequestType.SearchUsers]: {
         request: searchRequestValidator,
         response: jiraJqlResponseValidator,
     },

@@ -3,7 +3,7 @@ import {get} from '../axios-wrapper';
 
 const apiRoute = '/rest/api/3/';
 
-export async function getUser(request: JiraRequest): Promise<JiraJqlResponse> {
+export async function getUsers(request: JiraRequest): Promise<JiraJqlResponse> {
     const url = `https://${request.domain}${apiRoute}users`;
 
     const result = await get(url, {
@@ -16,7 +16,7 @@ export async function getUser(request: JiraRequest): Promise<JiraJqlResponse> {
     return result.data;
 }
 
-export async function searchUser(request: SearchRequest): Promise<JiraJqlResponse> {
+export async function searchUsers(request: SearchRequest): Promise<JiraJqlResponse> {
     if (request.jql) {
         const url = `https://${request.domain}${apiRoute}user/picker?query=${request.jql}`;
         console.log(url);
