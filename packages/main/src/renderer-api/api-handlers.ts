@@ -8,7 +8,9 @@ import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
 import {readUserPreferences, saveUserPreferences} from '../config/user-preferences';
 import {createIssue} from '../jira-api/create-issue-request';
-import {getField} from '../jira-api/get-fields-request';
+import {getFields} from '../jira-api/get-fields-request';
+import {getIssueTypes} from '../jira-api/get-issue-types-request';
+import {getProjects} from '../jira-api/get-projects-request';
 import {search} from '../jira-api/search-request';
 import {updateIssue} from '../jira-api/update-issue-request';
 import {selectFiles} from './dialogs';
@@ -29,7 +31,9 @@ const apiHandlers: {
     [ApiRequestType.ViewFilePath]: (input) => viewPath(input),
     [ApiRequestType.ResetConfig]: resetConfig,
     [ApiRequestType.CreateIssue]: createIssue,
-    [ApiRequestType.GetField]: getField,
+    [ApiRequestType.GetFields]: getFields,
+    [ApiRequestType.GetIssueTypes]: getIssueTypes,
+    [ApiRequestType.GetProjects]: getProjects,
     [ApiRequestType.Search]: search,
     [ApiRequestType.UpdateIssue]: updateIssue,
 };
@@ -60,7 +64,13 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
     [ApiRequestType.CreateIssue]: {
         allowLogging: false,
     },
-    [ApiRequestType.GetField]: {
+    [ApiRequestType.GetFields]: {
+        allowLogging: false,
+    },
+    [ApiRequestType.GetIssueTypes]: {
+        allowLogging: false,
+    },
+    [ApiRequestType.GetProjects]: {
         allowLogging: false,
     },
     [ApiRequestType.Search]: {

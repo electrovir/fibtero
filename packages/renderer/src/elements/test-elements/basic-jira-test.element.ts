@@ -34,7 +34,7 @@ async function getFields(
     electronApi: ElectronWindowInterface,
 ): Promise<Map<string, string>> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetField,
+        type: ApiRequestType.GetFields,
         data: jiraRequest,
     });
 

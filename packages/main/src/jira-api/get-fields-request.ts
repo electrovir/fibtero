@@ -4,7 +4,7 @@ import {apiRoute} from './shared';
 
 const customFieldKey = 'customfield';
 
-export async function getField(request: JiraRequest): Promise<Map<string, string>> {
+export async function getFields(request: JiraRequest): Promise<Map<string, string>> {
     const url = `https://${request.domain}${apiRoute}field`;
 
     const result = await get(url, {

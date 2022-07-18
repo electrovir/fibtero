@@ -10,17 +10,21 @@ export type JiraRequest = {
     credentials: JiraCredentials;
 };
 
-export type CreateIssueRequest = {
+export type CreateIssueRequest = JiraRequest & {
     fields: JiraIssueFields;
-} & JiraRequest;
+};
 
-export type SearchRequest = {
+export type IssueTypesRequest = JiraRequest & {
+    projectIdOrKey: string;
+};
+
+export type SearchRequest = JiraRequest & {
     jql: string;
-} & JiraRequest;
+};
 
-export type UpdateIssueRequest = {
+export type UpdateIssueRequest = JiraRequest & {
     issue: JiraIssue;
-} & JiraRequest;
+};
 
 const jiraRequestValidationChecker: JiraRequest = {
     domain: '',
@@ -44,6 +48,10 @@ export function jiraRequestValidator(request: unknown): request is JiraRequest {
 }
 
 export function createIssueRequestValidator(request: unknown): request is CreateIssueRequest {
+    return true;
+}
+
+export function issueTypeRequestValidator(request: unknown): request is IssueTypesRequest {
     return true;
 }
 
@@ -117,6 +125,14 @@ export type JiraIssue = {
     self: string;
 };
 
+export type JiraIssueTypesResponse = {
+    issueTypes: JiraIssueType[];
+};
+
+export type JiraProjectsResponse = {
+    projects: JiraProject[];
+};
+
 export type JiraIssueResponse = JiraIssue;
 
 export type JiraJqlResponse = {
@@ -127,12 +143,24 @@ export type JiraJqlResponse = {
     total: number;
 };
 
+export function jiraIssueTypesResponseValidator(
+    response: unknown,
+): response is JiraIssueTypesResponse {
+    // just pass on whatever Jira gives us
+    return true;
+}
+
 export function jiraIssueResponseValidator(response: unknown): response is JiraIssueResponse {
     // just pass on whatever Jira gives us
     return true;
 }
 
 export function jiraJqlResponseValidator(response: unknown): response is JiraJqlResponse {
+    // just pass on whatever Jira gives us
+    return true;
+}
+
+export function jiraProjectsResponseValidator(response: unknown): response is JiraProjectsResponse {
     // just pass on whatever Jira gives us
     return true;
 }

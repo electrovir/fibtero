@@ -2,10 +2,16 @@ import {OpenDialogProperty} from '@packages/common/src/electron-renderer-api/ele
 import {
     CreateIssueRequest,
     createIssueRequestValidator,
+    issueTypeRequestValidator,
+    IssueTypesRequest,
     JiraIssueResponse,
     jiraIssueResponseValidator,
+    JiraIssueTypesResponse,
+    jiraIssueTypesResponseValidator,
     JiraJqlResponse,
     jiraJqlResponseValidator,
+    JiraProjectsResponse,
+    jiraProjectsResponseValidator,
     JiraRequest,
     jiraRequestValidator,
     SearchRequest,
@@ -39,7 +45,9 @@ export enum ApiRequestType {
     ViewFilePath = 'view-file-path',
     ResetConfig = 'reset-config',
     CreateIssue = 'jira-create-issue',
-    GetField = 'jira-get-field',
+    GetFields = 'jira-get-fields',
+    GetIssueTypes = 'jira-get-issue-types',
+    GetProjects = 'jira-get-projects',
     Search = 'jira-search',
     UpdateIssue = 'jira-update-issue',
 }
@@ -52,7 +60,9 @@ export type ApiRequestData = {
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
     [ApiRequestType.CreateIssue]: CreateIssueRequest;
-    [ApiRequestType.GetField]: JiraRequest;
+    [ApiRequestType.GetFields]: JiraRequest;
+    [ApiRequestType.GetIssueTypes]: IssueTypesRequest;
+    [ApiRequestType.GetProjects]: JiraRequest;
     [ApiRequestType.Search]: SearchRequest;
     [ApiRequestType.UpdateIssue]: UpdateIssueRequest;
 };
@@ -65,7 +75,9 @@ export type ApiResponseData = {
     [ApiRequestType.ViewFilePath]: void;
     [ApiRequestType.ResetConfig]: boolean;
     [ApiRequestType.CreateIssue]: JiraIssueResponse;
-    [ApiRequestType.GetField]: Map<string, string>;
+    [ApiRequestType.GetFields]: Map<string, string>;
+    [ApiRequestType.GetIssueTypes]: JiraIssueTypesResponse;
+    [ApiRequestType.GetProjects]: JiraProjectsResponse;
     [ApiRequestType.Search]: JiraJqlResponse;
     [ApiRequestType.UpdateIssue]: boolean;
 };
@@ -101,9 +113,17 @@ export const apiValidators: {
         request: createEnumValidator(ResetType),
         response: typeofValidators.boolean,
     },
-    [ApiRequestType.GetField]: {
+    [ApiRequestType.GetFields]: {
         request: jiraRequestValidator,
         response: createMapValidator,
+    },
+    [ApiRequestType.GetIssueTypes]: {
+        request: issueTypeRequestValidator,
+        response: jiraIssueTypesResponseValidator,
+    },
+    [ApiRequestType.GetProjects]: {
+        request: jiraRequestValidator,
+        response: jiraProjectsResponseValidator,
     },
     [ApiRequestType.CreateIssue]: {
         request: createIssueRequestValidator,
