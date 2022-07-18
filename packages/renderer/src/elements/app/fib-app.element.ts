@@ -160,7 +160,10 @@ export const FibAppElement = defineFunctionalElement({
                       `
                 : props.currentPage === MainRendererPage.ImportJiraView
                 ? html`
-                    <${FibImportJiraViewPage}></${FibImportJiraViewPage}>
+                    <${FibImportJiraViewPage}
+                        ${assign(FibImportJiraViewPage.props.userPreferences, userPreferences)}
+                        ${assign(FibImportJiraViewPage.props.electronApi, electronApi)}
+                    ></${FibImportJiraViewPage}>
                     `
                 : props.currentPage === MainRendererPage.ExportJiraView
                 ? html`

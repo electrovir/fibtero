@@ -18,6 +18,7 @@ export const FibExportJiraViewPage = defineFunctionalElement({
 
         .view-names-wrapper {
             display: flex;
+            gap: 8px;
         }
 
         textarea {
@@ -45,7 +46,7 @@ export const FibExportJiraViewPage = defineFunctionalElement({
         const serializedViewTemplate = selectedView
             ? html`
                   Copy the following:
-                  <textarea readonly>${serializeJiraView(selectedView)}</textarea>
+                  <textarea readonly .value=${serializeJiraView(selectedView)}></textarea>
               `
             : '';
 
