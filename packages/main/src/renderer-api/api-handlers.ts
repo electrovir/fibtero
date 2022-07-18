@@ -7,7 +7,10 @@ import {ElectronApp} from '../augments/electron';
 import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
 import {readUserPreferences, saveUserPreferences} from '../config/user-preferences';
-import {createIssue, getField, search, updateIssue} from '../jira-api/make-jira-request';
+import {createIssue} from '../jira-api/create-issue-request';
+import {getField} from '../jira-api/get-fields-request';
+import {search} from '../jira-api/search-request';
+import {updateIssue} from '../jira-api/update-issue-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
