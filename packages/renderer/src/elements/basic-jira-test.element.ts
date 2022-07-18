@@ -21,6 +21,23 @@ async function makeJiraRequest(
     }
 }
 
+async function getFields(
+    jiraRequest: JiraRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<Map<string,string>> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.GetField,
+        data: jiraRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
 const cachedJiraDataKey = 'cached-jira-data';
 
 function setCachedData(data: JiraRequest) {
@@ -91,6 +108,9 @@ export const BasicJiraTest = defineFunctionalElement({
                 jql: '',
                 username: '',
             });
+        }
+        if(props.electronApi){
+            getFields(makeRequestData(props),props.electronApi);
         }
     },
     renderCallback: ({props, setProps}) => {

@@ -10,6 +10,7 @@ import {
     createAllowUndefinedValidator,
     createArrayValidator,
     createEnumValidator,
+    createMapValidator,
     typeofValidators,
 } from './api-validation';
 import {GetPathType} from './get-path-type';
@@ -30,6 +31,7 @@ export enum ApiRequestType {
     ViewFilePath = 'view-file-path',
     ResetConfig = 'reset-config',
     JiraRequest = 'jira-request',
+    GetField = 'get-field',
 }
 
 export type ApiRequestData = {
@@ -40,6 +42,7 @@ export type ApiRequestData = {
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
     [ApiRequestType.JiraRequest]: JiraRequest;
+    [ApiRequestType.GetField]: JiraRequest;
 };
 
 export type ApiResponseData = {
@@ -50,6 +53,7 @@ export type ApiResponseData = {
     [ApiRequestType.ViewFilePath]: void;
     [ApiRequestType.ResetConfig]: boolean;
     [ApiRequestType.JiraRequest]: JiraJqlResponse;
+    [ApiRequestType.GetField]: Map<string,string>;
 };
 
 export const apiValidators: {
@@ -87,6 +91,10 @@ export const apiValidators: {
         request: createEnumValidator(ResetType),
         response: typeofValidators.boolean,
     },
+    [ApiRequestType.GetField]:{
+        request: jiraRequestValidator,
+        response: createMapValidator,
+    }
 };
 
 export type ApiValidator<

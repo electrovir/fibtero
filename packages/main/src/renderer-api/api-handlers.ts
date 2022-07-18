@@ -7,7 +7,7 @@ import {ElectronApp} from '../augments/electron';
 import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
 import {readUserPreferences, saveUserPreferences} from '../config/user-preferences';
-import {makeJiraRequest} from '../jira-api/make-jira-request';
+import {getField, search} from '../jira-api/make-jira-request';
 import {selectFiles} from './dialogs';
 import {viewPath} from './view-file';
 
@@ -25,7 +25,8 @@ const apiHandlers: {
     [ApiRequestType.GetConfigPath]: (input, app) => getPath(input, app),
     [ApiRequestType.ViewFilePath]: (input) => viewPath(input),
     [ApiRequestType.ResetConfig]: resetConfig,
-    [ApiRequestType.JiraRequest]: makeJiraRequest,
+    [ApiRequestType.JiraRequest]: search,
+    [ApiRequestType.GetField]: getField,
 };
 
 export type ApiOptions = {
@@ -55,6 +56,9 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
         // turn logging off here so we don't log api keys (which are sensitive data) all over
         allowLogging: false,
     },
+    [ApiRequestType.GetField]: {
+        allowLogging: false,
+    }
 };
 
 export function getGenericApiHandler(

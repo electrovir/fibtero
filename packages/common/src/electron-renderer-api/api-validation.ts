@@ -68,3 +68,8 @@ export const typeofValidators: {
     accum[typeofKey] = createTypeofValidator(typeofKey);
     return accum;
 }, {} as any);
+
+export function createMapValidator(response: unknown): response is Map<string, string> {
+    // just pass it on
+    return true;
+}

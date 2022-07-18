@@ -26,8 +26,7 @@ export function jiraRequestValidator(request: unknown): request is JiraRequest {
         matchesShallowObjectSignature(request.credentials, requestValidationChecker.credentials) &&
         !!request.credentials.apiKey &&
         !!request.credentials.username &&
-        !!request.domain &&
-        !!request.jql
+        !!request.domain
     );
 }
 
