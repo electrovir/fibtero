@@ -1,9 +1,9 @@
 import {capitalizeFirstLetter, getEnumTypedValues} from 'augment-vir';
 import {defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {MainPage} from '../page';
+import {MainRendererPage} from '../../../common/src/data/main-renderer-page';
 
-function prettifyMainPageValue(value: MainPage): string {
+function prettifyMainPageValue(value: MainRendererPage): string {
     return capitalizeFirstLetter(
         value.replace(/\-(.)/g, (fullMatch, captureGroup) => {
             return ` ${captureGroup.toUpperCase()}`;
@@ -14,11 +14,11 @@ function prettifyMainPageValue(value: MainPage): string {
 export const FibAppPageNav = defineFunctionalElement({
     tagName: 'fib-app-page-nav',
     props: {
-        currentPage: MainPage.Home,
+        currentPage: MainRendererPage.Home,
         currentView: [],
     },
     events: {
-        pageChange: defineElementEvent<MainPage>(),
+        pageChange: defineElementEvent<MainRendererPage>(),
     },
     styles: css`
         :host {
@@ -54,7 +54,7 @@ export const FibAppPageNav = defineFunctionalElement({
     `,
     renderCallback: ({props, dispatch, events}) => {
         return html`
-            ${getEnumTypedValues(MainPage).map((pageValue) => {
+            ${getEnumTypedValues(MainRendererPage).map((pageValue) => {
                 const pageName = prettifyMainPageValue(pageValue);
                 const isThisPage = pageValue === props.currentPage;
 

@@ -1,3 +1,5 @@
+import {JiraView} from './jira-view';
+import {MainRendererPage} from './main-renderer-page';
 import {matchesShallowObjectSignature} from './object-validator';
 
 export type WindowPosition = {
@@ -11,6 +13,8 @@ export type UserPreferences = {
     startupWindowPosition: WindowPosition & {
         useLast: boolean;
     };
+    views: Readonly<Readonly<JiraView>[]>;
+    lastPage: MainRendererPage;
 };
 
 export const emptyUserPreferences: UserPreferences = {
@@ -21,6 +25,8 @@ export const emptyUserPreferences: UserPreferences = {
         height: -1,
         useLast: true,
     },
+    views: [],
+    lastPage: MainRendererPage.Home,
 } as const;
 
 export function isValidUserPreferences(input: any): input is UserPreferences {

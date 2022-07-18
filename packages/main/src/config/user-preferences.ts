@@ -1,4 +1,5 @@
 import {extractMessage} from '@packages/common/src/augments/error';
+import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {
     emptyUserPreferences,
     isValidUserPreferences,
@@ -13,6 +14,8 @@ import {getUserPreferencesFilePath} from './config-path';
 function getDefaultUserPreferences(appPaths: HasGetPath): UserPreferences {
     return {
         startupWindowPosition: emptyUserPreferences.startupWindowPosition,
+        views: [],
+        lastPage: MainRendererPage.Home,
     };
 }
 

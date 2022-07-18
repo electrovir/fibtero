@@ -1,4 +1,4 @@
-export enum MainPage {
+export enum MainRendererPage {
     Home = 'home',
     CreateJiraView = 'create-jira-view',
     ImportJiraView = 'import-jira-view',
