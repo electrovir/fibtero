@@ -8,7 +8,7 @@ import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-req
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {FibInput} from './input.element';
+import {FibInput} from './fib-input.element';
 
 async function search(
     searchRequest: SearchRequest,
