@@ -6,6 +6,8 @@ import {
     ElectronWindowInterface,
     getElectronWindowInterface,
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
+import {GetPathType} from '@packages/common/src/electron-renderer-api/get-path-type';
+import {ResetType} from '@packages/common/src/electron-renderer-api/reset';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ChangeCurrentViewIndexEvent} from '../../global-events/change-current-view-index.event';
@@ -17,6 +19,7 @@ import {FibAuthPage} from '../main-pages/fib-auth-page.element';
 import {FibCreateJiraViewPage} from '../main-pages/fib-create-jira-view-page.element';
 import {FibEditJiraViewPage} from '../main-pages/fib-edit-jira-view-page.element';
 import {FibExportJiraViewPage} from '../main-pages/fib-export-jira-view-page.element';
+import {FibFieldMappingPage} from '../main-pages/fib-field-mapping-page.element';
 import {FibImportJiraViewPage} from '../main-pages/fib-import-jira-view-page.element';
 import {FibMyViews} from '../main-pages/fib-my-views.element';
 import {FibTestPage} from '../main-pages/fib-test-page.element';
@@ -134,6 +137,13 @@ export const FibAppElement = defineFunctionalElement({
         .close-x:hover {
             background-color: #f0f0f0;
         }
+
+        footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 16px;
+        }
     `,
     initCallback: ({props, setProps}) => {
         setProps({
@@ -180,6 +190,8 @@ export const FibAppElement = defineFunctionalElement({
 
             if (!props.jiraAuth) {
                 setProps({currentPage: MainRendererPage.Auth});
+            } else if (Object.keys(props.currentUserPreferences.fieldMapping).length === 0) {
+                setProps({currentPage: MainRendererPage.FieldMappingView});
             }
         }
 
@@ -248,7 +260,15 @@ export const FibAppElement = defineFunctionalElement({
                         ${assign(FibMyViews.props.selectedViewIndex, props.currentViewIndex)}
                         ${assign(FibMyViews.props.electronApi, props.electronApi)}
                     ></${FibMyViews}>
-                `
+                  `
+                : props.currentPage === MainRendererPage.FieldMappingView
+                ? html`
+                    <${FibFieldMappingPage}
+                        ${assign(FibFieldMappingPage.props.currentPreferences, userPreferences)}
+                        ${assign(FibMyViews.props.jiraAuth, props.jiraAuth)}
+                        ${assign(FibMyViews.props.electronApi, props.electronApi)}
+                    ></${FibFieldMappingPage}>
+                  `
                 : html`
                       ERROR: Current page not supported: ${props.currentPage}
                   `;
@@ -315,6 +335,35 @@ export const FibAppElement = defineFunctionalElement({
                 <main>
                     ${pageTemplate}
                 </main>
+                <footer>
+                    <button
+                        ${listen('click', async () => {
+                            const configPath = await electronApi.apiRequest({
+                                type: ApiRequestType.GetConfigPath,
+                                data: GetPathType.ConfigDir,
+                            });
+                            if (!configPath.success) {
+                                throw new Error(`Failed to get config dir.`);
+                            }
+                            await electronApi.apiRequest({
+                                type: ApiRequestType.ViewFilePath,
+                                data: configPath.data,
+                            });
+                        })}
+                    >
+                        Show Configs Dir
+                    </button>
+                    <button
+                        ${listen('click', async () => {
+                            await electronApi.apiRequest({
+                                type: ApiRequestType.ResetConfig,
+                                data: ResetType.All,
+                            });
+                        })}
+                    >
+                        Reset All Configs
+                    </button>
+                </footer>
             </div>
         `;
     },

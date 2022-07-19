@@ -6,4 +6,5 @@ export enum MainRendererPage {
     ImportJiraView = 'import-jira-view',
     ExportJiraView = 'export-jira-view',
     Test = 'test',
+    FieldMappingView = 'field-mapping-view',
 }

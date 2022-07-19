@@ -1,7 +1,6 @@
 import {JiraAuth, JiraJqlSearchRequest, JiraUser} from '@packages/common/src/data/jira-data';
 import {get} from '../axios-wrapper';
-
-const apiRoute = '/rest/api/3/';
+import {apiRoute} from './jira-routing';
 
 export async function getUsers(request: JiraAuth): Promise<JiraUser[]> {
     const url = `https://${request.domain}${apiRoute}users`;
