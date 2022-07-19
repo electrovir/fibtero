@@ -10,18 +10,22 @@ export function matchesShallowObjectSignature<T extends object>(
     testing: unknown,
     defaultComparison: T,
     allowExtraKeys = false,
+    allowPartial = false,
 ): testing is T {
     if (!isObject(testing)) {
         return false;
     }
 
-    if (!allowExtraKeys && Object.keys(testing).length !== Object.keys(defaultComparison).length) {
+    if (
+        !allowExtraKeys &&
+        !Object.keys(testing).every((testingKey) => hasProperty(defaultComparison, testingKey))
+    ) {
         return false;
     }
 
     return getObjectTypedKeys(defaultComparison).every((requiredKey) => {
         if (!hasProperty(testing, requiredKey)) {
-            return false;
+            return allowPartial;
         }
 
         const testingValue = testing[requiredKey];

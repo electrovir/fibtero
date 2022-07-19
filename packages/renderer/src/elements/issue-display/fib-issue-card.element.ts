@@ -1,6 +1,6 @@
 import {JiraIssue} from '@packages/common/src/data/jira-data';
 import {css, defineFunctionalElement, html} from 'element-vir';
-import {getFieldFormatting} from '../../formatting/field-formatting';
+import {getFieldFormatting} from '../../field-formatting/field-formatting';
 
 export const FibIssueCard = defineFunctionalElement({
     tagName: 'fib-issue-card',

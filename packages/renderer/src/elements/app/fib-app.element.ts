@@ -36,6 +36,22 @@ async function loadUserPreferences(electronApi: ElectronWindowInterface) {
     return preferences;
 }
 
+function shouldLockToFieldMappingPage(
+    currentPage: MainRendererPage,
+    currentUserPreferences: UserPreferences,
+): boolean {
+    const hasFieldMappings: boolean = !!Object.keys(currentUserPreferences.fieldMapping).length;
+    return (
+        !hasFieldMappings &&
+        // allow these pages to show when locked to field mapping
+        ![
+            MainRendererPage.Settings,
+            MainRendererPage.Test,
+            MainRendererPage.Auth,
+        ].includes(currentPage)
+    );
+}
+
 export const FibAppElement = defineFunctionalElement({
     tagName: 'fib-app',
     props: {
@@ -79,9 +95,11 @@ export const FibAppElement = defineFunctionalElement({
             flex-grow: 1;
             padding: 16px;
             overflow-y: auto;
+            box-sizing: border-box;
         }
 
         main > * {
+            box-sizing: border-box;
             min-width: 100%;
             min-height: 100%;
         }
@@ -151,6 +169,7 @@ export const FibAppElement = defineFunctionalElement({
                 wait(500).then(async () => {
                     const result = await loadUserPreferences(props.electronApi);
                     setProps({currentUserPreferences: result});
+                    console.log({userPreferences: result});
                     return result;
                 }),
         });
@@ -173,15 +192,11 @@ export const FibAppElement = defineFunctionalElement({
         }
 
         const userPreferences: UserPreferences = props.currentUserPreferences;
-        const hasFieldMappings: boolean = !!Object.keys(props.currentUserPreferences.fieldMapping)
-            .length;
-        const lockToFieldMapping: boolean =
-            !hasFieldMappings &&
-            // allow these pages to show when locked to field mapping
-            ![
-                MainRendererPage.Settings,
-                MainRendererPage.Test,
-            ].includes(props.currentPage);
+
+        let lockToFieldMapping: boolean = shouldLockToFieldMappingPage(
+            props.currentPage,
+            userPreferences,
+        );
 
         if (props.authLoaded) {
             if (!props.loaded) {
@@ -193,13 +208,15 @@ export const FibAppElement = defineFunctionalElement({
 
             // default to home if an invalid page is given
             if (!isEnumValue(props.currentPage, MainRendererPage)) {
+                console.log(`Invalid page name: ${props.currentPage}`);
                 setProps({currentPage: MainRendererPage.Auth});
             }
+            lockToFieldMapping = shouldLockToFieldMappingPage(props.currentPage, userPreferences);
 
             if (!props.jiraAuth) {
                 console.log('going to auth cause no jira auth');
                 setProps({currentPage: MainRendererPage.Auth});
-            } else if (lockToFieldMapping) {
+            } else if (props.jiraAuth && lockToFieldMapping) {
                 setProps({currentPage: MainRendererPage.FieldMappingView});
             }
         }
@@ -286,6 +303,7 @@ export const FibAppElement = defineFunctionalElement({
                 ? html`
                     <${FibSettingsPage}
                             ${assign(FibSettingsPage.props.electronApi, electronApi)}
+                            ${assign(FibSettingsPage.props.userPreferences, userPreferences)}
                     ></${FibSettingsPage}>
                 `
                 : html`

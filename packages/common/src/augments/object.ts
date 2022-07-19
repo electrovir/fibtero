@@ -1,3 +1,5 @@
+import {getEnumTypedKeys} from 'augment-vir';
+
 /** Checks (at run time) that an object has the specified key and type narrows the given object. */
 export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
     inputObject: ObjectGeneric,
@@ -15,4 +17,17 @@ export function hasProperty<ObjectGeneric extends object, KeyGeneric extends Pro
  */
 export function isObject(input: any): input is NonNullable<object> {
     return input != null && typeof input === 'object';
+}
+
+export function filterObject<T extends object>(
+    fullObject: Readonly<T>,
+    callback: (value: T[keyof T], key: keyof T, fullObject: Readonly<T>) => boolean,
+): Partial<T> {
+    return getEnumTypedKeys(fullObject).reduce((accum, key) => {
+        const value = fullObject[key];
+        if (callback(value, key, fullObject)) {
+            accum[key] = value;
+        }
+        return accum;
+    }, {} as Partial<T>);
 }
