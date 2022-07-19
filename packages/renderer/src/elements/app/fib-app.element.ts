@@ -6,8 +6,6 @@ import {
     ElectronWindowInterface,
     getElectronWindowInterface,
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
-import {GetPathType} from '@packages/common/src/electron-renderer-api/get-path-type';
-import {ResetType} from '@packages/common/src/electron-renderer-api/reset';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ChangeCurrentViewIndexEvent} from '../../global-events/change-current-view-index.event';
@@ -175,6 +173,15 @@ export const FibAppElement = defineFunctionalElement({
         }
 
         const userPreferences: UserPreferences = props.currentUserPreferences;
+        const hasFieldMappings: boolean = !!Object.keys(props.currentUserPreferences.fieldMapping)
+            .length;
+        const lockToFieldMapping: boolean =
+            !hasFieldMappings &&
+            // allow these pages to show when locked to field mapping
+            ![
+                MainRendererPage.Settings,
+                MainRendererPage.Test,
+            ].includes(props.currentPage);
 
         if (props.authLoaded) {
             if (!props.loaded) {
@@ -192,7 +199,7 @@ export const FibAppElement = defineFunctionalElement({
             if (!props.jiraAuth) {
                 console.log('going to auth cause no jira auth');
                 setProps({currentPage: MainRendererPage.Auth});
-            } else if (Object.keys(props.currentUserPreferences.fieldMapping).length === 0) {
+            } else if (lockToFieldMapping) {
                 setProps({currentPage: MainRendererPage.FieldMappingView});
             }
         }
@@ -343,39 +350,11 @@ export const FibAppElement = defineFunctionalElement({
                 </div>
                 <${FibAppPageNav}
                     ${assign(FibAppPageNav.props.currentPage, props.currentPage)}
+                    ${assign(FibAppPageNav.props.showBackButton, !lockToFieldMapping)}
                 ></${FibAppPageNav}>
                 <main>
                     ${pageTemplate}
                 </main>
-                <footer>
-                    <button
-                        ${listen('click', async () => {
-                            const configPath = await electronApi.apiRequest({
-                                type: ApiRequestType.GetConfigPath,
-                                data: GetPathType.ConfigDir,
-                            });
-                            if (!configPath.success) {
-                                throw new Error(`Failed to get config dir.`);
-                            }
-                            await electronApi.apiRequest({
-                                type: ApiRequestType.ViewFilePath,
-                                data: configPath.data,
-                            });
-                        })}
-                    >
-                        Show Configs Dir
-                    </button>
-                    <button
-                        ${listen('click', async () => {
-                            await electronApi.apiRequest({
-                                type: ApiRequestType.ResetConfig,
-                                data: ResetType.All,
-                            });
-                        })}
-                    >
-                        Reset All Configs
-                    </button>
-                </footer>
             </div>
         `;
     },

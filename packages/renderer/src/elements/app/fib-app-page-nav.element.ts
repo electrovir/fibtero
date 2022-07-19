@@ -16,7 +16,7 @@ export const FibAppPageNav = defineFunctionalElement({
     tagName: 'fib-app-page-nav',
     props: {
         currentPage: MainRendererPage.Auth,
-        currentView: [],
+        showBackButton: true,
     },
     styles: css`
         :host {
@@ -52,7 +52,7 @@ export const FibAppPageNav = defineFunctionalElement({
             ${![
                 MainRendererPage.MyViews,
                 MainRendererPage.Auth,
-            ].includes(props.currentPage)
+            ].includes(props.currentPage) && props.showBackButton
                 ? html`
                       <button
                           ${listen('click', () => {
