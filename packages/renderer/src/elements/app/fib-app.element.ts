@@ -216,7 +216,8 @@ export const FibAppElement = defineFunctionalElement({
             if (!props.jiraAuth) {
                 console.log('going to auth cause no jira auth');
                 setProps({currentPage: MainRendererPage.Auth});
-            } else if (Object.keys(props.currentUserPreferences.fieldMapping).length === 0) {
+            } else if (Object.keys(userPreferences.fieldMapping).length === 0) {
+                console.log('going to field mapping cause no field mappings');
                 setProps({currentPage: MainRendererPage.FieldMappingView});
             }
         }

@@ -3,13 +3,11 @@ import {
     JiraCustomFieldDefinitions,
     JiraSimplifiedField,
 } from '@packages/common/src/data/jira-data';
-import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {css, defineFunctionalElement, html, listen} from 'element-vir';
 import {getMaybeCachedFields} from '../../cache/jira-fields-cache';
-import {ChangePageEvent} from '../../global-events/change-page.event';
 
 function mapCustomFieldNames(fields: JiraSimplifiedField[]) {
     return fields.reduce((map, entry) => {
@@ -107,7 +105,7 @@ export const FibFieldMappingPage = defineFunctionalElement({
             });
         }
     },
-    renderCallback: ({props, genericDispatch}) => {
+    renderCallback: ({props}) => {
         if (!props.electronApi) {
             return html`
                 loading...
@@ -144,16 +142,14 @@ export const FibFieldMappingPage = defineFunctionalElement({
                 mappings later.
             </p>
             <form
-                ${listen('submit', () => {
-                    electronApi.apiRequest({
+                ${listen('submit', async () => {
+                    await electronApi.apiRequest({
                         type: ApiRequestType.SavePreferences,
                         data: {
                             ...props.currentPreferences,
                             fieldMapping: props.fieldMapping,
                         },
                     });
-
-                    genericDispatch(new ChangePageEvent(MainRendererPage.MyViews));
                 })}
             >
                 <table>
@@ -164,29 +160,18 @@ export const FibFieldMappingPage = defineFunctionalElement({
                     ${Object.keys(props.fieldMapping)
                         .sort()
                         .map((key) => {
-                            if (props.fieldMapping[key] === 'any') {
-                                return html`
-                                    <tr>
-                                        <td>${key}</td>
-                                        <td>
-                                            <select name="${key}" class="form-error" required>
-                                                ${getSelectContents(key)}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                `;
-                            } else {
-                                return html`
-                                    <tr>
-                                        <td>${key}</td>
-                                        <td>
-                                            <select name="${key}" required>
-                                                ${getSelectContents(key)}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                `;
-                            }
+                            const errorClass =
+                                props.fieldMapping[key] === 'any' ? 'form-error' : '';
+                            return html`
+                                <tr>
+                                    <td>${key}</td>
+                                    <td>
+                                        <select name="${key}" class="${errorClass}" required>
+                                            ${getSelectContents(key)}
+                                        </select>
+                                    </td>
+                                </tr>
+                            `;
                         })}
                 </table>
                 <input class="submit" type="submit" value="Save" />
