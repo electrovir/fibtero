@@ -189,6 +189,7 @@ export const FibAppElement = defineFunctionalElement({
             }
 
             if (!props.jiraAuth) {
+                console.log('going to auth cause no jira auth');
                 setProps({currentPage: MainRendererPage.Auth});
             } else if (Object.keys(props.currentUserPreferences.fieldMapping).length === 0) {
                 setProps({currentPage: MainRendererPage.FieldMappingView});
@@ -201,12 +202,16 @@ export const FibAppElement = defineFunctionalElement({
                     <${FibAuthPage}
                         ${assign(FibAuthPage.props.loginOnLoad, !props.authLoaded)}
                         ${assign(FibAuthPage.props.authLoaded, props.authLoaded)}
-                        ${listen(FibAuthPage.events.jiraAuthSubmit, (event) => {
+                        ${listen(FibAuthPage.events.jiraAuthLoad, (event) => {
                             const auth = event.detail;
-                            setProps({jiraAuth: auth, currentPage: MainRendererPage.MyViews});
-                        })}
-                        ${listen(FibAuthPage.events.authLoaded, () => {
-                            setProps({authLoaded: true});
+                            console.log('auth loaded');
+                            setProps({
+                                jiraAuth: auth,
+                                authLoaded: true,
+                            });
+                            if (props.loaded) {
+                                setProps({jiraAuth: auth, currentPage: MainRendererPage.MyViews});
+                            }
                         })}
                         ${assign(FibAuthPage.props.useCachedData, true)}
                         ${assign(FibAuthPage.props.electronApi, electronApi)}

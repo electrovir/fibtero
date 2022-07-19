@@ -3,7 +3,7 @@ import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-req
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {getCachedData, setCachedData} from '../../cache/cached-auth';
+import {getCachedAuth, setCachedData} from '../../cache/cached-auth';
 import {FibInput} from '../core-elements/fib-input.element';
 
 function makeJiraAuth(props: typeof FibAuthPage['init']['props']): JiraAuth {
@@ -37,16 +37,15 @@ export const FibAuthPage = defineFunctionalElement({
         loginOnLoad: false,
         useCachedData: false,
         electronApi: undefined as undefined | ElectronWindowInterface,
-        username: getCachedData()?.credentials.username ?? '',
-        apiKey: getCachedData()?.credentials.apiKey ?? '',
-        domain: getCachedData()?.domain ?? '',
+        username: '',
+        apiKey: '',
+        domain: '',
         message: '',
         authLoaded: false,
         tryingToLogin: undefined as any,
     },
     events: {
-        authLoaded: defineElementEvent<void>(),
-        jiraAuthSubmit: defineElementEvent<JiraAuth>(),
+        jiraAuthLoad: defineElementEvent<JiraAuth | undefined>(),
     },
     styles: css`
         :host {
@@ -59,15 +58,17 @@ export const FibAuthPage = defineFunctionalElement({
             padding: 16px;
         }
     `,
-    initCallback({props, setProps, dispatch, events}) {
-        if (!props.useCachedData) {
-            setProps({
-                apiKey: '',
-                domain: '',
-                username: '',
-            });
+    initCallback({props, setProps}) {
+        if (props.useCachedData) {
+            const cached = getCachedAuth();
+            if (cached) {
+                setProps({
+                    apiKey: cached.credentials.apiKey,
+                    username: cached.credentials.username,
+                    domain: cached.domain,
+                });
+            }
         }
-        dispatch(new events.authLoaded());
     },
     renderCallback: ({props, setProps, dispatch, events}) => {
         async function tryLogin() {
@@ -82,7 +83,8 @@ export const FibAuthPage = defineFunctionalElement({
             try {
                 await testLogin(makeJiraAuth(props), props.electronApi);
                 setProps({message: ''});
-                dispatch(new events.jiraAuthSubmit(makeJiraAuth(props)));
+                console.log('submitting auth');
+                dispatch(new events.jiraAuthLoad(makeJiraAuth(props)));
             } catch (error) {
                 if (props.authLoaded) {
                     setProps({message: `Failed to login: ${error}`});
@@ -92,16 +94,17 @@ export const FibAuthPage = defineFunctionalElement({
 
         if (!props.authLoaded && props.electronApi && !props.tryingToLogin) {
             if (props.loginOnLoad) {
+                console.log('logging in on load');
                 setProps({
                     tryingToLogin: tryLogin().finally(() => {
-                        dispatch(new events.authLoaded());
                         setProps({authLoaded: true, tryingToLogin: undefined});
                     }),
                 });
             } else {
-                dispatch(new events.authLoaded());
+                dispatch(new events.jiraAuthLoad(undefined));
             }
-        } else if (!props.electronApi || !props.authLoaded || props.tryingToLogin) {
+        }
+        if (!props.electronApi || !props.authLoaded || props.tryingToLogin) {
             return html`
                 loading...
             `;
