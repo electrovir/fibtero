@@ -21,20 +21,20 @@ export const FibEditJiraViewPage = defineFunctionalElement({
     styles: css`
         :host {
             display: flex;
-            flex-direction: column;
-        }
-
-        ${FibCreateView} {
-            align-self: center;
+            align-items: flex-start;
         }
 
         .delete {
-            align-self: center;
             margin-top: 16px;
             background-color: pink;
             border: 2px solid red;
             border-radius: 4px;
             cursor: pointer;
+        }
+
+        .edit-section {
+            display: flex;
+            flex-direction: column;
         }
     `,
     renderCallback: ({props, setProps, genericDispatch}) => {
@@ -64,92 +64,84 @@ export const FibEditJiraViewPage = defineFunctionalElement({
 
         const createViewTemplate = currentlyEditing
             ? html`
-                <${FibCreateView}
-                    ${assign(FibCreateView.props.viewDefinition, currentlyEditing.view)}
-                    ${assign(FibCreateView.props.allowReset, false)}
-                    ${listen(FibCreateView.events.viewChange, (event) => {
-                        setProps({
-                            currentlyEditingView: {
-                                index: props.selectedViewIndex,
-                                view: event.detail,
-                            },
-                        });
-                    })}
-                    ${listen(FibCreateView.events.viewSubmit, async (event) => {
-                        const newView = event.detail;
-                        const newViewsArray = [
-                            ...props.userPreferences.views.slice(0, props.selectedViewIndex),
-                            newView,
-                            ...props.userPreferences.views.slice(props.selectedViewIndex + 1),
-                        ];
+                <section class="edit-section">
+                    <${FibCreateView}
+                        ${assign(FibCreateView.props.viewDefinition, currentlyEditing.view)}
+                        ${assign(FibCreateView.props.allowReset, false)}
+                        ${listen(FibCreateView.events.viewChange, (event) => {
+                            setProps({
+                                currentlyEditingView: {
+                                    index: props.selectedViewIndex,
+                                    view: event.detail,
+                                },
+                            });
+                        })}
+                        ${listen(FibCreateView.events.viewSubmit, async (event) => {
+                            const newView = event.detail;
+                            const newViewsArray = [
+                                ...props.userPreferences.views.slice(0, props.selectedViewIndex),
+                                newView,
+                                ...props.userPreferences.views.slice(props.selectedViewIndex + 1),
+                            ];
 
-                        const newUserPreferences: UserPreferences = {
-                            ...props.userPreferences,
-                            views: newViewsArray,
-                        };
+                            const newUserPreferences: UserPreferences = {
+                                ...props.userPreferences,
+                                views: newViewsArray,
+                            };
 
-                        await electronApi.apiRequest({
-                            type: ApiRequestType.SavePreferences,
-                            data: newUserPreferences,
-                        });
+                            await electronApi.apiRequest({
+                                type: ApiRequestType.SavePreferences,
+                                data: newUserPreferences,
+                            });
 
-                        genericDispatch(new ReloadUserPreferencesEvent());
-                    })}
-                ></${FibCreateView}>
-                <button 
-                    class="delete"
-                    ${listen('click', async () => {
-                        const newViewsArray = [
-                            ...props.userPreferences.views.slice(0, props.selectedViewIndex),
-                            ...props.userPreferences.views.slice(props.selectedViewIndex + 1),
-                        ];
+                            genericDispatch(new ReloadUserPreferencesEvent());
+                        })}
+                    ></${FibCreateView}>
+                    <button 
+                        class="delete"
+                        ${listen('click', async () => {
+                            const newViewsArray = [
+                                ...props.userPreferences.views.slice(0, props.selectedViewIndex),
+                                ...props.userPreferences.views.slice(props.selectedViewIndex + 1),
+                            ];
 
-                        const newUserPreferences: UserPreferences = {
-                            ...props.userPreferences,
-                            views: newViewsArray,
-                        };
+                            const newUserPreferences: UserPreferences = {
+                                ...props.userPreferences,
+                                views: newViewsArray,
+                            };
 
-                        let newIndex = props.currentlyEditingView.index - 1;
-                        if (newIndex < 0) {
-                            newIndex = 0;
-                        }
+                            let newIndex = props.currentlyEditingView.index - 1;
+                            if (newIndex < 0) {
+                                newIndex = 0;
+                            }
 
-                        setProps({
-                            currentlyEditingView: {
-                                index: newIndex,
-                                view: undefined,
-                            },
-                            selectedViewIndex: newIndex,
-                        });
+                            setProps({
+                                currentlyEditingView: {
+                                    index: newIndex,
+                                    view: undefined,
+                                },
+                                selectedViewIndex: newIndex,
+                            });
 
-                        await electronApi.apiRequest({
-                            type: ApiRequestType.SavePreferences,
-                            data: newUserPreferences,
-                        });
+                            await electronApi.apiRequest({
+                                type: ApiRequestType.SavePreferences,
+                                data: newUserPreferences,
+                            });
 
-                        genericDispatch(new ReloadUserPreferencesEvent());
-                    })}
-                >
-                    delete
-                </button>
+                            genericDispatch(new ReloadUserPreferencesEvent());
+                        })}
+                    >
+                        delete
+                    </button>
+                </section>
             `
             : '';
 
         return html`
-            Select a view to edit:
-            <br />
-            <br />
             <${FibViewSelector}
                 ${assign(FibViewSelector.props.views, props.userPreferences.views)}
                 ${assign(FibViewSelector.props.selectedViewIndex, props.selectedViewIndex)}
-                ${listen(FibViewSelector.events.selectedViewChange, (event) => {
-                    setProps({
-                        selectedViewIndex: event.detail,
-                    });
-                })}
-            ></${FibViewSelector}>
-            <br />
-        
+            ></${FibViewSelector}>        
             ${createViewTemplate}
         `;
     },

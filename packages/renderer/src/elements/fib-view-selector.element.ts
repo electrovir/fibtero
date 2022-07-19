@@ -1,5 +1,6 @@
 import {JiraView} from '@packages/common/src/data/jira-view';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangeCurrentViewIndexEvent} from '../global-events/change-current-view-index.event';
 import {FibButton} from './core-elements/fib-button.element';
 
 export type ExtraFibViewSelectorCommand = {
@@ -15,6 +16,12 @@ export const FibViewSelector = defineFunctionalElement({
     },
     styles: css`
         :host {
+            align-self: stretch;
+            flex-shrink: 0;
+            flex-direction: column;
+            padding-right: 16px;
+            border-right: 1px solid grey;
+            margin-right: 16px;
             gap: 8px;
             display: flex;
         }
@@ -26,10 +33,9 @@ export const FibViewSelector = defineFunctionalElement({
         }
     `,
     events: {
-        selectedViewChange: defineElementEvent<number>(),
         extraCommandClicked: defineElementEvent<number>(),
     },
-    renderCallback: ({props, dispatch, events}) => {
+    renderCallback: ({props, dispatch, events, genericDispatch}) => {
         return html`
             ${props.views.map((viewDefinition, index) => {
                 return html`
@@ -37,7 +43,7 @@ export const FibViewSelector = defineFunctionalElement({
                         ${assign(FibButton.props.label, viewDefinition.name)}
                         ${assign(FibButton.props.disabled, index === props.selectedViewIndex)}
                         ${listen('click', () => {
-                            dispatch(new events.selectedViewChange(index));
+                            genericDispatch(new ChangeCurrentViewIndexEvent(index));
                         })}
                     ></${FibButton}>
                 `;

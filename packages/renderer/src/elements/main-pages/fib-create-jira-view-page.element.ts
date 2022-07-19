@@ -1,9 +1,11 @@
 import {createNewView} from '@packages/common/src/data/jira-view';
+import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {randomString} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangePageEvent} from '../../global-events/change-page.event';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {FibCreateView} from '../create-view/fib-create-view.element';
 
@@ -13,6 +15,7 @@ export const FibCreateJiraViewPage = defineFunctionalElement({
         electronApi: undefined as undefined | ElectronWindowInterface,
         currentPreferences: emptyUserPreferences,
         currentlyCreatedView: createNewView(randomString),
+        error: '',
     },
     styles: css`
         :host {
@@ -47,17 +50,23 @@ export const FibCreateJiraViewPage = defineFunctionalElement({
                         ],
                     };
 
-                    await electronApi.apiRequest({
+                    const result = await electronApi.apiRequest({
                         type: ApiRequestType.SavePreferences,
                         data: newUserPreferences,
                     });
 
-                    setProps({
-                        currentlyCreatedView: createNewView(randomString),
-                    });
-                    genericDispatch(new ReloadUserPreferencesEvent());
+                    if (result.success) {
+                        setProps({
+                            currentlyCreatedView: createNewView(randomString),
+                        });
+                        genericDispatch(new ReloadUserPreferencesEvent());
+                        genericDispatch(new ChangePageEvent(MainRendererPage.MyViews));
+                    } else {
+                        setProps({error: result.error});
+                    }
                 })}
             ></${FibCreateView}>
+            <span>${props.error}</span>
         `;
     },
 });

@@ -4,6 +4,7 @@ import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangeCurrentViewIndexEvent} from '../../global-events/change-current-view-index.event';
 import {ChangePageEvent} from '../../global-events/change-page.event';
 import {FibViewSelector} from '../fib-view-selector.element';
 import {FibViewDisplay} from '../issue-display/fib-view-display.element';
@@ -32,14 +33,6 @@ export const FibMyViews = defineFunctionalElement({
             gap: 8px;
         }
 
-        ${FibViewSelector} {
-            flex-shrink: 0;
-            flex-direction: column;
-            padding-right: 16px;
-            border-right: 1px solid grey;
-            margin-right: 16px;
-        }
-
         .view-display {
             flex-grow: 1;
         }
@@ -50,9 +43,7 @@ export const FibMyViews = defineFunctionalElement({
                 (view) => view.id === props.userPreferences.lastViewId,
             );
             if (foundById !== -1) {
-                setProps({
-                    selectedViewIndex: foundById,
-                });
+                genericDispatch(new ChangeCurrentViewIndexEvent(foundById));
             }
         }
         const selectedView =
@@ -84,8 +75,7 @@ export const FibMyViews = defineFunctionalElement({
                         genericDispatch(new ChangePageEvent(newPage));
                     }
                 })}
-                ${listen(FibViewSelector.events.selectedViewChange, (event) => {
-                    setProps({selectedViewIndex: event.detail});
+                ${listen(ChangeCurrentViewIndexEvent, (event) => {
                     const view = props.userPreferences.views[event.detail];
                     if (view) {
                         props.electronApi?.apiRequest({

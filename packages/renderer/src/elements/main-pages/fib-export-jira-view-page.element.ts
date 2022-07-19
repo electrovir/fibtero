@@ -1,6 +1,6 @@
 import {serializeJiraView} from '@packages/common/src/data/jira-view';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
-import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {assign, css, defineFunctionalElement, html} from 'element-vir';
 import {FibViewSelector} from '../fib-view-selector.element';
 
 export const FibExportJiraViewPage = defineFunctionalElement({
@@ -12,8 +12,7 @@ export const FibExportJiraViewPage = defineFunctionalElement({
     styles: css`
         :host {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             gap: 16px;
         }
 
@@ -27,6 +26,12 @@ export const FibExportJiraViewPage = defineFunctionalElement({
             width: 100%;
             max-width: 500px;
             max-height: 300px;
+        }
+
+        .copy-section {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
     `,
     renderCallback: ({props, setProps}) => {
@@ -47,20 +52,17 @@ export const FibExportJiraViewPage = defineFunctionalElement({
 
         const serializedViewTemplate = selectedView
             ? html`
-                  Copy the following:
-                  <textarea readonly .value=${serializeJiraView(selectedView)}></textarea>
+                  <section class="copy-section">
+                      Copy the following:
+                      <textarea readonly .value=${serializeJiraView(selectedView)}></textarea>
+                  </section>
               `
             : '';
 
         return html`
-            <br />
-            Choose a view to export:
             <${FibViewSelector}
                 ${assign(FibViewSelector.props.views, props.userPreferences.views)}
                 ${assign(FibViewSelector.props.selectedViewIndex, props.selectedViewIndex)}
-                ${listen(FibViewSelector.events.selectedViewChange, (event) => {
-                    setProps({selectedViewIndex: event.detail});
-                })}
             ></${FibViewSelector}>
             ${serializedViewTemplate}
         `;

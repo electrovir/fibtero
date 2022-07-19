@@ -8,6 +8,7 @@ import {
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangeCurrentViewIndexEvent} from '../../global-events/change-current-view-index.event';
 import {ChangePageEvent} from '../../global-events/change-page.event';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
@@ -37,7 +38,7 @@ export const FibAppElement = defineFunctionalElement({
     tagName: 'fib-app',
     props: {
         currentPage: MainRendererPage.Auth,
-        currentView: [],
+        currentViewIndex: 0,
         electronApi: getElectronWindowInterface(),
         currentFullIssue: undefined as undefined | JiraIssue,
         currentUserPreferences: Promise.resolve(emptyUserPreferences) as
@@ -222,6 +223,10 @@ export const FibAppElement = defineFunctionalElement({
                 ? html`
                     <${FibExportJiraViewPage}
                         ${assign(FibExportJiraViewPage.props.userPreferences, userPreferences)}
+                        ${assign(
+                            FibExportJiraViewPage.props.selectedViewIndex,
+                            props.currentViewIndex,
+                        )}
                     ></${FibExportJiraViewPage}>
                   `
                 : props.currentPage === MainRendererPage.EditJiraView
@@ -229,6 +234,10 @@ export const FibAppElement = defineFunctionalElement({
                     <${FibEditJiraViewPage}
                         ${assign(FibEditJiraViewPage.props.userPreferences, userPreferences)}
                         ${assign(FibEditJiraViewPage.props.electronApi, electronApi)}
+                        ${assign(
+                            FibEditJiraViewPage.props.selectedViewIndex,
+                            props.currentViewIndex,
+                        )}
                     ></${FibEditJiraViewPage}>
                   `
                 : props.currentPage === MainRendererPage.MyViews
@@ -236,6 +245,7 @@ export const FibAppElement = defineFunctionalElement({
                     <${FibMyViews}
                         ${assign(FibMyViews.props.userPreferences, userPreferences)}
                         ${assign(FibMyViews.props.jiraAuth, props.jiraAuth)}
+                        ${assign(FibMyViews.props.selectedViewIndex, props.currentViewIndex)}
                         ${assign(FibMyViews.props.electronApi, props.electronApi)}
                     ></${FibMyViews}>
                 `
@@ -254,6 +264,9 @@ export const FibAppElement = defineFunctionalElement({
                 })}
                 ${listen(ShowFullIssueEvent, async (event) => {
                     setProps({currentFullIssue: event.detail});
+                })}
+                ${listen(ChangeCurrentViewIndexEvent, async (event) => {
+                    setProps({currentViewIndex: event.detail});
                 })}
                 ${listen(ChangePageEvent, (event) => {
                     const newPage = event.detail;
