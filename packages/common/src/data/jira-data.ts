@@ -147,14 +147,14 @@ export type JiraIssueType = {
 };
 
 export type JiraIssueFields = Record<string, unknown> & {
-    assignee?: unknown;
+    assignee?: JiraUser;
     creator?: unknown;
     description?: JiraDescription;
     issuetype?: JiraIssueType;
     parent?: unknown;
     priority?: unknown;
     project?: JiraProject;
-    reporter?: unknown;
+    reporter?: JiraUser;
     status?: unknown;
     summary?: unknown;
     watches?: unknown;

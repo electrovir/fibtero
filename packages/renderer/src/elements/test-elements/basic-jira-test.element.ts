@@ -267,6 +267,9 @@ function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
                         },
                     ],
                 },
+                assignee: {
+                    id: props.userAccountId,
+                },
             },
             id: '',
             self: '',
@@ -307,6 +310,9 @@ function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']) {
             issuetype: {
                 name: props.issueTypeIdOrName,
             },
+            assignee: {
+                id: props.userAccountId,
+            },
         },
         credentials: {
             apiKey: props.apiKey,
@@ -341,6 +347,7 @@ export const BasicJiraTest = defineFunctionalElement({
         createdSummary: '',
         labelsToAdd: '',
         labelsToRemove: '',
+        userAccountId: '',
         electronApi: undefined as undefined | ElectronWindowInterface,
         project: '',
         label: '',
@@ -453,6 +460,13 @@ export const BasicJiraTest = defineFunctionalElement({
                 ${assign(FibInput.props.label, 'Description text')}
                 ${assign(FibInput.props.value, props.updatedDescriptionText)}
             ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({userAccountId: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Assignee account id')}
+                ${assign(FibInput.props.value, props.userAccountId)}
+            ></${FibInput}>
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
@@ -521,6 +535,13 @@ export const BasicJiraTest = defineFunctionalElement({
                 })}
                 ${assign(FibInput.props.label, 'Summary')}
                 ${assign(FibInput.props.value, props.createdSummary)}
+            ></${FibInput}>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({userAccountId: event.detail});
+                })}
+                ${assign(FibInput.props.label, 'Assignee account id')}
+                ${assign(FibInput.props.value, props.userAccountId)}
             ></${FibInput}>
             <button
                 ${listen('click', async () => {
