@@ -322,6 +322,7 @@ export const FibAppElement = defineFunctionalElement({
                     setProps({currentUserPreferences: result});
                 })}
                 ${listen(ShowFullIssueEvent, async (event) => {
+                    console.log({fullIssue: event.detail});
                     setProps({currentFullIssue: event.detail});
                 })}
                 ${listen(ChangeCurrentViewIndexEvent, async (event) => {

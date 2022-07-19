@@ -2,9 +2,9 @@ import {
     createEmptyViewSection,
     createNewView,
     JiraView,
-    validateView,
     ViewDirection,
 } from '@packages/common/src/data/jira-view/jira-view';
+import {validateView} from '@packages/common/src/data/jira-view/jira-view-validation';
 import {getEnumTypedValues, isEnumValue, isTruthy, randomString} from 'augment-vir';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {repeat} from 'lit/directives/repeat.js';
@@ -15,7 +15,7 @@ export const FibCreateView = defineFunctionalElement({
     tagName: 'fib-create-view',
     props: {
         viewDefinition: createNewView(randomString),
-        error: '',
+        error: {} as {[viewId: string]: string},
         allowReset: true,
     },
     events: {
@@ -60,6 +60,13 @@ export const FibCreateView = defineFunctionalElement({
         }
     `,
     renderCallback: ({props, setProps, dispatch, events}) => {
+        if (
+            Object.keys(props.error).length &&
+            Object.keys(props.error)[0] !== props.viewDefinition.id
+        ) {
+            setProps({error: {}});
+        }
+
         function updateCreatedView(newView: JiraView) {
             setProps({viewDefinition: newView});
             dispatch(new events.viewChange(newView));
@@ -165,7 +172,7 @@ export const FibCreateView = defineFunctionalElement({
                     },
                 )}
                 
-                <div class="error-message">${props.error
+                <div class="error-message">${(props.error[props.viewDefinition.id] ?? '')
                     .split('\n')
                     .filter(isTruthy)
                     .map(
@@ -178,10 +185,14 @@ export const FibCreateView = defineFunctionalElement({
                 <button
                     type="submit"
                     ${listen('click', () => {
-                        setProps({error: ''});
+                        setProps({error: {}});
                         const error = validateView(props.viewDefinition);
                         if (error) {
-                            setProps({error: error});
+                            setProps({
+                                error: {
+                                    [props.viewDefinition.id]: error,
+                                },
+                            });
                         } else {
                             dispatch(new events.viewSubmit(props.viewDefinition));
                         }

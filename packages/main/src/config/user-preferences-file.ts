@@ -1,13 +1,15 @@
 import {extractMessage} from '@packages/common/src/augments/error';
-import {FilterType} from '@packages/common/src/data/jira-view/jira-view';
+import {JiraView} from '@packages/common/src/data/jira-view/jira-view';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {
     emptyUserPreferences,
     isValidUserPreferences,
     UserPreferences,
 } from '@packages/common/src/data/user-preferences';
+import {Writeable} from 'augment-vir';
 import {ensureDir, ensureFile} from 'fs-extra';
 import {dirname} from 'path';
+import {updateJiraViews} from '../../../common/src/data/jira-view/jira-view-update';
 import {HasGetPath} from '../augments/electron';
 import {readPackedJson, writePackedJson} from '../augments/file-system';
 import {getUserPreferencesFilePath} from './config-path';
@@ -61,16 +63,12 @@ export async function readUserPreferences(appPaths: HasGetPath): Promise<UserPre
     if (!isValidUserPreferences(fromFile)) {
         throw new Error(`Read user preferences from file contents failed validation.`);
     }
-    //add new attributes since last file save
-    fromFile.views.map((v) => {
-        v.sections.map((s) => {
-            s.requirements.map((r) => {
-                if (!r.filterType) {
-                    r.filterType = FilterType.Regex;
-                }
-            });
-        });
-    });
+    // add new attributes since last file save
+    const updated = updateJiraViews(fromFile.views as Writeable<JiraView[]>);
+
+    if (updated) {
+        await saveUserPreferences(fromFile, appPaths);
+    }
     return fromFile;
 }
 

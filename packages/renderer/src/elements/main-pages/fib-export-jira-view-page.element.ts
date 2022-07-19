@@ -1,4 +1,4 @@
-import {serializeJiraView} from '@packages/common/src/data/jira-view/jira-view';
+import {serializeJiraView} from '@packages/common/src/data/jira-view/jira-view-validation';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {assign, css, defineFunctionalElement, html} from 'element-vir';
 import {FibViewSelector} from '../fib-view-selector.element';
