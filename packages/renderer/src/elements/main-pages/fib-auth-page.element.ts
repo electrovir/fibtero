@@ -20,7 +20,7 @@ function makeJiraAuth(props: typeof FibAuthPage['init']['props']): JiraAuth {
 
 async function testLogin(jiraAuth: JiraAuth, electronApi: ElectronWindowInterface) {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetCustomFieldNames,
+        type: ApiRequestType.GetFields,
         data: jiraAuth,
     });
 

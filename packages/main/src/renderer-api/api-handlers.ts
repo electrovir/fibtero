@@ -8,7 +8,7 @@ import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
 import {readUserPreferences, saveUserPreferences} from '../config/user-preferences-file';
 import {createIssue} from '../jira-api/create-issue-request';
-import {getCustomFieldNames} from '../jira-api/get-field-names-request';
+import {getFields} from '../jira-api/get-fields-request';
 import {getIssueTypes} from '../jira-api/get-issue-types-request';
 import {getProjects} from '../jira-api/get-projects-request';
 import {getUsers, searchUsers} from '../jira-api/get-users-request';
@@ -32,7 +32,7 @@ const apiHandlers: {
     [ApiRequestType.ViewFilePath]: (input) => viewPath(input),
     [ApiRequestType.ResetConfig]: resetConfig,
     [ApiRequestType.CreateIssue]: createIssue,
-    [ApiRequestType.GetCustomFieldNames]: getCustomFieldNames,
+    [ApiRequestType.GetFields]: getFields,
     [ApiRequestType.GetIssueTypes]: getIssueTypes,
     [ApiRequestType.GetProjects]: getProjects,
     [ApiRequestType.JqlSearch]: (input) => runJiraJqlSearch(input),
@@ -69,7 +69,7 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
     [ApiRequestType.CreateIssue]: {
         allowLogging: false,
     },
-    [ApiRequestType.GetCustomFieldNames]: {
+    [ApiRequestType.GetFields]: {
         allowLogging: false,
     },
     [ApiRequestType.GetIssueTypes]: {

@@ -5,7 +5,6 @@ import {
     issueTypeRequestValidator,
     IssueTypesRequest,
     JiraAuth,
-    JiraCustomFieldDefinitions,
     JiraIssue,
     JiraIssueResponse,
     JiraIssueTypesResponse,
@@ -13,6 +12,7 @@ import {
     JiraProjectsResponse,
     jiraRequestValidator,
     JiraSearchIssuesByLabelRequest,
+    JiraSimplifiedField,
     JiraUser,
     searchByLabelRequestValidator,
     searchRequestValidator,
@@ -47,7 +47,7 @@ export enum ApiRequestType {
     ViewFilePath = 'view-file-path',
     ResetConfig = 'reset-config',
     CreateIssue = 'jira-create-issue',
-    GetCustomFieldNames = 'jira-get-custom-field-names',
+    GetFields = 'jira-get-fields',
     GetIssueTypes = 'jira-get-issue-types',
     GetProjects = 'jira-get-projects',
     JqlSearch = 'jira-search',
@@ -66,7 +66,7 @@ export type ApiRequestData = {
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
     [ApiRequestType.CreateIssue]: CreateIssueRequest;
-    [ApiRequestType.GetCustomFieldNames]: JiraAuth;
+    [ApiRequestType.GetFields]: JiraAuth;
     [ApiRequestType.GetIssueTypes]: IssueTypesRequest;
     [ApiRequestType.GetProjects]: JiraAuth;
     [ApiRequestType.JqlSearch]: JiraJqlSearchRequest;
@@ -85,7 +85,7 @@ export type ApiResponseData = {
     [ApiRequestType.ViewFilePath]: void;
     [ApiRequestType.ResetConfig]: boolean;
     [ApiRequestType.CreateIssue]: JiraIssueResponse;
-    [ApiRequestType.GetCustomFieldNames]: JiraCustomFieldDefinitions;
+    [ApiRequestType.GetFields]: JiraSimplifiedField[];
     [ApiRequestType.GetIssueTypes]: JiraIssueTypesResponse;
     [ApiRequestType.GetProjects]: JiraProjectsResponse;
     [ApiRequestType.JqlSearch]: JiraIssue[];
@@ -127,7 +127,7 @@ export const apiValidators: {
         request: createEnumValidator(ResetType),
         response: typeofValidators.boolean,
     },
-    [ApiRequestType.GetCustomFieldNames]: {
+    [ApiRequestType.GetFields]: {
         request: jiraRequestValidator,
         response: dummyValidator,
     },

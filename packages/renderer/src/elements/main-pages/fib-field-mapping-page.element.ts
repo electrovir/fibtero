@@ -1,46 +1,36 @@
 import {
     JiraAuth,
     JiraCustomFieldDefinitions,
-    JiraIssue,
-    JiraJqlSearchRequest,
+    JiraSimplifiedField,
 } from '@packages/common/src/data/jira-data';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
-import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {css, defineFunctionalElement, html} from 'element-vir';
+import {getMaybeCachedFields} from '../../cache/jira-fields-cache';
 
-async function getFields(
-    jiraAuth: JiraAuth,
-    electronApi: ElectronWindowInterface,
-): Promise<JiraCustomFieldDefinitions> {
-    const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetCustomFieldNames,
-        data: jiraAuth,
-    });
-
-    if (response.success) {
-        console.log({fields: response.data});
-        return response.data;
-    } else {
-        throw new Error(`Jira request failed: ${response.error}`);
-    }
+function mapCustomFieldNames(fields: JiraSimplifiedField[]) {
+    return fields.reduce((map, entry) => {
+        if (entry.key.startsWith('customfield')) {
+            map[entry.key] = entry.name;
+        }
+        return map;
+    }, {} as JiraCustomFieldDefinitions);
 }
 
-async function search(
-    searchRequest: JiraJqlSearchRequest,
-    electronApi: ElectronWindowInterface,
-): Promise<JiraIssue[]> {
-    const response = await electronApi.apiRequest({
-        type: ApiRequestType.JqlSearch,
-        data: searchRequest,
+function guessLikelyTypeMappings(simplifiedFields: JiraSimplifiedField[]) {
+    const customFieldNames = mapCustomFieldNames(simplifiedFields);
+    const mappings: Record<string, string> = {};
+
+    simplifiedFields.forEach((field) => {
+        let type: string = 'string';
+        if (field.schema) {
+            type = field.schema['type']?.toString() ?? 'string';
+        }
+        mappings[customFieldNames[field.key] ?? field.key] = type;
     });
 
-    if (response.success) {
-        console.log(response.data);
-        return response.data;
-    } else {
-        throw new Error(`Jira request failed: ${response.error}`);
-    }
+    console.log({mappings: mappings});
+    return mappings;
 }
 
 function makeJiraRequestData(props: typeof FibFieldMappingPage['init']['props']) {
@@ -70,6 +60,7 @@ export const FibFieldMappingPage = defineFunctionalElement({
         electronApi: undefined as undefined | ElectronWindowInterface,
         currentPreferences: emptyUserPreferences,
         jiraAuth: undefined as undefined | JiraAuth,
+        fieldMappings: {} as Record<string, string>,
     },
     styles: css`
         :host {
@@ -77,12 +68,37 @@ export const FibFieldMappingPage = defineFunctionalElement({
             align-items: center;
             flex-direction: column;
         }
+
+        table {
+            border: none;
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            border-right: 1px solid black;
+            padding: 8px;
+        }
+
+        td:last-child,
+        th:last-child {
+            border-right: none;
+        }
+
+        th {
+            border-bottom: 1px solid black;
+        }
     `,
-    initCallback: ({props}) => {
-        console.log('hello there');
-        if (props.electronApi) {
-            getFields(makeJiraRequestData(props), props.electronApi);
-            search(makeSearchRequestData(props), props.electronApi);
+    initCallback: async ({props, setProps}) => {
+        if (props.electronApi && props.jiraAuth) {
+            const cachedSimplifiedFields = await getMaybeCachedFields(
+                props.electronApi,
+                props.jiraAuth,
+                () => {},
+            );
+            setProps({
+                fieldMappings: guessLikelyTypeMappings(cachedSimplifiedFields),
+            });
         }
     },
     renderCallback: ({props, setProps, genericDispatch}) => {
@@ -101,6 +117,20 @@ export const FibFieldMappingPage = defineFunctionalElement({
                 you would like to make, feel free to make them now. There will be the option to
                 return and edit these mappings later.
             </p>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                </tr>
+                ${Object.keys(props.fieldMappings).map((key) => {
+                    return html`
+                        <tr>
+                            <td>${key}</td>
+                            <td>${props.fieldMappings[key]}</td>
+                        </tr>
+                    `;
+                })}
+            </table>
         `;
     },
 });

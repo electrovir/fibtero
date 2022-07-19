@@ -63,10 +63,16 @@ export async function getMaybeCachedView(
         }
     }
 
-    fields = await getMaybeCachedFields(electronApi, jiraAuth, (newFields) => {
-        fields = newFields;
+    const cachedSimplifiedFields = await getMaybeCachedFields(electronApi, jiraAuth, () => {
         triggerUpdateCallbackMaybe('fields');
     });
+
+    fields = cachedSimplifiedFields.reduce((map, entry) => {
+        if (entry.key.startsWith('customfield')) {
+            map[entry.key] = entry.name;
+        }
+        return map;
+    }, {} as JiraCustomFieldDefinitions);
 
     issues = await getMaybeCached({
         cacheKey: generateViewKey(jiraView),

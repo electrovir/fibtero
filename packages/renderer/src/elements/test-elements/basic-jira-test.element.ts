@@ -2,12 +2,12 @@ import {
     CreateIssueRequest,
     IssueTypesRequest,
     JiraAuth,
-    JiraCustomFieldDefinitions,
     JiraIssue,
     JiraIssueTypesResponse,
     JiraJqlSearchRequest,
     JiraProjectsResponse,
     JiraSearchIssuesByLabelRequest,
+    JiraSimplifiedField,
     JiraUser,
     UpdateIssueLabelsRequest,
     UpdateIssueRequest,
@@ -38,9 +38,9 @@ async function createIssue(
 async function getFields(
     jiraAuth: JiraAuth,
     electronApi: ElectronWindowInterface,
-): Promise<JiraCustomFieldDefinitions> {
+): Promise<JiraSimplifiedField[]> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetCustomFieldNames,
+        type: ApiRequestType.GetFields,
         data: jiraAuth,
     });
 

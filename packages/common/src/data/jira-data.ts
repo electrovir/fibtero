@@ -178,6 +178,13 @@ export type JiraIssueType = {
 
 export type JiraPriority = JiraIssueType;
 
+export type JiraSimplifiedField = {
+    id: string;
+    key: string;
+    name: string;
+    schema: Record<string, string | number>;
+};
+
 export type JiraIssueFields = Record<string, unknown> & {
     assignee?: JiraUser;
     creator?: unknown;

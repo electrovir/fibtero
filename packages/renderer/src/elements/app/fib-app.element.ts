@@ -6,6 +6,8 @@ import {
     ElectronWindowInterface,
     getElectronWindowInterface,
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
+import {GetPathType} from '@packages/common/src/electron-renderer-api/get-path-type';
+import {ResetType} from '@packages/common/src/electron-renderer-api/reset';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ChangeCurrentViewIndexEvent} from '../../global-events/change-current-view-index.event';
@@ -216,7 +218,7 @@ export const FibAppElement = defineFunctionalElement({
             if (!props.jiraAuth) {
                 console.log('going to auth cause no jira auth');
                 setProps({currentPage: MainRendererPage.Auth});
-            } else if (props.jiraAuth && lockToFieldMapping) {
+            } else if (Object.keys(props.currentUserPreferences.fieldMapping).length === 0) {
                 setProps({currentPage: MainRendererPage.FieldMappingView});
             }
         }
@@ -290,7 +292,7 @@ export const FibAppElement = defineFunctionalElement({
                         ${assign(FibMyViews.props.selectedViewIndex, props.currentViewIndex)}
                         ${assign(FibMyViews.props.electronApi, props.electronApi)}
                     ></${FibMyViews}>
-                `
+                  `
                 : props.currentPage === MainRendererPage.FieldMappingView
                 ? html`
                     <${FibFieldMappingPage}
@@ -373,6 +375,35 @@ export const FibAppElement = defineFunctionalElement({
                 <main>
                     ${pageTemplate}
                 </main>
+                <footer>
+                    <button
+                        ${listen('click', async () => {
+                            const configPath = await electronApi.apiRequest({
+                                type: ApiRequestType.GetConfigPath,
+                                data: GetPathType.ConfigDir,
+                            });
+                            if (!configPath.success) {
+                                throw new Error(`Failed to get config dir.`);
+                            }
+                            await electronApi.apiRequest({
+                                type: ApiRequestType.ViewFilePath,
+                                data: configPath.data,
+                            });
+                        })}
+                    >
+                        Show Configs Dir
+                    </button>
+                    <button
+                        ${listen('click', async () => {
+                            await electronApi.apiRequest({
+                                type: ApiRequestType.ResetConfig,
+                                data: ResetType.All,
+                            });
+                        })}
+                    >
+                        Reset All Configs
+                    </button>
+                </footer>
             </div>
         `;
     },
