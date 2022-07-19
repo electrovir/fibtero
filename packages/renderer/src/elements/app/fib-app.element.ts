@@ -209,14 +209,14 @@ export const FibAppElement = defineFunctionalElement({
             // default to home if an invalid page is given
             if (!isEnumValue(props.currentPage, MainRendererPage)) {
                 console.log(`Invalid page name: ${props.currentPage}`);
-                setProps({currentPage: MainRendererPage.Auth});
+                setProps({currentPage: MainRendererPage.MyViews});
             }
             lockToFieldMapping = shouldLockToFieldMappingPage(props.currentPage, userPreferences);
 
             if (!props.jiraAuth) {
                 console.log('going to auth cause no jira auth');
                 setProps({currentPage: MainRendererPage.Auth});
-            } else if (Object.keys(userPreferences.fieldMapping).length === 0) {
+            } else if (lockToFieldMapping) {
                 console.log('going to field mapping cause no field mappings');
                 setProps({currentPage: MainRendererPage.FieldMappingView});
             }
