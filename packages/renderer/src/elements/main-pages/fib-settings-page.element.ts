@@ -64,7 +64,6 @@ export const FibSettingsPage = defineFunctionalElement({
                 >
                     Logout
                 </button>
-
                 <button
                     ${listen('click', async () => {
                         const configPath = await electronApi.apiRequest({
@@ -91,6 +90,13 @@ export const FibSettingsPage = defineFunctionalElement({
                     })}
                 >
                     Reset All Configs
+                </button>
+                <button
+                    ${listen('click', () => {
+                        genericDispatch(new ChangePageEvent(MainRendererPage.FieldMappingView));
+                    })}
+                >
+                    Edit field mappings
                 </button>
             </section>
             <h2>Preferences</h2>

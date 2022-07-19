@@ -3,10 +3,13 @@ import {
     JiraCustomFieldDefinitions,
     JiraSimplifiedField,
 } from '@packages/common/src/data/jira-data';
+import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
+import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
-import {css, defineFunctionalElement, html} from 'element-vir';
+import {css, defineFunctionalElement, html, listen} from 'element-vir';
 import {getMaybeCachedFields} from '../../cache/jira-fields-cache';
+import {ChangePageEvent} from '../../global-events/change-page.event';
 
 function mapCustomFieldNames(fields: JiraSimplifiedField[]) {
     return fields.reduce((map, entry) => {
@@ -17,7 +20,7 @@ function mapCustomFieldNames(fields: JiraSimplifiedField[]) {
     }, {} as JiraCustomFieldDefinitions);
 }
 
-function guessLikelyTypeMappings(simplifiedFields: JiraSimplifiedField[]) {
+function guessLikelyTypeMappings(simplifiedFields: JiraSimplifiedField[], knownTypes: string[]) {
     const customFieldNames = mapCustomFieldNames(simplifiedFields);
     const mappings: Record<string, string> = {};
 
@@ -26,32 +29,16 @@ function guessLikelyTypeMappings(simplifiedFields: JiraSimplifiedField[]) {
         if (field.schema) {
             type = field.schema['type']?.toString() ?? 'string';
         }
+
+        if (!knownTypes.includes(type)) {
+            knownTypes.push(type);
+        }
+
         mappings[customFieldNames[field.key] ?? field.key] = type;
     });
 
-    console.log({mappings: mappings});
+    knownTypes = knownTypes.sort();
     return mappings;
-}
-
-function makeJiraRequestData(props: typeof FibFieldMappingPage['init']['props']) {
-    return {
-        domain: props.jiraAuth?.domain || '',
-        credentials: props.jiraAuth?.credentials || {
-            apiKey: '',
-            username: '',
-        },
-    };
-}
-
-function makeSearchRequestData(props: typeof FibFieldMappingPage['init']['props']) {
-    return {
-        domain: props.jiraAuth?.domain || '',
-        jql: 'project = "UX Engineering"',
-        credentials: props.jiraAuth?.credentials || {
-            apiKey: '',
-            username: '',
-        },
-    };
 }
 
 export const FibFieldMappingPage = defineFunctionalElement({
@@ -60,7 +47,8 @@ export const FibFieldMappingPage = defineFunctionalElement({
         electronApi: undefined as undefined | ElectronWindowInterface,
         currentPreferences: emptyUserPreferences,
         jiraAuth: undefined as undefined | JiraAuth,
-        fieldMappings: {} as Record<string, string>,
+        fieldMapping: {} as Record<string, string>,
+        knownTypes: [] as string[],
     },
     styles: css`
         :host {
@@ -88,6 +76,16 @@ export const FibFieldMappingPage = defineFunctionalElement({
         th {
             border-bottom: 1px solid black;
         }
+
+        form {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .submit {
+            margin: 16px;
+        }
     `,
     initCallback: async ({props, setProps}) => {
         if (props.electronApi && props.jiraAuth) {
@@ -97,11 +95,11 @@ export const FibFieldMappingPage = defineFunctionalElement({
                 () => {},
             );
             setProps({
-                fieldMappings: guessLikelyTypeMappings(cachedSimplifiedFields),
+                fieldMapping: guessLikelyTypeMappings(cachedSimplifiedFields, props.knownTypes),
             });
         }
     },
-    renderCallback: ({props, setProps, genericDispatch}) => {
+    renderCallback: ({props, genericDispatch}) => {
         if (!props.electronApi) {
             return html`
                 loading...
@@ -117,20 +115,54 @@ export const FibFieldMappingPage = defineFunctionalElement({
                 you would like to make, feel free to make them now. There will be the option to
                 return and edit these mappings later.
             </p>
-            <table>
-                <tr>
-                    <th>Field</th>
-                    <th>Type</th>
-                </tr>
-                ${Object.keys(props.fieldMappings).map((key) => {
-                    return html`
-                        <tr>
-                            <td>${key}</td>
-                            <td>${props.fieldMappings[key]}</td>
-                        </tr>
-                    `;
+            <form
+                ${listen('submit', () => {
+                    electronApi.apiRequest({
+                        type: ApiRequestType.SavePreferences,
+                        data: {
+                            ...props.currentPreferences,
+                            fieldMapping: props.fieldMapping,
+                        },
+                    });
+
+                    genericDispatch(new ChangePageEvent(MainRendererPage.MyViews));
                 })}
-            </table>
+            >
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                    </tr>
+                    ${Object.keys(props.fieldMapping)
+                        .map((key) => key[0]?.toUpperCase() + key.slice(1))
+                        .sort()
+                        .map((key) => {
+                            return html`
+                                <tr>
+                                    <td>${key}</td>
+                                    <td>
+                                        <select name="${key}">
+                                            ${props.knownTypes.map((type) => {
+                                                if (type === props.fieldMapping[key]) {
+                                                    return html`
+                                                        <option value="${type}" selected>
+                                                            ${type}
+                                                        </option>
+                                                    `;
+                                                } else {
+                                                    return html`
+                                                        <option value="${type}">${type}</option>
+                                                    `;
+                                                }
+                                            })}
+                                        </select>
+                                    </td>
+                                </tr>
+                            `;
+                        })}
+                </table>
+                <input class="submit" type="submit" value="Save" />
+            </form>
         `;
     },
 });
