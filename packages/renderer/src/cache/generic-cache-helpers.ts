@@ -29,8 +29,6 @@ async function makeCacheUpdate(inputs: GetMaybeCachedInputs) {
         if (response.success) {
             window.localStorage.setItem(inputs.cacheKey, JSON.stringify(response.data));
 
-            console.log({[inputs.cacheKey]: response.data});
-
             return response.data;
         } else {
             throw new Error(`Failed to update cached: ${response.error}`);
@@ -42,7 +40,6 @@ async function makeCacheUpdate(inputs: GetMaybeCachedInputs) {
 
 async function updateCache(inputs: GetMaybeCachedInputs) {
     if (requestsInProgress[inputs.cacheKey]) {
-        console.log(`Request already in progress for ${inputs.cacheKey}`);
     } else {
         requestsInProgress[inputs.cacheKey] = makeCacheUpdate(inputs).then((data) => {
             delete requestsInProgress[inputs.cacheKey];

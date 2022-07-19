@@ -21,8 +21,8 @@ export const FibViewDisplay = defineFunctionalElement({
         electronApi: undefined as undefined | ElectronWindowInterface,
         loadedViewIssues: undefined as
             | undefined
-            | LoadedIssues<JiraIssue[]>
-            | LoadedIssues<Promise<JiraIssue[]>>,
+            | LoadedIssues<Readonly<Readonly<JiraIssue>[]>>
+            | LoadedIssues<Promise<Readonly<Readonly<JiraIssue>[]>>>,
         error: '',
     },
     hostClasses: {

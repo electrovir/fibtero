@@ -146,7 +146,6 @@ export function matchesSectionFilters(issue: JiraIssue, section: JiraViewSection
         }
         const filterRegExp = new RegExp(filter.filterRegExpString, 'i');
         const match = !!String(fieldValue).match(filterRegExp);
-        console.log({fieldName: filter.fieldName, issue, fieldValue, filterRegExp, match});
         return match;
     });
 }

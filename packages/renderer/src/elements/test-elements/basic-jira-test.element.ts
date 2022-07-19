@@ -332,6 +332,16 @@ async function submitForm(props: typeof BasicJiraTest['init']['props']) {
     }
 }
 
+function makeJiraAuth(props: typeof BasicJiraTest['init']['props']): JiraAuth {
+    const requestData = makeSearchRequestData(props);
+    const auth: JiraAuth = {
+        credentials: requestData.credentials,
+        domain: requestData.domain,
+    };
+
+    return auth;
+}
+
 export const BasicJiraTest = defineFunctionalElement({
     tagName: 'fib-basic-jira-test',
     props: {
@@ -370,7 +380,7 @@ export const BasicJiraTest = defineFunctionalElement({
     `,
     initCallback({props, setProps, dispatch, events}) {
         if (props.useCachedData && props.apiKey && props.domain && props.jql && props.username) {
-            dispatch(new events.jiraAuthInput(makeSearchRequestData(props)));
+            dispatch(new events.jiraAuthInput(makeJiraAuth(props)));
             // fire a request if all the data is cached already
             submitForm(props);
         }
@@ -397,7 +407,7 @@ export const BasicJiraTest = defineFunctionalElement({
                     // prevent page navigation
                     event.preventDefault();
 
-                    dispatch(new events.jiraAuthInput(makeSearchRequestData(props)));
+                    dispatch(new events.jiraAuthInput(makeJiraAuth(props)));
                     await submitForm(props);
                 })}
             >
