@@ -1,11 +1,11 @@
-import {JiraIssue} from '@packages/common/src/data/jira-data';
+import {FullJiraIssue} from '@packages/common/src/data/jira-data';
 import {css, defineFunctionalElement, html} from 'element-vir';
 import {getFieldFormatting} from '../../field-formatting/field-formatting';
 
 export const FibIssueCard = defineFunctionalElement({
     tagName: 'fib-issue-card',
     props: {
-        issue: undefined as undefined | JiraIssue,
+        issue: undefined as undefined | FullJiraIssue,
     },
     styles: css`
         :host {
@@ -77,9 +77,7 @@ export const FibIssueCard = defineFunctionalElement({
     `,
     renderCallback: ({props}) => {
         if (!props.issue) {
-            return html`
-                no issue given
-            `;
+            return html``;
         }
 
         const typeIconUrl = props.issue.fields.issuetype?.iconUrl ?? '';
@@ -103,7 +101,9 @@ export const FibIssueCard = defineFunctionalElement({
                 <div class="points">${storyPoints}</div>
             </div>
             <div class="title">${title}</div>
-            <div class="faded">${getFieldFormatting('assignee', props.issue.fields.assignee)}</div>
+            <div class="faded">
+                ${getFieldFormatting('assignee', props.issue.fields.assignee, props.issue)}
+            </div>
         `;
     },
 });

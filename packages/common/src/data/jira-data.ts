@@ -1,4 +1,5 @@
 import {Overwrite} from 'augment-vir';
+import {JiraDocumentDoc} from './jira-document';
 import {matchesShallowObjectSignature} from './object-validator';
 
 export type JiraCredentials = {
@@ -49,10 +50,28 @@ export type JiraJqlSearchRequest = JiraAuth & {
     jql: string;
 };
 
+export type JiraRestApiCallRequest = JiraAuth & {
+    relativeUrl: string;
+};
+
 export type JiraSearchIssuesByLabelRequest = JiraAuth & {
     project: string;
     label: string;
 };
+
+export type JiraAttachment = {
+    self: string;
+    id: string;
+    filename: string;
+    author: JiraUser;
+    created: string;
+    size: number;
+    mimeType: string;
+    content: string;
+    thumbnail: string;
+};
+
+export type FullJiraIssue = JiraIssue & {attachment: JiraAttachment[]};
 
 export type UpdateIssueRequest = JiraAuth & {
     issue: Overwrite<JiraIssue, {fields: Overwrite<JiraIssueFields, {assignee: {id: string}}>}>;
@@ -153,15 +172,7 @@ export function updateIssueLabelsRequestValidator(
     return true;
 }
 
-export type JiraDocument = {
-    type: string;
-    version?: number;
-    attrs?: {url: string};
-    content?: JiraDocument[];
-    text?: string;
-};
-
-export type JiraDescription = JiraDocument;
+export type JiraDescription = JiraDocumentDoc;
 
 export type JiraProject = {
     id?: string;

@@ -19,7 +19,6 @@ export const FibMyViews = defineFunctionalElement({
     },
     styles: css`
         :host {
-            padding-top: 24px;
             box-sizing: border-box;
             display: flex;
         }

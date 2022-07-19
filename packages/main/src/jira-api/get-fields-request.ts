@@ -1,5 +1,4 @@
-import {JiraAuth} from '@packages/common/src/data/jira-data';
-import {JiraSimplifiedField} from '../../../common/src/data/jira-data';
+import {JiraAuth, JiraSimplifiedField} from '@packages/common/src/data/jira-data';
 import {get} from '../axios-wrapper';
 import {apiRoute} from './jira-routing';
 

@@ -1,9 +1,14 @@
-import {JiraAuth, JiraIssue} from '@packages/common/src/data/jira-data';
-import {FilterType, getFieldValue, JiraView, matchesSectionFilters, ViewDirection,} from '@packages/common/src/data/jira-view';
+import {FullJiraIssue, JiraAuth} from '@packages/common/src/data/jira-data';
+import {
+    FilterType,
+    getFieldValue,
+    JiraView,
+    matchesSectionFilters,
+    ViewDirection,
+} from '@packages/common/src/data/jira-view';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isPromiseLike} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
-import { isTemplateExpression } from 'typescript';
 import {getMaybeCachedView} from '../../cache/jira-view-cache';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
 import {FibIssueCard} from './fib-issue-card.element';
@@ -23,8 +28,8 @@ export const FibViewDisplay = defineFunctionalElement({
         electronApi: undefined as undefined | ElectronWindowInterface,
         loadedViewIssues: undefined as
             | undefined
-            | LoadedIssues<Readonly<Readonly<JiraIssue>[]>>
-            | LoadedIssues<Promise<Readonly<Readonly<JiraIssue>[]>>>,
+            | LoadedIssues<Readonly<Readonly<FullJiraIssue>[]>>
+            | LoadedIssues<Promise<Readonly<Readonly<FullJiraIssue>[]>>>,
         error: '',
     },
     hostClasses: {
@@ -160,23 +165,30 @@ export const FibViewDisplay = defineFunctionalElement({
         }
 
         const issues = props.loadedViewIssues.issues;
-    
-        const sectionMap = props.view.sections.reduce((accum, section) => {
-            const requirementSections = section.requirements.reduce((requirementAccum, requirement) => {
-                if(requirement.filterType == FilterType.Unique){
-                    const unique = <string[]>[...new Set(issues.map(issue => {
-                        const fieldValue = getFieldValue(issue, requirement.fieldName);
-                        return fieldValue;
-                    }))];
 
-                    const newFields = unique.reduce((fieldAccum,field) => {
-                        fieldAccum[field] = [];
-                        return fieldAccum;
-                    }, requirementAccum);
-                    return newFields;
-                }
-                return requirementAccum;
-            }, accum);
+        const sectionMap = props.view.sections.reduce((accum, section) => {
+            const requirementSections = section.requirements.reduce(
+                (requirementAccum, requirement) => {
+                    if (requirement.filterType == FilterType.Unique) {
+                        const unique = <string[]>[
+                            ...new Set(
+                                issues.map((issue) => {
+                                    const fieldValue = getFieldValue(issue, requirement.fieldName);
+                                    return fieldValue;
+                                }),
+                            ),
+                        ];
+
+                        const newFields = unique.reduce((fieldAccum, field) => {
+                            fieldAccum[field] = [];
+                            return fieldAccum;
+                        }, requirementAccum);
+                        return newFields;
+                    }
+                    return requirementAccum;
+                },
+                accum,
+            );
             requirementSections[section.name] = [];
             return requirementSections;
         }, {} as Record<string, string[]>);
@@ -188,9 +200,9 @@ export const FibViewDisplay = defineFunctionalElement({
                     const sections = matchesSectionFilters(currentIssue, section);
                     if (sections.length) {
                         matchesASection = true;
-                        sections.map(s =>{
+                        sections.map((s) => {
                             accum[s]?.push(currentIssue);
-                        })
+                        });
                     }
                 });
                 if (!matchesASection) {
@@ -198,7 +210,7 @@ export const FibViewDisplay = defineFunctionalElement({
                 }
                 return accum;
             },
-            {...sectionMap, [unMatchedSectionName]: []} as Record<string, JiraIssue[]>,
+            {...sectionMap, [unMatchedSectionName]: []} as Record<string, FullJiraIssue[]>,
         );
 
         return html`
@@ -218,7 +230,7 @@ export const FibViewDisplay = defineFunctionalElement({
                                         ${listen('click', () => {
                                             genericDispatch(new ShowFullIssueEvent(issue));
                                         })}
-                                        ${assign(FibIssueCard.props.issue, issue)}
+                                        ${assign(FibIssueCard.props.issue, issue)}electronApi)}
                                     ></${FibIssueCard}>
                                 `;
                             })}

@@ -11,6 +11,7 @@ import {
     JiraJqlSearchRequest,
     JiraProjectsResponse,
     jiraRequestValidator,
+    JiraRestApiCallRequest,
     JiraSearchIssuesByLabelRequest,
     JiraSimplifiedField,
     JiraUser,
@@ -21,6 +22,7 @@ import {
     UpdateIssueRequest,
     updateIssueRequestValidator,
 } from '../data/jira-data';
+import {restApiCallValidator} from '../data/jira-validators';
 import {isValidUserPreferences, UserPreferences} from '../data/user-preferences';
 import {
     createAllowUndefinedValidator,
@@ -45,6 +47,7 @@ export enum ApiRequestType {
     GetConfigPath = 'get-config-path',
     /** Open a given file path in the system's default file browser. */
     ViewFilePath = 'view-file-path',
+    JiraRestApiCall = 'jira-rest',
     ResetConfig = 'reset-config',
     CreateIssue = 'jira-create-issue',
     GetFields = 'jira-get-fields',
@@ -75,6 +78,7 @@ export type ApiRequestData = {
     [ApiRequestType.GetUsers]: JiraAuth;
     [ApiRequestType.SearchUsers]: JiraJqlSearchRequest;
     [ApiRequestType.GetIssuesByLabel]: JiraSearchIssuesByLabelRequest;
+    [ApiRequestType.JiraRestApiCall]: JiraRestApiCallRequest;
 };
 
 export type ApiResponseData = {
@@ -94,6 +98,7 @@ export type ApiResponseData = {
     [ApiRequestType.GetUsers]: JiraUser[];
     [ApiRequestType.SearchUsers]: JiraUser[];
     [ApiRequestType.GetIssuesByLabel]: JiraIssue[];
+    [ApiRequestType.JiraRestApiCall]: unknown;
 };
 
 export const apiValidators: {
@@ -166,6 +171,10 @@ export const apiValidators: {
     [ApiRequestType.GetIssuesByLabel]: {
         request: searchByLabelRequestValidator,
         response: createArrayValidator(dummyValidator),
+    },
+    [ApiRequestType.JiraRestApiCall]: {
+        request: restApiCallValidator,
+        response: dummyValidator,
     },
 };
 

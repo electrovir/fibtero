@@ -1,5 +1,6 @@
 import {getObjectTypedKeys, isEnumValue} from 'augment-vir';
 import {TypeofReturnToTypeMapping, TypeofReturnValue} from '../augments/type';
+import {matchesShallowObjectSignature} from '../data/object-validator';
 
 export function isValidArray<SpecificType>(
     testArray: unknown,
@@ -10,6 +11,12 @@ export function isValidArray<SpecificType>(
     }
 
     return testArray.every((entry) => elementValidator(entry));
+}
+
+export function createObjectValidator<T extends object>(comparison: T) {
+    return (input: any): input is T => {
+        return matchesShallowObjectSignature(input, comparison);
+    };
 }
 
 export function createEnumValidator<SpecificEnum extends object>(

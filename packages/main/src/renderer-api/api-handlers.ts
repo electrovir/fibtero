@@ -10,6 +10,7 @@ import {readUserPreferences, saveUserPreferences} from '../config/user-preferenc
 import {createIssue} from '../jira-api/create-issue-request';
 import {getFields} from '../jira-api/get-fields-request';
 import {getIssueTypes} from '../jira-api/get-issue-types-request';
+import {makeJiraRestApi} from '../jira-api/get-jira-rest-api';
 import {getProjects} from '../jira-api/get-projects-request';
 import {getUsers, searchUsers} from '../jira-api/get-users-request';
 import {getIssuesByLabel, runJiraJqlSearch} from '../jira-api/jql-search-request';
@@ -41,6 +42,7 @@ const apiHandlers: {
     [ApiRequestType.UpdateIssue]: updateIssue,
     [ApiRequestType.UpdateIssueLabels]: updateIssueLabels,
     [ApiRequestType.GetIssuesByLabel]: (input) => getIssuesByLabel(input),
+    [ApiRequestType.JiraRestApiCall]: makeJiraRestApi,
 };
 
 export type ApiOptions = {
@@ -95,6 +97,9 @@ export const apiOptionsMap: Record<ApiRequestType, ApiOptions> = {
         allowLogging: false,
     },
     [ApiRequestType.GetIssuesByLabel]: {
+        allowLogging: false,
+    },
+    [ApiRequestType.JiraRestApiCall]: {
         allowLogging: false,
     },
 };

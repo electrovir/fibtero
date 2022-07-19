@@ -1,7 +1,7 @@
 import {
+    FullJiraIssue,
     JiraAuth,
     JiraCustomFieldDefinitions,
-    JiraIssue,
     JiraIssueFields,
 } from '@packages/common/src/data/jira-data';
 import {JiraView} from '@packages/common/src/data/jira-view';
@@ -18,8 +18,8 @@ function generateViewKey(jiraView: JiraView) {
 
 function combineCustomFieldsAndIssues(
     customFields: JiraCustomFieldDefinitions,
-    issues: Readonly<Readonly<JiraIssue>[]>,
-): Readonly<Readonly<JiraIssue>[]> {
+    issues: Readonly<Readonly<FullJiraIssue>[]>,
+): Readonly<Readonly<FullJiraIssue>[]> {
     return issues.map((issue) => {
         const fields: JiraIssueFields = Object.keys(issue.fields ?? {}).reduce(
             (accum, fieldKey) => {
@@ -48,9 +48,9 @@ export async function getMaybeCachedView(
     electronApi: ElectronWindowInterface,
     jiraAuth: JiraAuth,
     // this is called when the cache is updated in case it's out of date
-    cacheUpdateCallback: (issues: Readonly<Readonly<JiraIssue>[]>) => void,
-): Promise<Readonly<Readonly<JiraIssue>[]>> {
-    let issues: JiraIssue[] = [];
+    cacheUpdateCallback: (issues: Readonly<Readonly<FullJiraIssue>[]>) => void,
+): Promise<Readonly<Readonly<FullJiraIssue>[]>> {
+    let issues: FullJiraIssue[] = [];
     let fields: JiraCustomFieldDefinitions = {};
     const updated: string[] = [];
 
@@ -76,8 +76,19 @@ export async function getMaybeCachedView(
 
     issues = await getMaybeCached({
         cacheKey: generateViewKey(jiraView),
-        cacheUpdateCallback: (newIssues) => {
-            issues = newIssues as JiraIssue[];
+        cacheUpdateCallback: async (newIssues) => {
+            issues = await Promise.all(
+                (newIssues as FullJiraIssue[]).map(async (newIssue) => {
+                    const response = await electronApi.apiRequest({
+                        type: ApiRequestType.JiraRestApiCall,
+                        data: {
+                            ...jiraAuth,
+                            relativeUrl: `issue/${newIssue.id}`,
+                        },
+                    });
+                    return response.data as FullJiraIssue;
+                }),
+            );
             triggerUpdateCallbackMaybe('issues');
         },
         electronApi,

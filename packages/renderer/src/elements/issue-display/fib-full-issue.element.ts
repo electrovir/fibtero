@@ -1,11 +1,13 @@
-import {JiraIssue} from '@packages/common/src/data/jira-data';
+import {FullJiraIssue} from '@packages/common/src/data/jira-data';
+import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {css, defineFunctionalElement, html} from 'element-vir';
 import {getFieldFormatting} from '../../field-formatting/field-formatting';
 
 export const FibFullIssue = defineFunctionalElement({
     tagName: 'fib-full-issue',
     props: {
-        issue: undefined as undefined | JiraIssue,
+        issue: undefined as undefined | FullJiraIssue,
+        userPreferences: emptyUserPreferences,
     },
     styles: css`
         .fields {
@@ -30,7 +32,7 @@ export const FibFullIssue = defineFunctionalElement({
             <div class="fields">
                 ${Object.keys(props.issue.fields).map((fieldName) => {
                     const fieldValue = props.issue?.fields[fieldName];
-                    const template = getFieldFormatting(fieldName, fieldValue);
+                    const template = getFieldFormatting(fieldName, fieldValue, props.issue!);
 
                     if (template) {
                         return html`

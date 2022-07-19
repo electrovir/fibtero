@@ -1,5 +1,10 @@
 import {formatDate, isValidDate} from '@packages/common/src/augments/date';
-import {JiraIssueType, JiraUser} from '@packages/common/src/data/jira-data';
+import {
+    FullJiraIssue,
+    JiraAttachment,
+    JiraIssueType,
+    JiraUser,
+} from '@packages/common/src/data/jira-data';
 import {isObject} from 'augment-vir';
 import {html} from 'element-vir';
 import {TemplateResult} from 'lit';
@@ -7,7 +12,11 @@ import {formatDescription} from './description-formatting';
 
 type FieldMapping = {
     shouldUse: (fieldName: string, value: unknown) => boolean;
-    formatValue: (value: any, fieldName: string) => string | TemplateResult;
+    formatValue: (
+        value: any,
+        fieldName: string,
+        fullIssue: FullJiraIssue,
+    ) => string | TemplateResult;
 };
 
 const fieldMappings: FieldMapping[] = [
@@ -53,14 +62,29 @@ const fieldMappings: FieldMapping[] = [
                   `;
         },
     },
+    // attachment formatting
+    {
+        shouldUse(fieldName, value) {
+            return fieldName === 'attachment';
+        },
+        formatValue(value, fieldName, fullIssue) {
+            return html`
+                ${(value as JiraAttachment[]).map((attachment) => {
+                    return html`
+                        <img src=${attachment.thumbnail} />
+                    `;
+                })}
+            `;
+        },
+    },
     // description formatting
     {
         shouldUse(fieldName, value) {
             return isObject(value) && (value as any).type === 'doc' && !!(value as any).content;
         },
-        formatValue(value) {
+        formatValue(value, fieldName, fullIssue) {
             console.log({description: value});
-            return formatDescription(value);
+            return formatDescription(fullIssue, value);
         },
     },
     // null formatting
@@ -141,13 +165,14 @@ const fieldMappings: FieldMapping[] = [
 export function getFieldFormatting(
     fieldName: string,
     value: unknown,
+    fullIssue: FullJiraIssue,
 ): string | TemplateResult | undefined {
     const matchedMapping = fieldMappings.find((mapping) => {
         return mapping.shouldUse(fieldName, value);
     });
 
     if (matchedMapping) {
-        return matchedMapping.formatValue(value, fieldName);
+        return matchedMapping.formatValue(value, fieldName, fullIssue);
     } else {
         return undefined;
     }

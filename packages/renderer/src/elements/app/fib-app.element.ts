@@ -1,4 +1,4 @@
-import {JiraAuth, JiraIssue} from '@packages/common/src/data/jira-data';
+import {FullJiraIssue, JiraAuth} from '@packages/common/src/data/jira-data';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
@@ -58,7 +58,7 @@ export const FibAppElement = defineFunctionalElement({
         currentPage: MainRendererPage.Auth,
         currentViewIndex: 0,
         electronApi: getElectronWindowInterface(),
-        currentFullIssue: undefined as undefined | JiraIssue,
+        currentFullIssue: undefined as undefined | FullJiraIssue,
         currentUserPreferences: Promise.resolve(emptyUserPreferences) as
             | Promise<UserPreferences>
             | UserPreferences,
@@ -339,7 +339,7 @@ export const FibAppElement = defineFunctionalElement({
             >
                 <div
                     class="modal-overlay ${showModalOverlay ? '' : 'hidden'}"
-                    ${listen('click', () => {
+                    ${listen('mousedown', () => {
                         setProps({
                             currentFullIssue: undefined,
                         });
@@ -347,7 +347,7 @@ export const FibAppElement = defineFunctionalElement({
                 >
                     <div
                         class="modal-content-wrapper"
-                        ${listen('click', (event) => {
+                        ${listen('mousedown', (event) => {
                             event.stopPropagation();
                         })}
                     >
@@ -363,6 +363,7 @@ export const FibAppElement = defineFunctionalElement({
                         </button>
                         <${FibFullIssue}
                             ${assign(FibFullIssue.props.issue, props.currentFullIssue)}
+                            ${assign(FibFullIssue.props.userPreferences, userPreferences)}
                         ></${FibFullIssue}>
                     </div>
                 </div>
