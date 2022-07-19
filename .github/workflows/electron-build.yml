@@ -4,9 +4,6 @@ on:
     push:
         branches:
             - 'main'
-concurrency:
-    group: 'main'
-    cancel-in-progress: true
 jobs:
     release:
         runs-on: ${{ matrix.os }}
