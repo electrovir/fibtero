@@ -1,4 +1,4 @@
-import {JiraAuth} from '@packages/common/src/data/jira-data';
+import {JiraAuth, JiraIssue} from '@packages/common/src/data/jira-data';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
@@ -8,7 +8,9 @@ import {
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
-import {ReloadUserPreferences} from '../../global-events/reload-user-preferences.event';
+import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
+import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
+import {FibShowFullIssue} from '../issue-display/fib-show-full-issue.element';
 import {FibCreateJiraViewPage} from '../main-pages/fib-create-jira-view-page.element';
 import {FibEditJiraViewPage} from '../main-pages/fib-edit-jira-view-page.element';
 import {FibExportJiraViewPage} from '../main-pages/fib-export-jira-view-page.element';
@@ -36,6 +38,7 @@ export const FibAppElement = defineFunctionalElement({
         currentPage: MainRendererPage.Home,
         currentView: [],
         electronApi: getElectronWindowInterface(),
+        currentFullIssue: undefined as undefined | JiraIssue,
         currentUserPreferences: Promise.resolve(emptyUserPreferences) as
             | Promise<UserPreferences>
             | UserPreferences,
@@ -45,6 +48,11 @@ export const FibAppElement = defineFunctionalElement({
     },
     styles: css`
         :host {
+            overflow: hidden;
+        }
+
+        :host,
+        .top-div {
             display: flex;
             flex-direction: column;
             align-items: stretch;
@@ -62,11 +70,57 @@ export const FibAppElement = defineFunctionalElement({
         main {
             flex-grow: 1;
             padding: 16px;
+            overflow-y: auto;
         }
 
         main > * {
             min-width: 100%;
             min-height: 100%;
+        }
+
+        .modal-overlay {
+            /* improves blur performance */
+            backface-visibility: hidden;
+
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            backdrop-filter: blur(3px);
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay > .modal-content-wrapper {
+            background-color: white;
+            border-radius: 32px;
+            padding: 32px;
+            position: relative;
+            min-height: 100px;
+            min-width: 100px;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .close-x {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            border-radius: 50%;
+            user-select: none;
+        }
+
+        .close-x:hover {
+            background-color: #f0f0f0;
         }
     `,
     initCallback: ({props, setProps}) => {
@@ -78,6 +132,16 @@ export const FibAppElement = defineFunctionalElement({
                     setProps({currentUserPreferences: result});
                     return result;
                 }),
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key.toLowerCase() === 'escape') {
+                if (props.currentFullIssue) {
+                    setProps({
+                        currentFullIssue: undefined,
+                    });
+                }
+            }
         });
     },
     renderCallback: ({props, setProps}) => {
@@ -159,29 +223,66 @@ export const FibAppElement = defineFunctionalElement({
                       ERROR: Current page not supported: ${props.currentPage}
                   `;
 
+        const showModalOverlay = !!props.currentFullIssue;
+
         return html`
-            <${FibAppPageNav}
-                ${assign(FibAppPageNav.props.currentPage, props.currentPage)}
-                ${listen(FibAppPageNav.events.pageChange, (event) => {
-                    const newPage = event.detail;
-                    setProps({currentPage: newPage});
-                    electronApi.apiRequest({
-                        type: ApiRequestType.SavePreferences,
-                        data: {
-                            ...userPreferences,
-                            lastPage: newPage,
-                        },
-                    });
-                })}
-            ></${FibAppPageNav}>
-            <main
-                ${listen(ReloadUserPreferences, async () => {
+            <div
+                class="top-div ${showModalOverlay ? 'no-scroll' : ''}"
+                ${listen(ReloadUserPreferencesEvent, async () => {
                     const result = await loadUserPreferences(props.electronApi);
                     setProps({currentUserPreferences: result});
                 })}
+                ${listen(ShowFullIssueEvent, async (event) => {
+                    setProps({currentFullIssue: event.detail});
+                })}
             >
-                ${pageTemplate}
-            </main>
+                <div
+                    class="modal-overlay ${showModalOverlay ? '' : 'hidden'}"
+                    ${listen('click', () => {
+                        setProps({
+                            currentFullIssue: undefined,
+                        });
+                    })}
+                >
+                    <div
+                        class="modal-content-wrapper"
+                        ${listen('click', (event) => {
+                            event.stopPropagation();
+                        })}
+                    >
+                        <button
+                            class="close-x"
+                            ${listen('click', () => {
+                                setProps({
+                                    currentFullIssue: undefined,
+                                });
+                            })}
+                        >
+                            x
+                        </button>
+                        <${FibShowFullIssue}
+                            ${assign(FibShowFullIssue.props.issue, props.currentFullIssue)}
+                        ></${FibShowFullIssue}>
+                    </div>
+                </div>
+                <${FibAppPageNav}
+                    ${assign(FibAppPageNav.props.currentPage, props.currentPage)}
+                    ${listen(FibAppPageNav.events.pageChange, (event) => {
+                        const newPage = event.detail;
+                        setProps({currentPage: newPage});
+                        electronApi.apiRequest({
+                            type: ApiRequestType.SavePreferences,
+                            data: {
+                                ...userPreferences,
+                                lastPage: newPage,
+                            },
+                        });
+                    })}
+                ></${FibAppPageNav}>
+                <main>
+                    ${pageTemplate}
+                </main>
+            </div>
         `;
     },
 });

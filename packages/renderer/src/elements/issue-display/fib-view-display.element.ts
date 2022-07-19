@@ -2,8 +2,9 @@ import {JiraAuth, JiraIssue} from '@packages/common/src/data/jira-data';
 import {JiraView, matchesSectionFilters, ViewDirection} from '@packages/common/src/data/jira-view';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isPromiseLike} from 'augment-vir';
-import {assign, css, defineFunctionalElement, html} from 'element-vir';
+import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {getMaybeCachedView} from '../../cache/jira-view-cache';
+import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
 import {FibIssueDisplay} from './fib-issue-display.element';
 
 type LoadedIssues<IssuesType> = {
@@ -33,6 +34,7 @@ export const FibViewDisplay = defineFunctionalElement({
             display: flex;
             flex-direction: column;
             align-items: stretch;
+            gap: 16px;
         }
 
         :host(${hostClass.horizontal}) {
@@ -70,7 +72,7 @@ export const FibViewDisplay = defineFunctionalElement({
             gap: 8px;
         }
     `,
-    renderCallback: ({props, setProps, dispatch, events}) => {
+    renderCallback: ({props, setProps, dispatch, genericDispatch, events}) => {
         if (!props.view) {
             return html`
                 Select a view
@@ -193,6 +195,9 @@ export const FibViewDisplay = defineFunctionalElement({
                             ${issues.map((issue) => {
                                 return html`
                                     <${FibIssueDisplay}
+                                        ${listen('click', () => {
+                                            genericDispatch(new ShowFullIssueEvent(issue));
+                                        })}
                                         ${assign(FibIssueDisplay.props.issue, issue)}
                                     ></${FibIssueDisplay}>
                                 `;

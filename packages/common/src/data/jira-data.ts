@@ -5,7 +5,21 @@ export type JiraCredentials = {
     apiKey: string;
 };
 
-export type JiraUser = any;
+export type JiraUser = {
+    accountId: string;
+    accountType: string;
+    active: boolean;
+    avatarUrls: {
+        '16x16': string;
+        '24x24': string;
+        '32x32': string;
+        '48x48': string;
+    };
+    displayName: string;
+    emailAddress: string;
+    self: string;
+    timeZone: string;
+};
 
 // this isn't an exhaustive type but it's simple enough for our purposes
 // the actual data includes other types that we don't understand or need
@@ -148,9 +162,13 @@ export type JiraProject = {
 };
 
 export type JiraIssueType = {
-    name?: string;
-    id?: string;
+    name: string;
+    id: string;
+    iconUrl: string;
+    self: string;
 };
+
+export type JiraPriority = JiraIssueType;
 
 export type JiraIssueFields = Record<string, unknown> & {
     assignee?: JiraUser;
@@ -158,7 +176,7 @@ export type JiraIssueFields = Record<string, unknown> & {
     description?: JiraDescription;
     issuetype?: JiraIssueType;
     parent?: unknown;
-    priority?: unknown;
+    priority?: JiraPriority;
     project?: JiraProject;
     reporter?: JiraUser;
     status?: unknown;

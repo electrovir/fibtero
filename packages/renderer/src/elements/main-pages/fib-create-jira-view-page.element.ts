@@ -4,7 +4,7 @@ import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-req
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {randomString} from 'augment-vir';
 import {assign, defineFunctionalElement, html, listen} from 'element-vir';
-import {ReloadUserPreferences} from '../../global-events/reload-user-preferences.event';
+import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {FibCreateView} from '../create-view/fib-create-view.element';
 
 export const FibCreateJiraViewPage = defineFunctionalElement({
@@ -49,7 +49,7 @@ export const FibCreateJiraViewPage = defineFunctionalElement({
                     setProps({
                         currentlyCreatedView: createNewView(randomString),
                     });
-                    genericDispatch(new ReloadUserPreferences());
+                    genericDispatch(new ReloadUserPreferencesEvent());
                 })}
             ></${FibCreateView}>
         `;

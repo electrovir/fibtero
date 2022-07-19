@@ -15,7 +15,8 @@ async function setupApp(devMode: boolean) {
     setupLogging(electronApp);
 
     /** Disable Hardware Acceleration for power savings */
-    electronApp.disableHardwareAcceleration();
+    // turn back on to improve css blur performance
+    // electronApp.disableHardwareAcceleration();
 
     await initConfig(electronApp);
     await addAppListeners(electronApp);
