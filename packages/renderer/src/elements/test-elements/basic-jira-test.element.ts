@@ -8,6 +8,7 @@ import {
     JiraProjectsResponse,
     UpdateIssueLabelsRequest,
     UpdateIssueRequest,
+    JiraSearchIssuesByLabelRequest,
 } from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
@@ -72,6 +73,23 @@ async function searchUsers(
 ): Promise<JiraIssue[]> {
     const response = await electronApi.apiRequest({
         type: ApiRequestType.SearchUsers,
+        data: searchRequest,
+    });
+
+    if (response.success) {
+        console.log(response.data);
+        return response.data;
+    } else {
+        throw new Error(`Jira request failed: ${response.error}`);
+    }
+}
+
+async function searchIssuesByLabel(
+    searchRequest: JiraSearchIssuesByLabelRequest,
+    electronApi: ElectronWindowInterface,
+): Promise<JiraIssue[]> {
+    const response = await electronApi.apiRequest({
+        type: ApiRequestType.GetIssuesByLabel,
         data: searchRequest,
     });
 
@@ -215,6 +233,18 @@ function makeSearchRequestData(props: typeof BasicJiraTest['init']['props']) {
     };
 }
 
+function makeSearchByLabelRequestData(props: typeof BasicJiraTest['init']['props']) {
+    return {
+        domain: props.domain,
+        project: props.project,
+        label: props.label,
+        credentials: {
+            apiKey: props.apiKey,
+            username: props.username,
+        },
+    };
+}
+
 function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
     return {
         domain: props.domain,
@@ -312,6 +342,8 @@ export const BasicJiraTest = defineFunctionalElement({
         labelsToAdd: '',
         labelsToRemove: '',
         electronApi: undefined as undefined | ElectronWindowInterface,
+        project: '',
+        label: '',
     },
     events: {
         authLoaded: defineElementEvent<void>(),
@@ -557,6 +589,34 @@ export const BasicJiraTest = defineFunctionalElement({
                 ${listen('click', async () => {
                     if (props.electronApi) {
                         await getProjects(makeJiraRequestData(props), props.electronApi);
+                    }
+                })}
+            >
+                Run Test
+            </button>
+            <h2>
+                Get Issues By Project and Label
+            </h2>
+            <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({project: event.detail});
+                    setCachedData(makeSearchRequestData(props));
+                })}
+                ${assign(FibInput.props.label, 'Project')}
+                ${assign(FibInput.props.value, props.project)}
+            ></${FibInput}>
+            <${FibInput}
+            ${listen(FibInput.events.valueChange, (event) => {
+                setProps({label: event.detail});
+                setCachedData(makeSearchRequestData(props));
+            })}
+            ${assign(FibInput.props.label, 'Label')}
+            ${assign(FibInput.props.value, props.label)}
+        ></${FibInput}>
+            <button
+                ${listen('click', async () => {
+                    if (props.electronApi) {
+                        await searchIssuesByLabel(makeSearchByLabelRequestData(props), props.electronApi);
                     }
                 })}
             >

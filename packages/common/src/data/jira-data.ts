@@ -24,6 +24,11 @@ export type JiraJqlSearchRequest = JiraAuth & {
     jql: string;
 };
 
+export type JiraSearchIssuesByLabelRequest = JiraAuth & {
+    project: string;
+    label: string;
+};
+
 export type UpdateIssueRequest = JiraAuth & {
     issue: JiraIssue;
 };
@@ -72,6 +77,16 @@ const searchRequestValidationChecker: JiraJqlSearchRequest = {
     },
 };
 
+const searchByLabelValidationChecker: JiraSearchIssuesByLabelRequest = {
+    project: '',
+    label: '',
+    domain: '',
+    credentials: {
+        apiKey: '',
+        username: '',
+    },
+};
+
 export function searchRequestValidator(request: unknown): request is JiraJqlSearchRequest {
     return (
         matchesShallowObjectSignature(request, searchRequestValidationChecker) &&
@@ -83,6 +98,21 @@ export function searchRequestValidator(request: unknown): request is JiraJqlSear
         !!request.credentials.username &&
         !!request.domain &&
         !!request.jql
+    );
+}
+
+export function searchByLabelRequestValidator(request: unknown): request is JiraSearchIssuesByLabelRequest {
+    return (
+        matchesShallowObjectSignature(request, searchByLabelValidationChecker) &&
+        matchesShallowObjectSignature(
+            request.credentials,
+            searchRequestValidationChecker.credentials,
+        ) &&
+        !!request.credentials.apiKey &&
+        !!request.credentials.username &&
+        !!request.domain &&
+        !!request.project &&
+        !!request.label
     );
 }
 

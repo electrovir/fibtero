@@ -14,6 +14,8 @@ import {
     JiraProjectsResponse,
     jiraProjectsResponseValidator,
     jiraRequestValidator,
+    JiraSearchIssuesByLabelRequest,
+    searchByLabelRequestValidator,
     searchRequestValidator,
     UpdateIssueLabelsRequest,
     updateIssueLabelsRequestValidator,
@@ -32,6 +34,7 @@ import {GetPathType} from './get-path-type';
 import {ResetType} from './reset';
 
 export const apiRequestKey = 'api-request-key' as const;
+
 
 export enum ApiRequestType {
     /** Get the current user preferences saved on disk. */
@@ -54,6 +57,7 @@ export enum ApiRequestType {
     UpdateIssueLabels = 'jira-update-issue-labels',
     GetUsers = 'jira-get-user',
     SearchUsers = 'jira-search-user',
+    GetIssuesByLabel = 'jira-get-issues-by-label',
 }
 
 export type ApiRequestData = {
@@ -72,6 +76,7 @@ export type ApiRequestData = {
     [ApiRequestType.UpdateIssueLabels]: UpdateIssueLabelsRequest;
     [ApiRequestType.GetUsers]: JiraAuth;
     [ApiRequestType.SearchUsers]: JiraJqlSearchRequest;
+    [ApiRequestType.GetIssuesByLabel]: JiraSearchIssuesByLabelRequest;
 };
 
 export type ApiResponseData = {
@@ -90,6 +95,7 @@ export type ApiResponseData = {
     [ApiRequestType.UpdateIssueLabels]: boolean;
     [ApiRequestType.GetUsers]: JiraIssue[];
     [ApiRequestType.SearchUsers]: JiraIssue[];
+    [ApiRequestType.GetIssuesByLabel]: JiraIssue[];
 };
 
 export const apiValidators: {
@@ -159,6 +165,10 @@ export const apiValidators: {
         request: searchRequestValidator,
         response: createArrayValidator(jiraIssueResponseValidator),
     },
+    [ApiRequestType.GetIssuesByLabel]: {
+        request: searchByLabelRequestValidator,
+        response: createArrayValidator(jiraIssueResponseValidator),
+    }
 };
 
 export type ApiValidator<
