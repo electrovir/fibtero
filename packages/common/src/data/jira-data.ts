@@ -1,3 +1,4 @@
+import {Overwrite} from 'augment-vir';
 import {matchesShallowObjectSignature} from './object-validator';
 
 export type JiraCredentials = {
@@ -31,7 +32,13 @@ export type JiraAuth = {
 };
 
 export type CreateIssueRequest = JiraAuth & {
-    fields: JiraIssueFields;
+    fields: Overwrite<
+        JiraIssueFields,
+        {
+            issuetype: {name: string};
+            assignee: {id: string};
+        }
+    >;
 };
 
 export type IssueTypesRequest = JiraAuth & {
@@ -48,7 +55,7 @@ export type JiraSearchIssuesByLabelRequest = JiraAuth & {
 };
 
 export type UpdateIssueRequest = JiraAuth & {
-    issue: JiraIssue;
+    issue: Overwrite<JiraIssue, {fields: Overwrite<JiraIssueFields, {assignee: {id: string}}>}>;
 };
 
 export type UpdateIssueLabelsRequest = JiraAuth & {

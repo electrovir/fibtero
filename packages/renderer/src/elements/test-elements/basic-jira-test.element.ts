@@ -8,6 +8,7 @@ import {
     JiraJqlSearchRequest,
     JiraProjectsResponse,
     JiraSearchIssuesByLabelRequest,
+    JiraUser,
     UpdateIssueLabelsRequest,
     UpdateIssueRequest,
 } from '@packages/common/src/data/jira-data';
@@ -71,7 +72,7 @@ async function getIssueTypes(
 async function searchUsers(
     searchRequest: JiraJqlSearchRequest,
     electronApi: ElectronWindowInterface,
-): Promise<JiraIssue[]> {
+): Promise<JiraUser[]> {
     const response = await electronApi.apiRequest({
         type: ApiRequestType.SearchUsers,
         data: searchRequest,
@@ -122,7 +123,7 @@ async function getProjects(
 async function getUsers(
     jiraAuth: JiraAuth,
     electronApi: ElectronWindowInterface,
-): Promise<JiraIssue[]> {
+): Promise<JiraUser[]> {
     const response = await electronApi.apiRequest({
         type: ApiRequestType.GetUsers,
         data: jiraAuth,
@@ -246,7 +247,7 @@ function makeSearchByLabelRequestData(props: typeof BasicJiraTest['init']['props
     };
 }
 
-function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']) {
+function makeUpdateRequestData(props: typeof BasicJiraTest['init']['props']): UpdateIssueRequest {
     return {
         domain: props.domain,
         issue: {
@@ -300,7 +301,7 @@ function makeUpdateLabelsRequestData(props: typeof BasicJiraTest['init']['props'
     };
 }
 
-function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']) {
+function makeCreateRequestData(props: typeof BasicJiraTest['init']['props']): CreateIssueRequest {
     return {
         domain: props.domain,
         fields: {

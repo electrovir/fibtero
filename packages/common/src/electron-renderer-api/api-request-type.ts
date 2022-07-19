@@ -13,6 +13,7 @@ import {
     JiraProjectsResponse,
     jiraRequestValidator,
     JiraSearchIssuesByLabelRequest,
+    JiraUser,
     searchByLabelRequestValidator,
     searchRequestValidator,
     UpdateIssueLabelsRequest,
@@ -90,8 +91,8 @@ export type ApiResponseData = {
     [ApiRequestType.JqlSearch]: JiraIssue[];
     [ApiRequestType.UpdateIssue]: boolean;
     [ApiRequestType.UpdateIssueLabels]: boolean;
-    [ApiRequestType.GetUsers]: JiraIssue[];
-    [ApiRequestType.SearchUsers]: JiraIssue[];
+    [ApiRequestType.GetUsers]: JiraUser[];
+    [ApiRequestType.SearchUsers]: JiraUser[];
     [ApiRequestType.GetIssuesByLabel]: JiraIssue[];
 };
 

@@ -1,8 +1,12 @@
-import {JiraAuth, JiraCustomFieldDefinitions, JiraIssue} from '@packages/common/src/data/jira-data';
+import {
+    JiraAuth,
+    JiraCustomFieldDefinitions,
+    JiraIssue,
+    JiraIssueFields,
+} from '@packages/common/src/data/jira-data';
 import {JiraView} from '@packages/common/src/data/jira-view';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
-import {JiraIssueFields} from '../../../common/src/data/jira-data';
 import {getMaybeCached} from './generic-cache-helpers';
 import {getMaybeCachedFields} from './jira-fields-cache';
 
