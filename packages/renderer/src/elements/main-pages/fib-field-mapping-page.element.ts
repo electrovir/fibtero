@@ -146,6 +146,10 @@ export const FibFieldMappingPage = defineFunctionalElement({
             `;
         }
 
+        function getPossibleErrorClass(key: string) {
+            return props.fieldMapping[key] === 'any' ? 'form-error' : '';
+        }
+
         return html`
             <h2>Jira Field Mappings</h2>
             <p>
@@ -173,23 +177,18 @@ export const FibFieldMappingPage = defineFunctionalElement({
                     ${Object.keys(props.fieldMapping)
                         .sort()
                         .map((key) => {
-                            let errorClass = props.fieldMapping[key] === 'any' ? 'form-error' : '';
                             return html`
                                 <tr>
                                     <td>${key}</td>
                                     <td>
                                         <select
                                             name="${key}"
-                                            class="${errorClass}"
+                                            class="${getPossibleErrorClass(key)}"
                                             required
                                             ${listen('input', (event) => {
                                                 props.fieldMapping[key] = (
                                                     event.target as HTMLInputElement
                                                 )?.value;
-                                                errorClass =
-                                                    props.fieldMapping[key] === 'any'
-                                                        ? 'form-error'
-                                                        : '';
                                             })}
                                         >
                                             ${getSelectContents(key)}

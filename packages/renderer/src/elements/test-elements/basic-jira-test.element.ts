@@ -363,6 +363,8 @@ export const BasicJiraTest = defineFunctionalElement({
         electronApi: undefined as undefined | ElectronWindowInterface,
         project: '',
         label: '',
+        customTypeHTML: '',
+        htmlDisplay: '' as unknown,
     },
     events: {
         authLoaded: defineElementEvent<void>(),
@@ -371,12 +373,20 @@ export const BasicJiraTest = defineFunctionalElement({
     styles: css`
         :host {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: wrap;
             align-items: flex-start;
+            justify-content: flex-start;
             box-sizing: border-box;
             width: 100%;
             height: 100%;
             padding: 16px;
+        }
+
+        .example {
+            padding: 16px;
+            margin: 8px;
+            background-color: whitesmoke;
         }
     `,
     initCallback({props, setProps, dispatch, events}) {
@@ -400,43 +410,196 @@ export const BasicJiraTest = defineFunctionalElement({
     },
     renderCallback: ({props, setProps, dispatch, events}) => {
         return html`
-            <h2>
-                Jira (Search) Test
-            </h2>
-            <form
-                ${listen('submit', async (event) => {
-                    // prevent page navigation
-                    event.preventDefault();
+            <div class="example">
+                <h2>
+                    Jira (Search) Test
+                </h2>
+                <form
+                    ${listen('submit', async (event) => {
+                        // prevent page navigation
+                        event.preventDefault();
 
-                    dispatch(new events.jiraAuthInput(makeJiraAuth(props)));
-                    await submitForm(props);
+                        dispatch(new events.jiraAuthInput(makeJiraAuth(props)));
+                        await submitForm(props);
+                    })}
+                >
+                    <${FibInput}
+                        ${listen(FibInput.events.valueChange, (event) => {
+                            setProps({domain: event.detail});
+                            setCachedData(makeSearchRequestData(props));
+                        })}
+                        ${assign(FibInput.props.label, 'Jira Cloud domain')}
+                        ${assign(FibInput.props.value, props.domain)}
+                    ></${FibInput}>
+                    <${FibInput}
+                        ${listen(FibInput.events.valueChange, (event) => {
+                            setProps({username: event.detail});
+                            setCachedData(makeSearchRequestData(props));
+                        })}
+                        ${assign(FibInput.props.label, 'Jira username')}
+                        ${assign(FibInput.props.value, props.username)}
+                    ></${FibInput}>
+                    <${FibInput}
+                        ${listen(FibInput.events.valueChange, (event) => {
+                            setProps({apiKey: event.detail});
+                            setCachedData(makeSearchRequestData(props));
+                        })}
+                        ${assign(FibInput.props.label, 'Jira API key')}
+                        ${assign(FibInput.props.value, props.apiKey)}
+                        ${assign(FibInput.props.inputType, 'password')}
+                    ></${FibInput}>
+                    <${FibInput}
+                        ${listen(FibInput.events.valueChange, (event) => {
+                            setProps({jql: event.detail});
+                            setCachedData(makeSearchRequestData(props));
+                        })}
+                        ${assign(FibInput.props.label, 'JQL query')}
+                        ${assign(FibInput.props.value, props.jql)}
+                    ></${FibInput}>
+                    <br>
+                    <input class="submit" type="submit" value="Trigger Jira Query" />
+                </form>
+            </div>
+            <div class="example">
+                <h2>
+                    Update Issue Test
+                </h2>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({ticketKey: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Ticket key')}
+                    ${assign(FibInput.props.value, props.ticketKey)}
+                ></${FibInput}>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({updatedSummary: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Summary')}
+                    ${assign(FibInput.props.value, props.updatedSummary)}
+                ></${FibInput}>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({updatedDescriptionText: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Description text')}
+                    ${assign(FibInput.props.value, props.updatedDescriptionText)}
+                ></${FibInput}>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({userAccountId: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Assignee account id')}
+                    ${assign(FibInput.props.value, props.userAccountId)}
+                ></${FibInput}>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await updateIssue(makeUpdateRequestData(props), props.electronApi);
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Update Issue Labels Test
+                </h2>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({ticketKey: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Ticket key')}
+                    ${assign(FibInput.props.value, props.ticketKey)}
+                ></${FibInput}>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({labelsToAdd: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Labels to add')}
+                    ${assign(FibInput.props.value, props.labelsToAdd)}
+                ></${FibInput}>
+                <${FibInput}
+                ${listen(FibInput.events.valueChange, (event) => {
+                    setProps({labelsToRemove: event.detail});
                 })}
-            >
+                    ${assign(FibInput.props.label, 'Labels to remove')}
+                    ${assign(FibInput.props.value, props.labelsToRemove)}
+                ></${FibInput}>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await updateIssueLabels(
+                                makeUpdateLabelsRequestData(props),
+                                props.electronApi,
+                            );
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Create Issue Test
+                </h2>
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
-                        setProps({domain: event.detail});
-                        setCachedData(makeSearchRequestData(props));
+                        setProps({projectIdOrKey: event.detail});
                     })}
-                    ${assign(FibInput.props.label, 'Jira Cloud domain')}
-                    ${assign(FibInput.props.value, props.domain)}
+                    ${assign(FibInput.props.label, 'Project id or key')}
+                    ${assign(FibInput.props.value, props.projectIdOrKey)}
                 ></${FibInput}>
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
-                        setProps({username: event.detail});
-                        setCachedData(makeSearchRequestData(props));
+                        setProps({issueTypeIdOrName: event.detail});
                     })}
-                    ${assign(FibInput.props.label, 'Jira username')}
-                    ${assign(FibInput.props.value, props.username)}
+                    ${assign(FibInput.props.label, 'Issue type id or name')}
+                    ${assign(FibInput.props.value, props.issueTypeIdOrName)}
                 ></${FibInput}>
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
-                        setProps({apiKey: event.detail});
-                        setCachedData(makeSearchRequestData(props));
+                        setProps({createdSummary: event.detail});
                     })}
-                    ${assign(FibInput.props.label, 'Jira API key')}
-                    ${assign(FibInput.props.value, props.apiKey)}
-                    ${assign(FibInput.props.inputType, 'password')}
+                    ${assign(FibInput.props.label, 'Summary')}
+                    ${assign(FibInput.props.value, props.createdSummary)}
                 ></${FibInput}>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({userAccountId: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Assignee account id')}
+                    ${assign(FibInput.props.value, props.userAccountId)}
+                ></${FibInput}>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await createIssue(makeCreateRequestData(props), props.electronApi);
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Get Users
+                </h2>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await getUsers(makeJiraRequestData(props), props.electronApi);
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Search Users
+                </h2>
                 <${FibInput}
                     ${listen(FibInput.events.valueChange, (event) => {
                         setProps({jql: event.detail});
@@ -445,219 +608,116 @@ export const BasicJiraTest = defineFunctionalElement({
                     ${assign(FibInput.props.label, 'JQL query')}
                     ${assign(FibInput.props.value, props.jql)}
                 ></${FibInput}>
-                <br>
-                <input class="submit" type="submit" value="Trigger Jira Query" />
-            </form>
-            <h2>
-                Update Issue Test
-            </h2>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({ticketKey: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Ticket key')}
-                ${assign(FibInput.props.value, props.ticketKey)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({updatedSummary: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Summary')}
-                ${assign(FibInput.props.value, props.updatedSummary)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({updatedDescriptionText: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Description text')}
-                ${assign(FibInput.props.value, props.updatedDescriptionText)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({userAccountId: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Assignee account id')}
-                ${assign(FibInput.props.value, props.userAccountId)}
-            ></${FibInput}>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await updateIssue(makeUpdateRequestData(props), props.electronApi);
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Update Issue Labels Test
-            </h2>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({ticketKey: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Ticket key')}
-                ${assign(FibInput.props.value, props.ticketKey)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({labelsToAdd: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Labels to add')}
-                ${assign(FibInput.props.value, props.labelsToAdd)}
-            ></${FibInput}>
-            <${FibInput}
-            ${listen(FibInput.events.valueChange, (event) => {
-                setProps({labelsToRemove: event.detail});
-            })}
-                ${assign(FibInput.props.label, 'Labels to remove')}
-                ${assign(FibInput.props.value, props.labelsToRemove)}
-            ></${FibInput}>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await updateIssueLabels(
-                            makeUpdateLabelsRequestData(props),
-                            props.electronApi,
-                        );
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Create Issue Test
-            </h2>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({projectIdOrKey: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Project id or key')}
-                ${assign(FibInput.props.value, props.projectIdOrKey)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({issueTypeIdOrName: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Issue type id or name')}
-                ${assign(FibInput.props.value, props.issueTypeIdOrName)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({createdSummary: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Summary')}
-                ${assign(FibInput.props.value, props.createdSummary)}
-            ></${FibInput}>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({userAccountId: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Assignee account id')}
-                ${assign(FibInput.props.value, props.userAccountId)}
-            ></${FibInput}>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await createIssue(makeCreateRequestData(props), props.electronApi);
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Get Users
-            </h2>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await getUsers(makeJiraRequestData(props), props.electronApi);
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Search Users
-            </h2>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({jql: event.detail});
-                    setCachedData(makeSearchRequestData(props));
-                })}
-                ${assign(FibInput.props.label, 'JQL query')}
-                ${assign(FibInput.props.value, props.jql)}
-            ></${FibInput}>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await searchUsers(makeSearchRequestData(props), props.electronApi);
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Get Issue Types for Project Test
-            </h2>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({projectIdOrKey: event.detail});
-                })}
-                ${assign(FibInput.props.label, 'Project id or key')}
-                ${assign(FibInput.props.value, props.projectIdOrKey)}
-            ></${FibInput}>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await getIssueTypes(makeIssueTypesRequestData(props), props.electronApi);
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Get Projects Test
-            </h2>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await getProjects(makeJiraRequestData(props), props.electronApi);
-                    }
-                })}
-            >
-                Run Test
-            </button>
-            <h2>
-                Get Issues By Project and Label
-            </h2>
-            <${FibInput}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    setProps({project: event.detail});
-                    setCachedData(makeSearchRequestData(props));
-                })}
-                ${assign(FibInput.props.label, 'Project')}
-                ${assign(FibInput.props.value, props.project)}
-            ></${FibInput}>
-            <${FibInput}
-            ${listen(FibInput.events.valueChange, (event) => {
-                setProps({label: event.detail});
-                setCachedData(makeSearchRequestData(props));
-            })}
-            ${assign(FibInput.props.label, 'Label')}
-            ${assign(FibInput.props.value, props.label)}
-        ></${FibInput}>
-            <button
-                ${listen('click', async () => {
-                    if (props.electronApi) {
-                        await searchIssuesByLabel(
-                            makeSearchByLabelRequestData(props),
-                            props.electronApi,
-                        );
-                    }
-                })}
-            >
-                Run Test
-            </button>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await searchUsers(makeSearchRequestData(props), props.electronApi);
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Get Issue Types for Project Test
+                </h2>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({projectIdOrKey: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Project id or key')}
+                    ${assign(FibInput.props.value, props.projectIdOrKey)}
+                ></${FibInput}>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await getIssueTypes(
+                                makeIssueTypesRequestData(props),
+                                props.electronApi,
+                            );
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Get Projects Test
+                </h2>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await getProjects(makeJiraRequestData(props), props.electronApi);
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Get Issues By Project and Label
+                </h2>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({project: event.detail});
+                        setCachedData(makeSearchRequestData(props));
+                    })}
+                    ${assign(FibInput.props.label, 'Project')}
+                    ${assign(FibInput.props.value, props.project)}
+                ></${FibInput}>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({label: event.detail});
+                        setCachedData(makeSearchRequestData(props));
+                    })}
+                    ${assign(FibInput.props.label, 'Label')}
+                    ${assign(FibInput.props.value, props.label)}
+                ></${FibInput}>
+                <button
+                    ${listen('click', async () => {
+                        if (props.electronApi) {
+                            await searchIssuesByLabel(
+                                makeSearchByLabelRequestData(props),
+                                props.electronApi,
+                            );
+                        }
+                    })}
+                >
+                    Run Test
+                </button>
+            </div>
+            <div class="example">
+                <h2>
+                    Provide Custom Type HTML
+                </h2>
+                <${FibInput}
+                    ${listen(FibInput.events.valueChange, (event) => {
+                        setProps({customTypeHTML: event.detail});
+                    })}
+                    ${assign(FibInput.props.label, 'Custom Type HTML')}
+                    ${assign(FibInput.props.value, props.customTypeHTML)}
+                ></${FibInput}>
+                <button
+                    ${listen('click', async () => {
+                        console.log(props.customTypeHTML);
+                        setProps({
+                            htmlDisplay: new DOMParser().parseFromString(
+                                props.customTypeHTML,
+                                'text/html',
+                            ).body,
+                        });
+                    })}
+                >
+                    Insert HTML
+                </button>
+                <h3>
+                    Custom HTML
+                </h3>
+                ${props.htmlDisplay}
+            </div>
         `;
     },
 });
