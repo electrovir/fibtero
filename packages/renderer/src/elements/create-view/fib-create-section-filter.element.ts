@@ -95,24 +95,32 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
                 })}
                 class="name-input"
             ></${FibInput}>
-            <${FibInput}
-                ${assign(FibInput.props.value, props.filterDefinition.filterRegExpString)}
-                ${assign(FibInput.props.label, 'RegExp string')}
-                ${assign(FibInput.props.disabled, props.filterDefinition.filterType == FilterType.Unique)}
-                ${listen(FibInput.events.valueChange, (event) => {
-                    const filterRegExpString = event.detail;
-                    const newFilter = {
-                        ...props.filterDefinition,
-                        filterRegExpString,
-                    };
-                    setProps({
-                        filterDefinition: newFilter,
-                    });
+            ${
+                props.filterDefinition.filterType === FilterType.Regex
+                    ? html`
+                        <${FibInput}
+                            ${assign(
+                                FibInput.props.value,
+                                props.filterDefinition.filterRegExpString,
+                            )}
+                            ${assign(FibInput.props.label, 'RegExp string')}
+                            ${listen(FibInput.events.valueChange, (event) => {
+                                const filterRegExpString = event.detail;
+                                const newFilter = {
+                                    ...props.filterDefinition,
+                                    filterRegExpString,
+                                };
+                                setProps({
+                                    filterDefinition: newFilter,
+                                });
 
-                    dispatch(new events.filterChange(newFilter));
-                })}
-                class="name-input"
-            ></${FibInput}>
+                                dispatch(new events.filterChange(newFilter));
+                            })}
+                            class="name-input"
+                        ></${FibInput}>
+                    `
+                    : ''
+            }
             <button
                 ${listen('click', () => {
                     dispatch(new events.deleteFilter());

@@ -45,7 +45,10 @@ export function validateView(view: JiraView): string {
             if (!filter.id) {
                 errors.push(`Missing id ${onFilter}`);
             }
-            if (!filter.filterRegExpString) {
+            if (!filter.filterType) {
+                errors.push(`missing filter type`);
+            }
+            if (filter.filterType === FilterType.Regex && !filter.filterRegExpString) {
                 errors.push(`Missing RegExp string ${onFilter}`);
             }
         });
