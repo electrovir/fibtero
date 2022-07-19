@@ -40,7 +40,7 @@ const fieldMappings: FieldMapping[] = [
                       ${value?.displayName}
                       <img
                           title=${value?.displayName}
-                          style="height: 32px; width: 32px; border-radius: 50%;"
+                          style="height: 32px; width: 32px; border-radius: 50%;vertical-align: middle;"
                           src=${imageUrl}
                       />
 
