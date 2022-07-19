@@ -1,4 +1,4 @@
-import {JiraView, validateView} from '@packages/common/src/data/jira-view';
+import {JiraView, validateView} from '@packages/common/src/data/jira-view/jira-view';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';

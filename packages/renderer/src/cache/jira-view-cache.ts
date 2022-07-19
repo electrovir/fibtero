@@ -4,7 +4,7 @@ import {
     JiraCustomFieldDefinitions,
     JiraIssueFields,
 } from '@packages/common/src/data/jira-data';
-import {JiraView} from '@packages/common/src/data/jira-view';
+import {JiraView} from '@packages/common/src/data/jira-view/jira-view';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {getMaybeCached} from './generic-cache-helpers';

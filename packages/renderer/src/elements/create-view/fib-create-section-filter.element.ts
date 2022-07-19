@@ -2,7 +2,7 @@ import {
     createEmptyViewSectionFilter,
     FilterType,
     JiraViewSectionFilter,
-} from '@packages/common/src/data/jira-view';
+} from '@packages/common/src/data/jira-view/jira-view';
 import {getEnumTypedValues, isEnumValue, randomString} from 'augment-vir';
 import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
@@ -66,7 +66,13 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
                     ${getEnumTypedValues(FilterType).map(
                         (filterTypeValue) =>
                             html`
-                                <option value=${filterTypeValue}>${filterTypeValue}</option>
+                                <option
+                                    ?selected=${filterTypeValue ===
+                                    props.filterDefinition.filterType}
+                                    value=${filterTypeValue}
+                                >
+                                    ${filterTypeValue}
+                                </option>
                             `,
                     )}
                 </select>

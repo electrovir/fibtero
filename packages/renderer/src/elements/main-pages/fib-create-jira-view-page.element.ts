@@ -1,4 +1,4 @@
-import {createNewView} from '@packages/common/src/data/jira-view';
+import {createNewView} from '@packages/common/src/data/jira-view/jira-view';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';

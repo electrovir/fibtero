@@ -5,7 +5,7 @@ import {
     JiraView,
     matchesSectionFilters,
     ViewDirection,
-} from '@packages/common/src/data/jira-view';
+} from '@packages/common/src/data/jira-view/jira-view';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isPromiseLike} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
@@ -32,22 +32,25 @@ export const FibViewDisplay = defineFunctionalElement({
             | LoadedIssues<Promise<Readonly<Readonly<FullJiraIssue>[]>>>,
         error: '',
     },
-    hostClasses: {
-        horizontal: ({props}) => props.view?.direction === ViewDirection.Horizontal,
-    },
-    styles: ({hostClass}) => css`
+    styles: css`
         :host {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sections {
             display: flex;
             flex-direction: column;
             align-items: stretch;
             gap: 16px;
         }
 
-        :host(${hostClass.horizontal}) {
+        .horizontal {
             flex-direction: row;
         }
 
-        :host(${hostClass.horizontal}) .issue-category {
+        .horizontal .issue-category {
             flex-grow: 1;
         }
 
@@ -214,30 +217,37 @@ export const FibViewDisplay = defineFunctionalElement({
         );
 
         return html`
-            ${Object.keys(issueSections).map((sectionName) => {
-                const issues = issueSections[sectionName]!;
-                if (!issues.length && sectionName === unMatchedSectionName) {
-                    // ignore unmatched issues if there are none
-                    return '';
-                }
-                return html`
-                    <section class="issue-category">
-                        <h4>${sectionName} (${issues.length})</h4>
-                        <div class="issues">
-                            ${issues.map((issue) => {
-                                return html`
-                                    <${FibIssueCard}
-                                        ${listen('click', () => {
-                                            genericDispatch(new ShowFullIssueEvent(issue));
-                                        })}
-                                        ${assign(FibIssueCard.props.issue, issue)}electronApi)}
-                                    ></${FibIssueCard}>
-                                `;
-                            })}
-                        </div>
-                    </section>
-                `;
-            })}
+            ${issues.length} total issues
+            <div
+                class="sections ${props.view?.direction === ViewDirection.Horizontal
+                    ? 'horizontal'
+                    : ''}"
+            >
+                ${Object.keys(issueSections).map((sectionName) => {
+                    const issues = issueSections[sectionName]!;
+                    if (!issues.length && sectionName === unMatchedSectionName) {
+                        // ignore unmatched issues if there are none
+                        return '';
+                    }
+                    return html`
+                        <section class="issue-category">
+                            <h4>${sectionName} (${issues.length})</h4>
+                            <div class="issues">
+                                ${issues.map((issue) => {
+                                    return html`
+                                        <${FibIssueCard}
+                                            ${listen('click', () => {
+                                                genericDispatch(new ShowFullIssueEvent(issue));
+                                            })}
+                                            ${assign(FibIssueCard.props.issue, issue)}electronApi)}
+                                        ></${FibIssueCard}>
+                                    `;
+                                })}
+                            </div>
+                        </section>
+                    `;
+                })}
+            </div>
         `;
     },
 });

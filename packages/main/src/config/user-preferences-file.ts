@@ -1,5 +1,5 @@
 import {extractMessage} from '@packages/common/src/augments/error';
-import {FilterType} from '@packages/common/src/data/jira-view';
+import {FilterType} from '@packages/common/src/data/jira-view/jira-view';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {
     emptyUserPreferences,

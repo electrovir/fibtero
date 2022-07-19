@@ -1,5 +1,5 @@
 import {isEnumValue} from 'augment-vir';
-import {JiraIssue} from './jira-data';
+import {JiraIssue} from '../jira-data';
 export function serializeJiraView(input: Readonly<JiraView>): string {
     try {
         return JSON.stringify(input);

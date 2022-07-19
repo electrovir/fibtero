@@ -1,4 +1,7 @@
-import {createEmptyViewSectionFilter, JiraViewSection} from '@packages/common/src/data/jira-view';
+import {
+    createEmptyViewSectionFilter,
+    JiraViewSection,
+} from '@packages/common/src/data/jira-view/jira-view';
 import {randomString} from 'augment-vir';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {repeat} from 'lit/directives/repeat.js';

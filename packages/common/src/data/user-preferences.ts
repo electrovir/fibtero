@@ -1,4 +1,4 @@
-import {JiraView} from './jira-view';
+import {JiraView} from './jira-view/jira-view';
 import {MainRendererPage} from './main-renderer-page';
 import {matchesShallowObjectSignature} from './object-validator';
 

@@ -1,4 +1,4 @@
-import {JiraView} from '@packages/common/src/data/jira-view';
+import {JiraView} from '@packages/common/src/data/jira-view/jira-view';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {ChangeCurrentViewIndexEvent} from '../global-events/change-current-view-index.event';
 import {FibButton} from './core-elements/fib-button.element';

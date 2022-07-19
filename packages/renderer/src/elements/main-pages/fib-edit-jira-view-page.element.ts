@@ -1,8 +1,10 @@
-import {JiraView} from '@packages/common/src/data/jira-view';
+import {JiraView} from '@packages/common/src/data/jira-view/jira-view';
+import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangePageEvent} from '../../global-events/change-page.event';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {FibCreateView} from '../create-view/fib-create-view.element';
 import {FibViewSelector} from '../fib-view-selector.element';
@@ -98,6 +100,7 @@ export const FibEditJiraViewPage = defineFunctionalElement({
                             });
 
                             genericDispatch(new ReloadUserPreferencesEvent());
+                            genericDispatch(new ChangePageEvent(MainRendererPage.MyViews));
                         })}
                     ></${FibCreateView}>
                     <button 
@@ -131,6 +134,7 @@ export const FibEditJiraViewPage = defineFunctionalElement({
                                 data: newUserPreferences,
                             });
 
+                            console.log('saving');
                             genericDispatch(new ReloadUserPreferencesEvent());
                         })}
                     >

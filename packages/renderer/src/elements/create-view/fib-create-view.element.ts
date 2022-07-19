@@ -4,17 +4,9 @@ import {
     JiraView,
     validateView,
     ViewDirection,
-} from '@packages/common/src/data/jira-view';
+} from '@packages/common/src/data/jira-view/jira-view';
 import {getEnumTypedValues, isEnumValue, isTruthy, randomString} from 'augment-vir';
-import {
-    assign,
-    css,
-    defineElementEvent,
-    defineFunctionalElement,
-    html,
-    listen,
-    onDomCreated,
-} from 'element-vir';
+import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {repeat} from 'lit/directives/repeat.js';
 import {FibInput} from '../core-elements/fib-input.element';
 import {FibCreateViewSection} from './fib-create-view-section.element';
@@ -23,7 +15,6 @@ export const FibCreateView = defineFunctionalElement({
     tagName: 'fib-create-view',
     props: {
         viewDefinition: createNewView(randomString),
-        innerSelectElement: undefined as undefined | HTMLSelectElement,
         error: '',
         allowReset: true,
     },
@@ -94,17 +85,10 @@ export const FibCreateView = defineFunctionalElement({
                 ></${FibInput}>
                 <label>
                     Direction
-                    <select 
-                        ${onDomCreated((element) => {
-                            if (element instanceof HTMLSelectElement) {
-                                element.value = props.viewDefinition.direction;
-                                setProps({innerSelectElement: element});
-                            } else {
-                                throw new Error(`Failed to get select element.`);
-                            }
-                        })}
+                    <select
                         ${listen('change', (event) => {
-                            const viewDirection = props.innerSelectElement?.value;
+                            const target = event.target as HTMLSelectElement;
+                            const viewDirection = target.value;
                             if (!isEnumValue(viewDirection, ViewDirection)) {
                                 throw new Error(`Invalid view direction selected.`);
                             }
@@ -118,7 +102,11 @@ export const FibCreateView = defineFunctionalElement({
                         ${getEnumTypedValues(ViewDirection).map(
                             (viewDirectionValue) =>
                                 html`
-                                    <option value=${viewDirectionValue}>
+                                    <option
+                                        ?selected=${viewDirectionValue ===
+                                        props.viewDefinition.direction}
+                                        value=${viewDirectionValue}
+                                    >
                                         ${viewDirectionValue}
                                     </option>
                                 `,
