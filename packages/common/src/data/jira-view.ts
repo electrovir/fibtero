@@ -1,4 +1,5 @@
 import {isEnumValue} from 'augment-vir';
+import {JiraIssue} from './jira-data';
 export function serializeJiraView(input: Readonly<JiraView>): string {
     try {
         return JSON.stringify(input);
@@ -119,4 +120,33 @@ export function createEmptyViewSectionFilter(
         filterRegExpString: '',
         id: randomStringFunction(),
     };
+}
+
+function getFieldValue(value: any, fieldName: string | string[]): any {
+    try {
+        if (Array.isArray(fieldName)) {
+            if (!fieldName.length) {
+                return value;
+            } else {
+                return getFieldValue(value[fieldName[0]!], fieldName.slice(1));
+            }
+        } else {
+            return getFieldValue(value.fields, fieldName.split('.'));
+        }
+    } catch (error) {
+        return undefined;
+    }
+}
+
+export function matchesSectionFilters(issue: JiraIssue, section: JiraViewSection): boolean {
+    return section.requirements.some((filter) => {
+        const fieldValue = getFieldValue(issue, filter.fieldName);
+        if (!fieldValue) {
+            return false;
+        }
+        const filterRegExp = new RegExp(filter.filterRegExpString, 'i');
+        const match = !!String(fieldValue).match(filterRegExp);
+        console.log({fieldName: filter.fieldName, issue, fieldValue, filterRegExp, match});
+        return match;
+    });
 }

@@ -37,6 +37,10 @@ export const FibMyViews = defineFunctionalElement({
             border-right: 1px solid grey;
             margin-right: 16px;
         }
+
+        .view-display {
+            flex-grow: 1;
+        }
     `,
     renderCallback: ({props, setProps}) => {
         if (props.selectedViewIndex === undefined && props.userPreferences.lastViewId) {
