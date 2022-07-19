@@ -1,5 +1,5 @@
 import {extractMessage} from '@packages/common/src/augments/error';
-import { FilterType } from '@packages/common/src/data/jira-view';
+import {FilterType} from '@packages/common/src/data/jira-view';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {
     emptyUserPreferences,
@@ -61,13 +61,13 @@ export async function readUserPreferences(appPaths: HasGetPath): Promise<UserPre
         throw new Error(`Read user preferences from file contents failed validation.`);
     }
     //add new attributes since last file save
-    fromFile.views.map(v => {
-        v.sections.map(s => {
-            s.requirements.map(r => {
-                if(!r.filterType){
+    fromFile.views.map((v) => {
+        v.sections.map((s) => {
+            s.requirements.map((r) => {
+                if (!r.filterType) {
                     r.filterType = FilterType.Regex;
                 }
-            })
+            });
         });
     });
     return fromFile;

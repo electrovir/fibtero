@@ -64,7 +64,6 @@ export enum FilterType {
     Regex = 'RegExp String',
 }
 
-
 export type JiraView = {
     name: string;
     id: string;
@@ -148,24 +147,23 @@ export function getFieldValue(value: any, fieldName: string | string[]): any {
 }
 
 export function matchesSectionFilters(issue: JiraIssue, section: JiraViewSection): string[] {
-    const sections = section.requirements.reduce((accum,filter) => {
+    const sections = section.requirements.reduce((accum, filter) => {
         const fieldValue = getFieldValue(issue, filter.fieldName);
         if (!fieldValue) {
             return accum;
         }
-        switch(filter.filterType){
+        switch (filter.filterType) {
             case FilterType.Unique:
                 accum.push(fieldValue);
                 break;
-            default :
+            default:
                 const filterRegExp = new RegExp(filter.filterRegExpString, 'i');
                 const match = !!String(fieldValue).match(filterRegExp);
-                if(match){
+                if (match) {
                     accum.push(section.name);
                 }
         }
         return accum;
-        
-    },[] as string[]);
+    }, [] as string[]);
     return sections;
 }
