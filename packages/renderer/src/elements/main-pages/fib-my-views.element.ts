@@ -1,8 +1,10 @@
 import {JiraAuth} from '@packages/common/src/data/jira-data';
+import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangePageEvent} from '../../global-events/change-page.event';
 import {FibViewSelector} from '../fib-view-selector.element';
 import {FibViewDisplay} from '../issue-display/fib-view-display.element';
 
@@ -42,7 +44,7 @@ export const FibMyViews = defineFunctionalElement({
             flex-grow: 1;
         }
     `,
-    renderCallback: ({props, setProps}) => {
+    renderCallback: ({props, setProps, genericDispatch}) => {
         if (props.selectedViewIndex === undefined && props.userPreferences.lastViewId) {
             const foundById = props.userPreferences.views.findIndex(
                 (view) => view.id === props.userPreferences.lastViewId,
@@ -62,6 +64,26 @@ export const FibMyViews = defineFunctionalElement({
             <${FibViewSelector}
                 ${assign(FibViewSelector.props.views, props.userPreferences.views)}
                 ${assign(FibViewSelector.props.selectedViewIndex, props.selectedViewIndex)}
+                ${assign(FibViewSelector.props.extraCommands, [
+                    {text: 'edit'},
+                    {text: 'new'},
+                    {text: 'export'},
+                    {text: 'import'},
+                ])}
+                ${listen(FibViewSelector.events.extraCommandClicked, (event) => {
+                    const index = event.detail;
+                    const pages = [
+                        MainRendererPage.EditJiraView,
+                        MainRendererPage.CreateJiraView,
+                        MainRendererPage.ExportJiraView,
+                        MainRendererPage.ImportJiraView,
+                    ];
+
+                    const newPage = pages[index];
+                    if (newPage) {
+                        genericDispatch(new ChangePageEvent(newPage));
+                    }
+                })}
                 ${listen(FibViewSelector.events.selectedViewChange, (event) => {
                     setProps({selectedViewIndex: event.detail});
                     const view = props.userPreferences.views[event.detail];

@@ -8,16 +8,17 @@ import {
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {ChangePageEvent} from '../../global-events/change-page.event';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
 import {FibFullIssue} from '../issue-display/fib-full-issue.element';
+import {FibAuthPage} from '../main-pages/fib-auth-page.element';
 import {FibCreateJiraViewPage} from '../main-pages/fib-create-jira-view-page.element';
 import {FibEditJiraViewPage} from '../main-pages/fib-edit-jira-view-page.element';
 import {FibExportJiraViewPage} from '../main-pages/fib-export-jira-view-page.element';
-import {FibHomePage} from '../main-pages/fib-home-page.element';
 import {FibImportJiraViewPage} from '../main-pages/fib-import-jira-view-page.element';
 import {FibMyViews} from '../main-pages/fib-my-views.element';
-import {BasicJiraTest} from '../test-elements/basic-jira-test.element';
+import {FibTestPage} from '../main-pages/fib-test-page.element';
 import {FibAppPageNav} from './fib-app-page-nav.element';
 
 const electronApi = getElectronWindowInterface();
@@ -35,7 +36,7 @@ async function loadUserPreferences(electronApi: ElectronWindowInterface) {
 export const FibAppElement = defineFunctionalElement({
     tagName: 'fib-app',
     props: {
-        currentPage: MainRendererPage.Home,
+        currentPage: MainRendererPage.Auth,
         currentView: [],
         electronApi: getElectronWindowInterface(),
         currentFullIssue: undefined as undefined | JiraIssue,
@@ -67,8 +68,8 @@ export const FibAppElement = defineFunctionalElement({
 
         ${FibAppPageNav} {
             align-self: stretch;
-            border-bottom: 1px solid grey;
             padding: 16px;
+            padding-bottom: 0;
         }
 
         main {
@@ -173,26 +174,35 @@ export const FibAppElement = defineFunctionalElement({
 
             // default to home if an invalid page is given
             if (!isEnumValue(props.currentPage, MainRendererPage)) {
-                setProps({currentPage: MainRendererPage.Home});
+                setProps({currentPage: MainRendererPage.Auth});
             }
 
             if (!props.jiraAuth) {
-                setProps({currentPage: MainRendererPage.Home});
+                setProps({currentPage: MainRendererPage.Auth});
             }
         }
 
         const pageTemplate =
-            props.currentPage === MainRendererPage.Home
+            props.currentPage === MainRendererPage.Auth
                 ? html`
-                      <${FibHomePage}
-                        ${assign(FibHomePage.props.electronApi, props.electronApi)}
-                        ${listen(BasicJiraTest.events.jiraAuthInput, (event) => {
-                            setProps({jiraAuth: event.detail});
+                    <${FibAuthPage}
+                        ${assign(FibAuthPage.props.loginOnLoad, !props.authLoaded)}
+                        ${assign(FibAuthPage.props.authLoaded, props.authLoaded)}
+                        ${listen(FibAuthPage.events.jiraAuthSubmit, (event) => {
+                            const auth = event.detail;
+                            setProps({jiraAuth: auth, currentPage: MainRendererPage.MyViews});
                         })}
-                        ${listen(BasicJiraTest.events.authLoaded, (event) => {
+                        ${listen(FibAuthPage.events.authLoaded, () => {
                             setProps({authLoaded: true});
                         })}
-                      ></${FibHomePage}>
+                        ${assign(FibAuthPage.props.useCachedData, true)}
+                        ${assign(FibAuthPage.props.electronApi, electronApi)}
+                    ></${FibAuthPage}>`
+                : props.currentPage === MainRendererPage.Test
+                ? html`
+                      <${FibTestPage}
+                        ${assign(FibTestPage.props.electronApi, props.electronApi)}
+                      ></${FibTestPage}>
                   `
                 : props.currentPage === MainRendererPage.CreateJiraView
                 ? html`
@@ -245,6 +255,17 @@ export const FibAppElement = defineFunctionalElement({
                 ${listen(ShowFullIssueEvent, async (event) => {
                     setProps({currentFullIssue: event.detail});
                 })}
+                ${listen(ChangePageEvent, (event) => {
+                    const newPage = event.detail;
+                    setProps({currentPage: newPage});
+                    electronApi.apiRequest({
+                        type: ApiRequestType.SavePreferences,
+                        data: {
+                            ...userPreferences,
+                            lastPage: newPage,
+                        },
+                    });
+                })}
             >
                 <div
                     class="modal-overlay ${showModalOverlay ? '' : 'hidden'}"
@@ -277,17 +298,6 @@ export const FibAppElement = defineFunctionalElement({
                 </div>
                 <${FibAppPageNav}
                     ${assign(FibAppPageNav.props.currentPage, props.currentPage)}
-                    ${listen(FibAppPageNav.events.pageChange, (event) => {
-                        const newPage = event.detail;
-                        setProps({currentPage: newPage});
-                        electronApi.apiRequest({
-                            type: ApiRequestType.SavePreferences,
-                            data: {
-                                ...userPreferences,
-                                lastPage: newPage,
-                            },
-                        });
-                    })}
                 ></${FibAppPageNav}>
                 <main>
                     ${pageTemplate}

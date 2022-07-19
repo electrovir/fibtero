@@ -13,6 +13,7 @@ export const FibExportJiraViewPage = defineFunctionalElement({
         :host {
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 16px;
         }
 
@@ -23,6 +24,7 @@ export const FibExportJiraViewPage = defineFunctionalElement({
 
         textarea {
             flex-grow: 1;
+            width: 100%;
             max-width: 500px;
             max-height: 300px;
         }
@@ -30,7 +32,7 @@ export const FibExportJiraViewPage = defineFunctionalElement({
     renderCallback: ({props, setProps}) => {
         if (!props.userPreferences.views.length) {
             return html`
-                No views to export. Use "Create Jira View" or "Import Jira View" to make some!
+                No views to export. Create one!
             `;
         }
         // automatically select the only view if there's only one

@@ -1,8 +1,8 @@
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
-import {capitalizeFirstLetter, getEnumTypedValues} from 'augment-vir';
-import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
+import {capitalizeFirstLetter} from 'augment-vir';
+import {defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
-import {FibButton} from '../core-elements/fib-button.element';
+import {ChangePageEvent} from '../../global-events/change-page.event';
 
 function prettifyMainPageValue(value: MainRendererPage): string {
     return capitalizeFirstLetter(
@@ -15,40 +15,64 @@ function prettifyMainPageValue(value: MainRendererPage): string {
 export const FibAppPageNav = defineFunctionalElement({
     tagName: 'fib-app-page-nav',
     props: {
-        currentPage: MainRendererPage.Home,
+        currentPage: MainRendererPage.Auth,
         currentView: [],
-    },
-    events: {
-        pageChange: defineElementEvent<MainRendererPage>(),
     },
     styles: css`
         :host {
+            justify-content: space-between;
+        }
+
+        :host,
+        div {
             display: flex;
             box-sizing: border-box;
-            justify-content: center;
             gap: 32px;
             flex-wrap: wrap;
         }
-    `,
-    renderCallback: ({props, dispatch, events}) => {
-        return html`
-            ${getEnumTypedValues(MainRendererPage).map((pageValue) => {
-                const pageName = prettifyMainPageValue(pageValue);
-                const isThisPage = pageValue === props.currentPage;
 
-                return html`
-                    <${FibButton}
-                        ${assign(FibButton.props.disabled, isThisPage)}
-                        ${assign(FibButton.props.label, pageName)}
-                        ${listen('click', () => {
-                            if (!isThisPage) {
-                                dispatch(new events.pageChange(pageValue));
-                            }
-                        })}
-                    >
-                    </${FibButton}>
-                `;
-            })}
+        div {
+            justify-content: flex-end;
+        }
+    `,
+    renderCallback: ({props, genericDispatch}) => {
+        return html`
+            ${![
+                MainRendererPage.MyViews,
+                MainRendererPage.Auth,
+            ].includes(props.currentPage)
+                ? html`
+                      <button
+                          ${listen('click', () => {
+                              genericDispatch(new ChangePageEvent(MainRendererPage.MyViews));
+                          })}
+                      >
+                          Back
+                      </button>
+                  `
+                : html`
+                      <div></div>
+                  `}
+            <div>
+                <button
+                    ${listen('click', () => {
+                        genericDispatch(new ChangePageEvent(MainRendererPage.Test));
+                    })}
+                >
+                    Test Page
+                </button>
+                ${props.currentPage !== MainRendererPage.Auth
+                    ? html`
+                          <button
+                              ${listen('click', () => {
+                                  genericDispatch(new ChangePageEvent(MainRendererPage.Auth));
+                              })}
+                          >
+                              Logout
+                          </button>
+                      `
+                    : ''}
+            </div>
         `;
     },
 });

@@ -2,10 +2,15 @@ import {JiraView} from '@packages/common/src/data/jira-view';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {FibButton} from './core-elements/fib-button.element';
 
+export type ExtraFibViewSelectorCommand = {
+    text: string;
+};
+
 export const FibViewSelector = defineFunctionalElement({
     tagName: 'fib-view-selector',
     props: {
         views: [] as JiraView[],
+        extraCommands: [] as ExtraFibViewSelectorCommand[],
         selectedViewIndex: undefined as undefined | number,
     },
     styles: css`
@@ -13,9 +18,16 @@ export const FibViewSelector = defineFunctionalElement({
             gap: 8px;
             display: flex;
         }
+
+        button {
+            align-self: center;
+            padding: 2px 12px;
+            cursor: pointer;
+        }
     `,
     events: {
         selectedViewChange: defineElementEvent<number>(),
+        extraCommandClicked: defineElementEvent<number>(),
     },
     renderCallback: ({props, dispatch, events}) => {
         return html`
@@ -28,6 +40,17 @@ export const FibViewSelector = defineFunctionalElement({
                             dispatch(new events.selectedViewChange(index));
                         })}
                     ></${FibButton}>
+                `;
+            })}
+            ${props.extraCommands.map((extraCommand, index) => {
+                return html`
+                    <button
+                        ${listen('click', () => {
+                            dispatch(new events.extraCommandClicked(index));
+                        })}
+                    >
+                        ${extraCommand.text}
+                    </button>
                 `;
             })}
         `;

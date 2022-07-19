@@ -22,10 +22,12 @@ export const FibImportJiraViewPage = defineFunctionalElement({
             display: flex;
             flex-direction: column;
             gap: 16px;
+            align-items: center;
         }
 
         textarea {
             flex-grow: 1;
+            width: 100%;
             max-width: 500px;
             max-height: 300px;
         }

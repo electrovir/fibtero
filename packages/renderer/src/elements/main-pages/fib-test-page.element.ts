@@ -2,8 +2,8 @@ import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-ap
 import {assign, defineFunctionalElement, html} from 'element-vir';
 import {BasicJiraTest} from '../test-elements/basic-jira-test.element';
 
-export const FibHomePage = defineFunctionalElement({
-    tagName: 'fib-home-page',
+export const FibTestPage = defineFunctionalElement({
+    tagName: 'fib-test-page',
     props: {
         electronApi: undefined as undefined | ElectronWindowInterface,
     },

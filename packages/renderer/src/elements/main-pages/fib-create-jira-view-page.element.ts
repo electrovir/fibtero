@@ -3,7 +3,7 @@ import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/u
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {randomString} from 'augment-vir';
-import {assign, defineFunctionalElement, html, listen} from 'element-vir';
+import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {FibCreateView} from '../create-view/fib-create-view.element';
 
@@ -14,6 +14,12 @@ export const FibCreateJiraViewPage = defineFunctionalElement({
         currentPreferences: emptyUserPreferences,
         currentlyCreatedView: createNewView(randomString),
     },
+    styles: css`
+        :host {
+            display: flex;
+            justify-content: center;
+        }
+    `,
     renderCallback: ({props, setProps, genericDispatch}) => {
         if (!props.electronApi) {
             return html`

@@ -56,6 +56,12 @@ export const FibEditJiraViewPage = defineFunctionalElement({
             setProps({currentlyEditingView: currentlyEditing});
         }
 
+        if (!props.userPreferences.views.length) {
+            return html`
+                No views to edit. Create one!
+            `;
+        }
+
         const createViewTemplate = currentlyEditing
             ? html`
                 <${FibCreateView}

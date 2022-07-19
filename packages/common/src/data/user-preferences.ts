@@ -27,7 +27,7 @@ export const emptyUserPreferences: UserPreferences = {
         useLast: true,
     },
     views: [],
-    lastPage: MainRendererPage.Home,
+    lastPage: MainRendererPage.Auth,
     lastViewId: '',
 } as const;
 

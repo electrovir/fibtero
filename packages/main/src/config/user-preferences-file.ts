@@ -15,7 +15,7 @@ function getDefaultUserPreferences(appPaths: HasGetPath): UserPreferences {
     return {
         startupWindowPosition: emptyUserPreferences.startupWindowPosition,
         views: [],
-        lastPage: MainRendererPage.Home,
+        lastPage: MainRendererPage.Auth,
         lastViewId: '',
     };
 }
