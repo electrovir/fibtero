@@ -1,5 +1,6 @@
 import {JiraAuth} from '@packages/common/src/data/jira-data';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
+import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {FibViewSelector} from '../fib-view-selector.element';
@@ -38,6 +39,16 @@ export const FibMyViews = defineFunctionalElement({
         }
     `,
     renderCallback: ({props, setProps}) => {
+        if (props.selectedViewIndex === undefined && props.userPreferences.lastViewId) {
+            const foundById = props.userPreferences.views.findIndex(
+                (view) => view.id === props.userPreferences.lastViewId,
+            );
+            if (foundById !== -1) {
+                setProps({
+                    selectedViewIndex: foundById,
+                });
+            }
+        }
         const selectedView =
             props.selectedViewIndex == undefined
                 ? undefined
@@ -49,6 +60,16 @@ export const FibMyViews = defineFunctionalElement({
                 ${assign(FibViewSelector.props.selectedViewIndex, props.selectedViewIndex)}
                 ${listen(FibViewSelector.events.selectedViewChange, (event) => {
                     setProps({selectedViewIndex: event.detail});
+                    const view = props.userPreferences.views[event.detail];
+                    if (view) {
+                        props.electronApi?.apiRequest({
+                            type: ApiRequestType.SavePreferences,
+                            data: {
+                                ...props.userPreferences,
+                                lastViewId: view.id,
+                            },
+                        });
+                    }
                 })}
             ></${FibViewSelector}>
             <div class="view-display">

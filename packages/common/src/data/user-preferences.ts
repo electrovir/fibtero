@@ -15,6 +15,7 @@ export type UserPreferences = {
     };
     views: Readonly<Readonly<JiraView>[]>;
     lastPage: MainRendererPage;
+    lastViewId: string;
 };
 
 export const emptyUserPreferences: UserPreferences = {
@@ -27,6 +28,7 @@ export const emptyUserPreferences: UserPreferences = {
     },
     views: [],
     lastPage: MainRendererPage.Home,
+    lastViewId: '',
 } as const;
 
 export function isValidUserPreferences(input: any): input is UserPreferences {

@@ -4,7 +4,7 @@ import {prodPreloadScriptIndex} from '@packages/common/src/file-paths';
 import {BrowserWindow} from 'electron';
 import {URL} from 'url';
 import {ElectronApp} from '../augments/electron';
-import {readUserPreferences} from '../config/user-preferences';
+import {readUserPreferences} from '../config/user-preferences-file';
 import {shouldUseWindowPosition} from '../config/window-position';
 import {handleClosing} from './on-close';
 

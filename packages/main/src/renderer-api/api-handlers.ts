@@ -6,7 +6,7 @@ import {
 import {ElectronApp} from '../augments/electron';
 import {getPath} from '../config/config-path';
 import {resetConfig} from '../config/config-reset';
-import {readUserPreferences, saveUserPreferences} from '../config/user-preferences';
+import {readUserPreferences, saveUserPreferences} from '../config/user-preferences-file';
 import {createIssue} from '../jira-api/create-issue-request';
 import {getCustomFieldNames} from '../jira-api/get-field-names-request';
 import {getIssueTypes} from '../jira-api/get-issue-types-request';
