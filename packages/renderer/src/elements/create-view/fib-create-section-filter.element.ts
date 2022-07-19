@@ -98,6 +98,7 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
             <${FibInput}
                 ${assign(FibInput.props.value, props.filterDefinition.filterRegExpString)}
                 ${assign(FibInput.props.label, 'RegExp string')}
+                ${assign(FibInput.props.disabled, props.filterDefinition.filterType == FilterType.Unique)}
                 ${listen(FibInput.events.valueChange, (event) => {
                     const filterRegExpString = event.detail;
                     const newFilter = {
