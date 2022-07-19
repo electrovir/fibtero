@@ -34,6 +34,18 @@ export const FibAppPageNav = defineFunctionalElement({
         div {
             justify-content: flex-end;
         }
+
+        .gear-icon {
+            border-radius: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .gear-icon:hover {
+            background-color: #efefef;
+        }
     `,
     renderCallback: ({props, genericDispatch}) => {
         return html`
@@ -61,17 +73,14 @@ export const FibAppPageNav = defineFunctionalElement({
                 >
                     Test Page
                 </button>
-                ${props.currentPage !== MainRendererPage.Auth
-                    ? html`
-                          <button
-                              ${listen('click', () => {
-                                  genericDispatch(new ChangePageEvent(MainRendererPage.Auth));
-                              })}
-                          >
-                              Logout
-                          </button>
-                      `
-                    : ''}
+                <button
+                    class="gear-icon"
+                    ${listen('click', () => {
+                        genericDispatch(new ChangePageEvent(MainRendererPage.Settings));
+                    })}
+                >
+                    ⚙️
+                </button>
             </div>
         `;
     },

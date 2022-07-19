@@ -22,6 +22,7 @@ import {FibExportJiraViewPage} from '../main-pages/fib-export-jira-view-page.ele
 import {FibFieldMappingPage} from '../main-pages/fib-field-mapping-page.element';
 import {FibImportJiraViewPage} from '../main-pages/fib-import-jira-view-page.element';
 import {FibMyViews} from '../main-pages/fib-my-views.element';
+import {FibSettingsPage} from '../main-pages/fib-settings-page.element';
 import {FibTestPage} from '../main-pages/fib-test-page.element';
 import {FibAppPageNav} from './fib-app-page-nav.element';
 
@@ -265,7 +266,7 @@ export const FibAppElement = defineFunctionalElement({
                         ${assign(FibMyViews.props.selectedViewIndex, props.currentViewIndex)}
                         ${assign(FibMyViews.props.electronApi, props.electronApi)}
                     ></${FibMyViews}>
-                  `
+                `
                 : props.currentPage === MainRendererPage.FieldMappingView
                 ? html`
                     <${FibFieldMappingPage}
@@ -274,6 +275,12 @@ export const FibAppElement = defineFunctionalElement({
                         ${assign(FibMyViews.props.electronApi, props.electronApi)}
                     ></${FibFieldMappingPage}>
                   `
+                : props.currentPage === MainRendererPage.Settings
+                ? html`
+                    <${FibSettingsPage}
+                            ${assign(FibSettingsPage.props.electronApi, electronApi)}
+                    ></${FibSettingsPage}>
+                `
                 : html`
                       ERROR: Current page not supported: ${props.currentPage}
                   `;
