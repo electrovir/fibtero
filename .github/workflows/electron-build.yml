@@ -4,6 +4,9 @@ on:
     push:
         branches:
             - 'main'
+concurrency:
+    group: 'main'
+    cancel-in-progress: true
 jobs:
     release:
         runs-on: ${{ matrix.os }}
@@ -23,7 +26,10 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: 16.x
-
+            - name: Delete drafts
+              uses: hugo19941994/delete-draft-releases@v1.0.0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: Build/release Electron app
               uses: samuelmeuli/action-electron-builder@v1
               with:
