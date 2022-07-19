@@ -1,8 +1,9 @@
 import {JiraAuth, JiraIssue} from '@packages/common/src/data/jira-data';
-import {JiraView, matchesSectionFilters, ViewDirection} from '@packages/common/src/data/jira-view';
+import {FilterType, getFieldValue, JiraView, matchesSectionFilters, ViewDirection,} from '@packages/common/src/data/jira-view';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isPromiseLike} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import { isTemplateExpression } from 'typescript';
 import {getMaybeCachedView} from '../../cache/jira-view-cache';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
 import {FibIssueCard} from './fib-issue-card.element';
@@ -158,19 +159,39 @@ export const FibViewDisplay = defineFunctionalElement({
             `;
         }
 
+        const issues = props.loadedViewIssues.issues;
+    
         const sectionMap = props.view.sections.reduce((accum, section) => {
-            accum[section.name] = [];
-            return accum;
+            const requirementSections = section.requirements.reduce((requirementAccum, requirement) => {
+                if(requirement.filterType == FilterType.Unique){
+                    const unique = <string[]>[...new Set(issues.map(issue => {
+                        const fieldValue = getFieldValue(issue, requirement.fieldName);
+                        return fieldValue;
+                    }))];
+
+                    const newFields = unique.reduce((fieldAccum,field) => {
+                        fieldAccum[field] = [];
+                        return fieldAccum;
+                    }, requirementAccum);
+                    return newFields;
+                }
+                return requirementAccum;
+            }, accum);
+            requirementSections[section.name] = [];
+            return requirementSections;
         }, {} as Record<string, string[]>);
 
         const issueSections = props.loadedViewIssues.issues.reduce(
             (accum, currentIssue) => {
                 let matchesASection = false;
                 props.view?.sections.forEach((section) => {
-                    const isMatch = matchesSectionFilters(currentIssue, section);
-                    if (isMatch) {
+                    const sections = matchesSectionFilters(currentIssue, section);
+                    if (sections.length) {
                         matchesASection = true;
-                        accum[section.name]!.push(currentIssue);
+                        sections.map(s =>{
+                            console.log(s);
+                            accum[s]?.push(currentIssue);
+                        })
                     }
                 });
                 if (!matchesASection) {
