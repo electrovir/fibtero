@@ -2,6 +2,8 @@ import {JiraAuth} from '@packages/common/src/data/jira-data';
 import {ApiFullResponse} from '@packages/common/src/electron-renderer-api/api-response';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 
+const requestsInProgress: Record<string, Promise<any>> = {};
+
 function getStoredValue<T>(cacheKey: string): T | undefined {
     const stored = window.localStorage.getItem(cacheKey);
 
@@ -20,7 +22,7 @@ function getStoredValue<T>(cacheKey: string): T | undefined {
 
 export type MakeRequestCallback = () => Promise<ApiFullResponse<any>>;
 
-async function updateCache(inputs: GetMaybeCachedInputs) {
+async function makeCacheUpdate(inputs: GetMaybeCachedInputs) {
     try {
         const response: ApiFullResponse<any> = await inputs.makeRequestCallback();
 
@@ -36,6 +38,18 @@ async function updateCache(inputs: GetMaybeCachedInputs) {
     } catch (error) {
         throw new Error(`Failed to fetch to update cache for ${inputs.cacheKey}: ${error}`);
     }
+}
+
+async function updateCache(inputs: GetMaybeCachedInputs) {
+    if (requestsInProgress[inputs.cacheKey]) {
+        console.log(`Request already in progress for ${inputs.cacheKey}`);
+    } else {
+        requestsInProgress[inputs.cacheKey] = makeCacheUpdate(inputs).then((data) => {
+            delete requestsInProgress[inputs.cacheKey];
+            return data;
+        });
+    }
+    return requestsInProgress[inputs.cacheKey];
 }
 
 export type CacheUpdateCallback = (data: unknown) => void;

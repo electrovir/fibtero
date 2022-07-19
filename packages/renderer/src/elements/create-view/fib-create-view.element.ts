@@ -25,6 +25,7 @@ export const FibCreateView = defineFunctionalElement({
         viewDefinition: createNewView(randomString),
         innerSelectElement: undefined as undefined | HTMLSelectElement,
         error: '',
+        allowReset: true,
     },
     events: {
         viewChange: defineElementEvent<JiraView>(),
@@ -184,13 +185,19 @@ export const FibCreateView = defineFunctionalElement({
                     Save
                 </button>
             </form>
-            <button
-                ${listen('click', () => {
-                    updateCreatedView(createNewView(randomString));
-                })}
-            >
-                Reset
-            </button>
+            ${
+                props.allowReset
+                    ? html`
+                          <button
+                              ${listen('click', () => {
+                                  updateCreatedView(createNewView(randomString));
+                              })}
+                          >
+                              Reset
+                          </button>
+                      `
+                    : ''
+            }
         `;
     },
 });
