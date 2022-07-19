@@ -184,9 +184,8 @@ export const FibViewDisplay = defineFunctionalElement({
                             return fieldAccum;
                         }, requirementAccum);
                         return newFields;
-                    } else {
-                        requirementSections[section.name] = [];
                     }
+                    requirementAccum[section.name] = [];
                     return requirementAccum;
                 },
                 accum,
