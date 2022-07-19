@@ -32,6 +32,15 @@ export const FibCreateView = defineFunctionalElement({
         viewSubmit: defineElementEvent<JiraView>(),
     },
     styles: css`
+        :host {
+            width: 700px;
+            max-width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         label {
             display: flex;
             flex-direction: column;
@@ -41,6 +50,14 @@ export const FibCreateView = defineFunctionalElement({
             display: flex;
             flex-direction: column;
             gap: 16px;
+        }
+
+        button {
+            align-self: center;
+        }
+
+        ${FibInput}, select, label {
+            font-size: 1.2em;
         }
 
         ${FibCreateViewSection} {
@@ -120,7 +137,19 @@ export const FibCreateView = defineFunctionalElement({
                     class="jql-input"
                 ></${FibInput}>
                 <b>
-                    Sections
+                    Sections <button
+                    ${listen('click', () => {
+                        updateCreatedView({
+                            ...props.viewDefinition,
+                            sections: [
+                                ...props.viewDefinition.sections,
+                                createEmptyViewSection(randomString),
+                            ],
+                        });
+                    })}
+                >
+                    + Add Section
+                </button>
                 </b>
                 ${repeat(
                     props.viewDefinition.sections,
@@ -147,19 +176,7 @@ export const FibCreateView = defineFunctionalElement({
                         `;
                     },
                 )}
-                <button
-                    ${listen('click', () => {
-                        updateCreatedView({
-                            ...props.viewDefinition,
-                            sections: [
-                                ...props.viewDefinition.sections,
-                                createEmptyViewSection(randomString),
-                            ],
-                        });
-                    })}
-                >
-                    Add Section
-                </button>
+                
                 <div class="error-message">${props.error
                     .split('\n')
                     .filter(isTruthy)
@@ -182,7 +199,7 @@ export const FibCreateView = defineFunctionalElement({
                         }
                     })}
                 >
-                    Save
+                    Save view
                 </button>
             </form>
             ${

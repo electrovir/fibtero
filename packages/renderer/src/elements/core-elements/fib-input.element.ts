@@ -40,6 +40,10 @@ export const FibInput = defineFunctionalElement({
             cursor: pointer;
         }
 
+        input {
+            font: inherit;
+        }
+
         .focus-border {
             position: absolute;
             top: 0;

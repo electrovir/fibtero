@@ -16,8 +16,11 @@ export const FibCreateViewSection = defineFunctionalElement({
     },
     styles: css`
         :host {
+            border: 1px solid #ccc;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
+            padding: 16px;
             gap: 8px;
         }
 
@@ -28,12 +31,20 @@ export const FibCreateViewSection = defineFunctionalElement({
         button {
             align-self: flex-end;
         }
+
+        .delete-button {
+            margin-top: 8px;
+            background-color: #ffebee;
+            border: 2px solid red;
+            cursor: pointer;
+            border-radius: 4px;
+        }
     `,
     renderCallback: ({props, setProps, dispatch, events}) => {
         return html`
             <${FibInput}
                 ${assign(FibInput.props.value, props.sectionDefinition.name)}
-                ${assign(FibInput.props.label, 'name')}
+                ${assign(FibInput.props.label, 'Section name')}
                 ${listen(FibInput.events.valueChange, (event) => {
                     const name = event.detail;
                     const newSection = {
@@ -47,6 +58,25 @@ export const FibCreateViewSection = defineFunctionalElement({
                 })}
                 class="name-input"
             ></${FibInput}>
+            <b>
+                Filters
+                <button
+                    ${listen('click', () => {
+                        setProps({
+                            sectionDefinition: {
+                                ...props.sectionDefinition,
+                                requirements: [
+                                    ...props.sectionDefinition.requirements,
+                                    createEmptyViewSectionFilter(randomString),
+                                ],
+                            },
+                        });
+                        dispatch(new events.sectionChange(props.sectionDefinition));
+                    })}
+                >
+                    + Add filter
+                </button>
+            </b>
             ${repeat(
                 props.sectionDefinition.requirements,
                 (item) => item.id,
@@ -77,22 +107,7 @@ export const FibCreateViewSection = defineFunctionalElement({
                 },
             )}
             <button
-                ${listen('click', () => {
-                    setProps({
-                        sectionDefinition: {
-                            ...props.sectionDefinition,
-                            requirements: [
-                                ...props.sectionDefinition.requirements,
-                                createEmptyViewSectionFilter(randomString),
-                            ],
-                        },
-                    });
-                    dispatch(new events.sectionChange(props.sectionDefinition));
-                })}
-            >
-                Add filter
-            </button>
-            <button
+                class="delete-button"
                 ${listen('click', () => {
                     dispatch(new events.deleteSection());
                 })}

@@ -21,12 +21,12 @@ export const FibEditJiraViewPage = defineFunctionalElement({
     styles: css`
         :host {
             display: flex;
-            align-items: flex-start;
+            align-items: stretch;
         }
 
         .delete {
             margin-top: 16px;
-            background-color: pink;
+            background-color: #ffebee;
             border: 2px solid red;
             border-radius: 4px;
             cursor: pointer;
@@ -35,6 +35,9 @@ export const FibEditJiraViewPage = defineFunctionalElement({
         .edit-section {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            overflow: hidden;
         }
     `,
     renderCallback: ({props, setProps, genericDispatch}) => {
@@ -131,7 +134,7 @@ export const FibEditJiraViewPage = defineFunctionalElement({
                             genericDispatch(new ReloadUserPreferencesEvent());
                         })}
                     >
-                        delete
+                        Delete view
                     </button>
                 </section>
             `

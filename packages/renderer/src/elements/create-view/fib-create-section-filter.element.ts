@@ -4,14 +4,7 @@ import {
     JiraViewSectionFilter,
 } from '@packages/common/src/data/jira-view';
 import {getEnumTypedValues, isEnumValue, randomString} from 'augment-vir';
-import {
-    assign,
-    defineElementEvent,
-    defineFunctionalElement,
-    html,
-    listen,
-    onDomCreated,
-} from 'element-vir';
+import {assign, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {css} from 'lit';
 import {FibInput} from '../core-elements/fib-input.element';
 
@@ -19,7 +12,6 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
     tagName: 'fib-create-view-section-filter',
     props: {
         filterDefinition: createEmptyViewSectionFilter(randomString),
-        innerSelectElement: undefined as undefined | HTMLSelectElement,
     },
     events: {
         filterChange: defineElementEvent<JiraViewSectionFilter>(),
@@ -28,6 +20,13 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
     styles: css`
         :host {
             display: flex;
+            align-items: flex-end;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            padding: 8px;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: space-between;
         }
 
         label {
@@ -35,27 +34,21 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
             flex-direction: column;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        .delete {
+            background-color: #ffebee;
+            border: 2px solid red;
+            cursor: pointer;
+            border-radius: 4px;
         }
     `,
     renderCallback: ({props, setProps, dispatch, events}) => {
         return html`
             <label>
                 Filter Type
-                <select 
-                    ${onDomCreated((element) => {
-                        if (element instanceof HTMLSelectElement) {
-                            element.value = props.filterDefinition.filterType;
-                            setProps({innerSelectElement: element});
-                        } else {
-                            throw new Error(`Failed to get select element.`);
-                        }
-                    })}
+                <select
                     ${listen('change', (event) => {
-                        const filterType = props.innerSelectElement?.value;
+                        const target = event.target as HTMLSelectElement;
+                        const filterType = target.value;
                         if (!isEnumValue(filterType, FilterType)) {
                             throw new Error(`Invalid view direction selected.`);
                         }
@@ -122,11 +115,12 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
                     : ''
             }
             <button
+                class="delete"
                 ${listen('click', () => {
                     dispatch(new events.deleteFilter());
                 })}
             >
-                X
+                delete filter
             </button>
         `;
     },
