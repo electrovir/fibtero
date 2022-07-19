@@ -1,8 +1,9 @@
 import {JiraIssue} from '@packages/common/src/data/jira-data';
 import {css, defineFunctionalElement, html} from 'element-vir';
+import {getFieldFormatting} from '../../formatting/field-formatting';
 
-export const FibIssueDisplay = defineFunctionalElement({
-    tagName: 'fib-issue-display',
+export const FibIssueCard = defineFunctionalElement({
+    tagName: 'fib-issue-card',
     props: {
         issue: undefined as undefined | JiraIssue,
     },
@@ -63,10 +64,6 @@ export const FibIssueDisplay = defineFunctionalElement({
             width: 32px;
         }
 
-        .wide {
-            justify-content: space-between;
-        }
-
         .points {
             background: #ddd;
             font-weight: bold;
@@ -85,11 +82,10 @@ export const FibIssueDisplay = defineFunctionalElement({
             `;
         }
 
-        const typeIconUrl = props.issue.fields?.issuetype?.iconUrl ?? '';
-        const priorityIconUrl = props.issue.fields?.priority?.iconUrl ?? '';
-        const title = props.issue.fields?.summary;
-        const assigneeAvatarUrl = props.issue.fields?.assignee?.avatarUrls['32x32'] ?? '';
-        const storyPoints = props.issue.fields?.['Story Points'] ?? '-';
+        const typeIconUrl = props.issue.fields.issuetype?.iconUrl ?? '';
+        const priorityIconUrl = props.issue.fields.priority?.iconUrl ?? '';
+        const title = props.issue.fields.summary;
+        const storyPoints = props.issue.fields['Story Points'] ?? '-';
 
         return html`
             <div class="faded">
@@ -107,15 +103,7 @@ export const FibIssueDisplay = defineFunctionalElement({
                 <div class="points">${storyPoints}</div>
             </div>
             <div class="title">${title}</div>
-            <div class="wide">
-                ${assigneeAvatarUrl
-                    ? html`
-                          <img class="assignee-avatar" src=${assigneeAvatarUrl} />
-                      `
-                    : html`
-                          <div class="blank assignee-avatar"><span>X</span></div>
-                      `}
-            </div>
+            <div class="faded">${getFieldFormatting('assignee', props.issue.fields.assignee)}</div>
         `;
     },
 });

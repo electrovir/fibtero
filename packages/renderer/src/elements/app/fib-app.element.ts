@@ -10,7 +10,7 @@ import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
-import {FibShowFullIssue} from '../issue-display/fib-show-full-issue.element';
+import {FibFullIssue} from '../issue-display/fib-full-issue.element';
 import {FibCreateJiraViewPage} from '../main-pages/fib-create-jira-view-page.element';
 import {FibEditJiraViewPage} from '../main-pages/fib-edit-jira-view-page.element';
 import {FibExportJiraViewPage} from '../main-pages/fib-export-jira-view-page.element';
@@ -61,6 +61,10 @@ export const FibAppElement = defineFunctionalElement({
             height: 100%;
         }
 
+        .no-select ${FibAppPageNav}, .no-select main {
+            user-select: none;
+        }
+
         ${FibAppPageNav} {
             align-self: stretch;
             border-bottom: 1px solid grey;
@@ -92,15 +96,21 @@ export const FibAppElement = defineFunctionalElement({
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 16px;
+            box-sizing: border-box;
         }
 
         .modal-overlay > .modal-content-wrapper {
+            box-sizing: border-box;
             background-color: white;
             border-radius: 32px;
             padding: 32px;
             position: relative;
             min-height: 100px;
             min-width: 100px;
+            max-height: 100%;
+            max-width: 100%;
+            overflow-y: auto;
         }
 
         .modal-overlay.hidden {
@@ -227,7 +237,7 @@ export const FibAppElement = defineFunctionalElement({
 
         return html`
             <div
-                class="top-div ${showModalOverlay ? 'no-scroll' : ''}"
+                class="top-div ${showModalOverlay ? 'no-select' : ''}"
                 ${listen(ReloadUserPreferencesEvent, async () => {
                     const result = await loadUserPreferences(props.electronApi);
                     setProps({currentUserPreferences: result});
@@ -260,9 +270,9 @@ export const FibAppElement = defineFunctionalElement({
                         >
                             x
                         </button>
-                        <${FibShowFullIssue}
-                            ${assign(FibShowFullIssue.props.issue, props.currentFullIssue)}
-                        ></${FibShowFullIssue}>
+                        <${FibFullIssue}
+                            ${assign(FibFullIssue.props.issue, props.currentFullIssue)}
+                        ></${FibFullIssue}>
                     </div>
                 </div>
                 <${FibAppPageNav}

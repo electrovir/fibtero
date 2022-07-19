@@ -5,7 +5,7 @@ import {isPromiseLike} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {getMaybeCachedView} from '../../cache/jira-view-cache';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
-import {FibIssueDisplay} from './fib-issue-display.element';
+import {FibIssueCard} from './fib-issue-card.element';
 
 type LoadedIssues<IssuesType> = {
     viewId: string;
@@ -194,12 +194,12 @@ export const FibViewDisplay = defineFunctionalElement({
                         <div class="issues">
                             ${issues.map((issue) => {
                                 return html`
-                                    <${FibIssueDisplay}
+                                    <${FibIssueCard}
                                         ${listen('click', () => {
                                             genericDispatch(new ShowFullIssueEvent(issue));
                                         })}
-                                        ${assign(FibIssueDisplay.props.issue, issue)}
-                                    ></${FibIssueDisplay}>
+                                        ${assign(FibIssueCard.props.issue, issue)}
+                                    ></${FibIssueCard}>
                                 `;
                             })}
                         </div>

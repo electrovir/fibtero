@@ -156,6 +156,7 @@ export function updateIssueLabelsRequestValidator(
 export type JiraDocument = {
     type: string;
     version?: number;
+    attrs?: {url: string};
     content?: JiraDocument[];
     text?: string;
 };
@@ -194,7 +195,7 @@ export type JiraIssueFields = Record<string, unknown> & {
 export type JiraIssue = {
     /** Jira key. Like "THING-1234" */
     key: string;
-    fields?: JiraIssueFields;
+    fields: JiraIssueFields;
     id: string;
     /** URL to request just this issue from the API */
     self: string;

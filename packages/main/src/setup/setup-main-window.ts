@@ -1,7 +1,7 @@
 import {WindowPosition} from '@packages/common/src/data/user-preferences';
 import {devServerUrl} from '@packages/common/src/environment';
 import {prodPreloadScriptIndex} from '@packages/common/src/file-paths';
-import {BrowserWindow} from 'electron';
+import {BrowserWindow, shell} from 'electron';
 import {URL} from 'url';
 import {ElectronApp} from '../augments/electron';
 import {readUserPreferences} from '../config/user-preferences-file';
@@ -79,6 +79,11 @@ async function createOrRestoreWindow(
             webSecurity: !devMode,
             preload: prodPreloadScriptIndex,
         },
+    });
+
+    browserWindow.webContents.setWindowOpenHandler(({url}) => {
+        shell.openExternal(url);
+        return {action: 'deny'};
     });
 
     /**
