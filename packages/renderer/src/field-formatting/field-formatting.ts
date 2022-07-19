@@ -37,13 +37,14 @@ const fieldMappings: FieldMapping[] = [
             const imageUrl = value?.avatarUrls['32x32'] ?? '';
             return imageUrl
                 ? html`
+                      ${value?.displayName}
                       <img
                           title=${value?.displayName}
                           style="height: 32px; width: 32px; border-radius: 50%;"
                           src=${imageUrl}
                       />
-                      ${value?.displayName}
-                  `
+
+                      `
                 : html`
                       <svg
                           width="32"
@@ -176,4 +177,11 @@ export function getFieldFormatting(
     } else {
         return undefined;
     }
+}
+
+export function prettify(text: string){
+    const words = text.split(/(?=[A-Z])/);
+    const phrase = words?.join(' ') ?? '';
+    const Phrase = phrase.charAt(0).toUpperCase() + phrase.slice(1);
+    return Phrase;
 }
