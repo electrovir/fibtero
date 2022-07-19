@@ -1,7 +1,7 @@
 import {serializeJiraView} from '@packages/common/src/data/jira-view';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
-import {FibButton} from '../core-elements/fib-button.element';
+import {FibViewSelector} from '../fib-view-selector.element';
 
 export const FibExportJiraViewPage = defineFunctionalElement({
     tagName: 'fib-export-jira-view-page',
@@ -53,19 +53,13 @@ export const FibExportJiraViewPage = defineFunctionalElement({
         return html`
             <br />
             Choose a view to export:
-            <div class="view-names-wrapper">
-                ${props.userPreferences.views.map((view, index) => {
-                    return html`
-                        <${FibButton}
-                            ${assign(FibButton.props.label, view.name)}
-                            ${assign(FibButton.props.disabled, index === props.selectedViewIndex)}
-                            ${listen('click', () => {
-                                setProps({selectedViewIndex: index});
-                            })}
-                        ></${FibButton}>
-                    `;
+            <${FibViewSelector}
+                ${assign(FibViewSelector.props.views, props.userPreferences.views)}
+                ${assign(FibViewSelector.props.selectedViewIndex, props.selectedViewIndex)}
+                ${listen(FibViewSelector.events.selectedViewChange, (event) => {
+                    setProps({selectedViewIndex: event.detail});
                 })}
-            </div>
+            ></${FibViewSelector}>
             ${serializedViewTemplate}
         `;
     },
