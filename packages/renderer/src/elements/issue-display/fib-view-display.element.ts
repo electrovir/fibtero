@@ -189,7 +189,6 @@ export const FibViewDisplay = defineFunctionalElement({
                     if (sections.length) {
                         matchesASection = true;
                         sections.map(s =>{
-                            console.log(s);
                             accum[s]?.push(currentIssue);
                         })
                     }
