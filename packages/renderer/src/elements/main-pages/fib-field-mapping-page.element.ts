@@ -25,9 +25,9 @@ function guessLikelyTypeMappings(simplifiedFields: JiraSimplifiedField[], knownT
     const mappings: Record<string, string> = {};
 
     simplifiedFields.forEach((field) => {
-        let type: string = 'string';
+        let type: string = 'any';
         if (field.schema) {
-            type = field.schema['type']?.toString() ?? 'string';
+            type = field.schema['type']?.toString() ?? 'any';
         }
 
         if (!knownTypes.includes(type)) {
@@ -86,6 +86,14 @@ export const FibFieldMappingPage = defineFunctionalElement({
         .submit {
             margin: 16px;
         }
+
+        .form-error {
+            border: 2px solid red;
+        }
+
+        p {
+            padding: 0px 32px;
+        }
     `,
     initCallback: async ({props, setProps}) => {
         if (props.electronApi && props.jiraAuth) {
@@ -108,12 +116,32 @@ export const FibFieldMappingPage = defineFunctionalElement({
 
         const electronApi: ElectronWindowInterface = props.electronApi;
 
+        function getSelectContents(key: string) {
+            return html`
+                ${props.knownTypes.map((type) => {
+                    if (type === 'any') {
+                        return html`
+                            <option value="">Please choose a type</option>
+                        `;
+                    } else if (type === props.fieldMapping[key]) {
+                        return html`
+                            <option value="${type}" selected>${type}</option>
+                        `;
+                    } else {
+                        return html`
+                            <option value="${type}">${type}</option>
+                        `;
+                    }
+                })}
+            `;
+        }
+
         return html`
             <h2>Jira Field Mappings</h2>
             <p>
                 Please review the auto-generated field type mappings. If there are any corrections
-                you would like to make, feel free to make them now. There will be the option to
-                return and edit these mappings later.
+                you would like to make, feel free to make them now. You may return and edit these
+                mappings later.
             </p>
             <form
                 ${listen('submit', () => {
@@ -134,31 +162,31 @@ export const FibFieldMappingPage = defineFunctionalElement({
                         <th>Type</th>
                     </tr>
                     ${Object.keys(props.fieldMapping)
-                        .map((key) => key[0]?.toUpperCase() + key.slice(1))
                         .sort()
                         .map((key) => {
-                            return html`
-                                <tr>
-                                    <td>${key}</td>
-                                    <td>
-                                        <select name="${key}">
-                                            ${props.knownTypes.map((type) => {
-                                                if (type === props.fieldMapping[key]) {
-                                                    return html`
-                                                        <option value="${type}" selected>
-                                                            ${type}
-                                                        </option>
-                                                    `;
-                                                } else {
-                                                    return html`
-                                                        <option value="${type}">${type}</option>
-                                                    `;
-                                                }
-                                            })}
-                                        </select>
-                                    </td>
-                                </tr>
-                            `;
+                            if (props.fieldMapping[key] === 'any') {
+                                return html`
+                                    <tr>
+                                        <td>${key}</td>
+                                        <td>
+                                            <select name="${key}" class="form-error" required>
+                                                ${getSelectContents(key)}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                `;
+                            } else {
+                                return html`
+                                    <tr>
+                                        <td>${key}</td>
+                                        <td>
+                                            <select name="${key}" required>
+                                                ${getSelectContents(key)}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                `;
+                            }
                         })}
                 </table>
                 <input class="submit" type="submit" value="Save" />
