@@ -19,6 +19,7 @@ function getDefaultUserPreferences(appPaths: HasGetPath): UserPreferences {
         lastPage: MainRendererPage.Auth,
         lastViewId: '',
         fieldMapping: {},
+        knownTypes: [] as string[],
     };
 }
 

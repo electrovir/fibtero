@@ -41,8 +41,9 @@ function shouldLockToFieldMappingPage(
     currentUserPreferences: UserPreferences,
 ): boolean {
     const hasFieldMappings: boolean = !!Object.keys(currentUserPreferences.fieldMapping).length;
+    const hasKnownTypes: boolean = !!currentUserPreferences.knownTypes.length;
     return (
-        !hasFieldMappings &&
+        (!hasFieldMappings || !hasKnownTypes) &&
         // allow these pages to show when locked to field mapping
         ![
             MainRendererPage.Settings,

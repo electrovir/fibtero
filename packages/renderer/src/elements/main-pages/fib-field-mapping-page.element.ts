@@ -95,14 +95,26 @@ export const FibFieldMappingPage = defineFunctionalElement({
     `,
     initCallback: async ({props, setProps}) => {
         if (props.electronApi && props.jiraAuth) {
-            const cachedSimplifiedFields = await getMaybeCachedFields(
-                props.electronApi,
-                props.jiraAuth,
-                () => {},
-            );
-            setProps({
-                fieldMapping: guessLikelyTypeMappings(cachedSimplifiedFields, props.knownTypes),
-            });
+            console.log(props.currentPreferences.fieldMapping);
+            if (
+                !!Object.keys(props.currentPreferences.fieldMapping).length &&
+                !!props.currentPreferences.knownTypes.length
+            ) {
+                setProps({
+                    fieldMapping: props.currentPreferences.fieldMapping,
+                    knownTypes: props.currentPreferences.knownTypes,
+                });
+            } else {
+                const cachedSimplifiedFields = await getMaybeCachedFields(
+                    props.electronApi,
+                    props.jiraAuth,
+                    () => {},
+                );
+                setProps({
+                    fieldMapping: guessLikelyTypeMappings(cachedSimplifiedFields, props.knownTypes),
+                    knownTypes: props.knownTypes,
+                });
+            }
         }
     },
     renderCallback: ({props}) => {
@@ -148,6 +160,7 @@ export const FibFieldMappingPage = defineFunctionalElement({
                         data: {
                             ...props.currentPreferences,
                             fieldMapping: props.fieldMapping,
+                            knownTypes: props.knownTypes,
                         },
                     });
                 })}
@@ -160,13 +173,25 @@ export const FibFieldMappingPage = defineFunctionalElement({
                     ${Object.keys(props.fieldMapping)
                         .sort()
                         .map((key) => {
-                            const errorClass =
-                                props.fieldMapping[key] === 'any' ? 'form-error' : '';
+                            let errorClass = props.fieldMapping[key] === 'any' ? 'form-error' : '';
                             return html`
                                 <tr>
                                     <td>${key}</td>
                                     <td>
-                                        <select name="${key}" class="${errorClass}" required>
+                                        <select
+                                            name="${key}"
+                                            class="${errorClass}"
+                                            required
+                                            ${listen('input', (event) => {
+                                                props.fieldMapping[key] = (
+                                                    event.target as HTMLInputElement
+                                                )?.value;
+                                                errorClass =
+                                                    props.fieldMapping[key] === 'any'
+                                                        ? 'form-error'
+                                                        : '';
+                                            })}
+                                        >
                                             ${getSelectContents(key)}
                                         </select>
                                     </td>

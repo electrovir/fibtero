@@ -17,6 +17,7 @@ export type UserPreferences = {
     lastPage: MainRendererPage;
     lastViewId: string;
     fieldMapping: Record<string, string>;
+    knownTypes: string[];
 };
 
 export const emptyUserPreferences: UserPreferences = {
@@ -31,6 +32,7 @@ export const emptyUserPreferences: UserPreferences = {
     lastPage: MainRendererPage.Auth,
     lastViewId: '',
     fieldMapping: {},
+    knownTypes: [] as string[],
 } as const;
 
 export function isValidUserPreferences(input: any): input is UserPreferences {
