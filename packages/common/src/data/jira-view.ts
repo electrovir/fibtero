@@ -160,7 +160,9 @@ export function matchesSectionFilters(issue: JiraIssue, section: JiraViewSection
             default :
                 const filterRegExp = new RegExp(filter.filterRegExpString, 'i');
                 const match = !!String(fieldValue).match(filterRegExp);
-                accum.push(section.name);
+                if(match){
+                    accum.push(section.name);
+                }
         }
         return accum;
         
