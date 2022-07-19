@@ -2,8 +2,9 @@ import {JiraAuth, JiraIssue} from '@packages/common/src/data/jira-data';
 import {JiraView} from '@packages/common/src/data/jira-view';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isPromiseLike} from 'augment-vir';
-import {css, defineFunctionalElement, html} from 'element-vir';
-import {getMaybeCachedView} from '../jira-view-cache';
+import {assign, css, defineFunctionalElement, html} from 'element-vir';
+import {getMaybeCachedView} from '../../cache/jira-view-cache';
+import {FibIssueDisplay} from './fib-issue-display.element';
 
 type LoadedIssues<IssuesType> = {
     viewId: string;
@@ -128,7 +129,9 @@ export const FibViewDisplay = defineFunctionalElement({
         return html`
             ${props.loadedViewIssues.issues.map((issue) => {
                 return html`
-                    ${issue.key}
+                    <${FibIssueDisplay}
+                        ${assign(FibIssueDisplay.props.issue, issue)}
+                    ></${FibIssueDisplay}>
                     <br />
                 `;
             })}

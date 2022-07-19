@@ -7,6 +7,10 @@ export type JiraCredentials = {
 
 export type JiraUser = any;
 
+// this isn't an exhaustive type but it's simple enough for our purposes
+// the actual data includes other types that we don't understand or need
+export type JiraCustomFieldDefinitions = Record<string, string>;
+
 export type JiraAuth = {
     domain: string;
     credentials: JiraCredentials;
@@ -101,7 +105,9 @@ export function searchRequestValidator(request: unknown): request is JiraJqlSear
     );
 }
 
-export function searchByLabelRequestValidator(request: unknown): request is JiraSearchIssuesByLabelRequest {
+export function searchByLabelRequestValidator(
+    request: unknown,
+): request is JiraSearchIssuesByLabelRequest {
     return (
         matchesShallowObjectSignature(request, searchByLabelValidationChecker) &&
         matchesShallowObjectSignature(
@@ -178,20 +184,3 @@ export type JiraProjectsResponse = {
 };
 
 export type JiraIssueResponse = JiraIssue;
-
-export function jiraIssueTypesResponseValidator(
-    response: unknown,
-): response is JiraIssueTypesResponse {
-    // just pass on whatever Jira gives us
-    return true;
-}
-
-export function jiraIssueResponseValidator(response: unknown): response is JiraIssueResponse {
-    // just pass on whatever Jira gives us
-    return true;
-}
-
-export function jiraProjectsResponseValidator(response: unknown): response is JiraProjectsResponse {
-    // just pass on whatever Jira gives us
-    return true;
-}

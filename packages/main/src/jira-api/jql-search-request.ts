@@ -1,4 +1,8 @@
-import {JiraIssue, JiraJqlSearchRequest, JiraSearchIssuesByLabelRequest} from '@packages/common/src/data/jira-data';
+import {
+    JiraIssue,
+    JiraJqlSearchRequest,
+    JiraSearchIssuesByLabelRequest,
+} from '@packages/common/src/data/jira-data';
 import {get} from '../axios-wrapper';
 import {apiRoute} from './jira-routing';
 
@@ -54,7 +58,6 @@ export async function runJiraJqlSearch(
     return allIssues;
 }
 
-
 export async function getIssuesByLabel(
     request: JiraSearchIssuesByLabelRequest,
     startAt = 0,
@@ -65,17 +68,15 @@ export async function getIssuesByLabel(
     if (!request.label) {
         throw new Error(`label is required.`);
     }
-    const jql = `project = ${request.project} AND labels = "${request.label}"`
+    const jql = `project = ${request.project} AND labels = "${request.label}"`;
     const newRequest = {
         domain: request.domain,
         credentials: {
             apiKey: request.credentials.apiKey,
             username: request.credentials.username,
         },
-        jql: jql
+        jql: jql,
     };
-   
-  
 
     return runJiraJqlSearch(newRequest);
 }

@@ -3,7 +3,7 @@ import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {FibButton} from '../core-elements/fib-button.element';
-import {FibViewDisplay} from '../fib-view-display.element';
+import {FibViewDisplay} from '../issue-display/fib-view-display.element';
 
 export const FibMyViews = defineFunctionalElement({
     tagName: 'fib-my-views',
@@ -15,7 +15,8 @@ export const FibMyViews = defineFunctionalElement({
     },
     styles: css`
         :host {
-            margin-top: 24px;
+            padding-top: 24px;
+            box-sizing: border-box;
             display: flex;
         }
 

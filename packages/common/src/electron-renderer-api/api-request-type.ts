@@ -5,14 +5,12 @@ import {
     issueTypeRequestValidator,
     IssueTypesRequest,
     JiraAuth,
+    JiraCustomFieldDefinitions,
     JiraIssue,
     JiraIssueResponse,
-    jiraIssueResponseValidator,
     JiraIssueTypesResponse,
-    jiraIssueTypesResponseValidator,
     JiraJqlSearchRequest,
     JiraProjectsResponse,
-    jiraProjectsResponseValidator,
     jiraRequestValidator,
     JiraSearchIssuesByLabelRequest,
     searchByLabelRequestValidator,
@@ -27,14 +25,13 @@ import {
     createAllowUndefinedValidator,
     createArrayValidator,
     createEnumValidator,
-    createMapValidator,
+    dummyValidator,
     typeofValidators,
 } from './api-validation';
 import {GetPathType} from './get-path-type';
 import {ResetType} from './reset';
 
 export const apiRequestKey = 'api-request-key' as const;
-
 
 export enum ApiRequestType {
     /** Get the current user preferences saved on disk. */
@@ -49,7 +46,7 @@ export enum ApiRequestType {
     ViewFilePath = 'view-file-path',
     ResetConfig = 'reset-config',
     CreateIssue = 'jira-create-issue',
-    GetFields = 'jira-get-fields',
+    GetCustomFieldNames = 'jira-get-custom-field-names',
     GetIssueTypes = 'jira-get-issue-types',
     GetProjects = 'jira-get-projects',
     JqlSearch = 'jira-search',
@@ -68,7 +65,7 @@ export type ApiRequestData = {
     [ApiRequestType.ViewFilePath]: string;
     [ApiRequestType.ResetConfig]: ResetType;
     [ApiRequestType.CreateIssue]: CreateIssueRequest;
-    [ApiRequestType.GetFields]: JiraAuth;
+    [ApiRequestType.GetCustomFieldNames]: JiraAuth;
     [ApiRequestType.GetIssueTypes]: IssueTypesRequest;
     [ApiRequestType.GetProjects]: JiraAuth;
     [ApiRequestType.JqlSearch]: JiraJqlSearchRequest;
@@ -87,7 +84,7 @@ export type ApiResponseData = {
     [ApiRequestType.ViewFilePath]: void;
     [ApiRequestType.ResetConfig]: boolean;
     [ApiRequestType.CreateIssue]: JiraIssueResponse;
-    [ApiRequestType.GetFields]: Map<string, string>;
+    [ApiRequestType.GetCustomFieldNames]: JiraCustomFieldDefinitions;
     [ApiRequestType.GetIssueTypes]: JiraIssueTypesResponse;
     [ApiRequestType.GetProjects]: JiraProjectsResponse;
     [ApiRequestType.JqlSearch]: JiraIssue[];
@@ -129,25 +126,25 @@ export const apiValidators: {
         request: createEnumValidator(ResetType),
         response: typeofValidators.boolean,
     },
-    [ApiRequestType.GetFields]: {
+    [ApiRequestType.GetCustomFieldNames]: {
         request: jiraRequestValidator,
-        response: createMapValidator,
+        response: dummyValidator,
     },
     [ApiRequestType.GetIssueTypes]: {
         request: issueTypeRequestValidator,
-        response: jiraIssueTypesResponseValidator,
+        response: dummyValidator,
     },
     [ApiRequestType.GetProjects]: {
         request: jiraRequestValidator,
-        response: jiraProjectsResponseValidator,
+        response: dummyValidator,
     },
     [ApiRequestType.CreateIssue]: {
         request: createIssueRequestValidator,
-        response: jiraIssueResponseValidator,
+        response: dummyValidator,
     },
     [ApiRequestType.JqlSearch]: {
         request: searchRequestValidator,
-        response: createArrayValidator(jiraIssueResponseValidator),
+        response: createArrayValidator(dummyValidator),
     },
     [ApiRequestType.UpdateIssue]: {
         request: updateIssueRequestValidator,
@@ -159,16 +156,16 @@ export const apiValidators: {
     },
     [ApiRequestType.GetUsers]: {
         request: jiraRequestValidator,
-        response: createArrayValidator(jiraIssueResponseValidator),
+        response: createArrayValidator(dummyValidator),
     },
     [ApiRequestType.SearchUsers]: {
         request: searchRequestValidator,
-        response: createArrayValidator(jiraIssueResponseValidator),
+        response: createArrayValidator(dummyValidator),
     },
     [ApiRequestType.GetIssuesByLabel]: {
         request: searchByLabelRequestValidator,
-        response: createArrayValidator(jiraIssueResponseValidator),
-    }
+        response: createArrayValidator(dummyValidator),
+    },
 };
 
 export type ApiValidator<

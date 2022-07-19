@@ -2,13 +2,14 @@ import {
     CreateIssueRequest,
     IssueTypesRequest,
     JiraAuth,
+    JiraCustomFieldDefinitions,
     JiraIssue,
     JiraIssueTypesResponse,
     JiraJqlSearchRequest,
     JiraProjectsResponse,
+    JiraSearchIssuesByLabelRequest,
     UpdateIssueLabelsRequest,
     UpdateIssueRequest,
-    JiraSearchIssuesByLabelRequest,
 } from '@packages/common/src/data/jira-data';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
@@ -36,14 +37,14 @@ async function createIssue(
 async function getFields(
     jiraAuth: JiraAuth,
     electronApi: ElectronWindowInterface,
-): Promise<Map<string, string>> {
+): Promise<JiraCustomFieldDefinitions> {
     const response = await electronApi.apiRequest({
-        type: ApiRequestType.GetFields,
+        type: ApiRequestType.GetCustomFieldNames,
         data: jiraAuth,
     });
 
     if (response.success) {
-        console.log(response.data);
+        console.log({fields: response.data});
         return response.data;
     } else {
         throw new Error(`Jira request failed: ${response.error}`);
@@ -637,7 +638,10 @@ export const BasicJiraTest = defineFunctionalElement({
             <button
                 ${listen('click', async () => {
                     if (props.electronApi) {
-                        await searchIssuesByLabel(makeSearchByLabelRequestData(props), props.electronApi);
+                        await searchIssuesByLabel(
+                            makeSearchByLabelRequestData(props),
+                            props.electronApi,
+                        );
                     }
                 })}
             >

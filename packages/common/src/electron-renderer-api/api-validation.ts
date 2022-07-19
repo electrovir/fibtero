@@ -73,3 +73,7 @@ export function createMapValidator(response: unknown): response is Map<string, s
     // just pass it on
     return true;
 }
+
+export function dummyValidator(response: unknown): response is any {
+    return true;
+}
