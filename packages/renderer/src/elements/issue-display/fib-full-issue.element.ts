@@ -46,10 +46,24 @@ export const FibFullIssue = defineFunctionalElement({
 
         const browseUrl = `${props.issue.self.split('/rest/')[0]}/browse/${props.issue.key}`;
 
-        const fieldsSpecial = ['summary','description','Acceptance Criteria']
-        const fields = Object.keys(props.issue.fields).filter((f) => fieldsSpecial.indexOf(f) == -1);
-        const descriptionTemplate = getFieldFormatting('description', props.issue?.fields['description'], props.issue!);
-        const acTemplate = getFieldFormatting('Acceptance Criteria', props.issue?.fields['Acceptance Criteria'], props.issue!);
+        const fieldsSpecial = [
+            'summary',
+            'description',
+            'Acceptance Criteria',
+        ];
+        const fields = Object.keys(props.issue.fields).filter(
+            (f) => fieldsSpecial.indexOf(f) == -1,
+        );
+        const descriptionTemplate = getFieldFormatting(
+            'description',
+            props.issue?.fields['description'],
+            props.issue!,
+        );
+        const acTemplate = getFieldFormatting(
+            'Acceptance Criteria',
+            props.issue?.fields['Acceptance Criteria'],
+            props.issue!,
+        );
 
         return html`
             <div>
@@ -58,26 +72,35 @@ export const FibFullIssue = defineFunctionalElement({
             </div>
             <hr />
             <div class="container">
-            <div class="fields left">                
-                <span class="summary">${props.issue?.fields['summary']}</span>
-                <span><span class="label">Description</span>: ${descriptionTemplate}</span>
-                <span><span class="label">Acceptance Criteria</span>: ${acTemplate}</span>
-             </div>
-            <div class="fields right">
-                ${fields.map((fieldName) => {
-                    const fieldValue = props.issue?.fields[fieldName];
-                    const template = getFieldFormatting(fieldName, fieldValue, props.issue!);
-                    const prettyName = prettify(fieldName);
+                <div class="fields left">
+                    <span class="summary">${props.issue?.fields['summary']}</span>
+                    <span>
+                        <span class="label">Description</span>
+                        : ${descriptionTemplate}
+                    </span>
+                    <span>
+                        <span class="label">Acceptance Criteria</span>
+                        : ${acTemplate}
+                    </span>
+                </div>
+                <div class="fields right">
+                    ${fields.map((fieldName) => {
+                        const fieldValue = props.issue?.fields[fieldName];
+                        const template = getFieldFormatting(fieldName, fieldValue, props.issue!);
+                        const prettyName = prettify(fieldName);
 
-                    if (template) {
-                        return html`
-                            <span><span class="label">${prettyName}</span>: ${template}</span>
-                        `;
-                    } else {
-                        return '';
-                    }
-                })}
-            </div>
+                        if (template) {
+                            return html`
+                                <span>
+                                    <span class="label">${prettyName}</span>
+                                    : ${template}
+                                </span>
+                            `;
+                        } else {
+                            return '';
+                        }
+                    })}
+                </div>
             </div>
         `;
     },

@@ -183,7 +183,7 @@ export const FibViewDisplay = defineFunctionalElement({
                         ];
 
                         const newFields = unique.reduce((fieldAccum, field) => {
-                            if(field){
+                            if (field) {
                                 fieldAccum[field] = [];
                             }
                             return fieldAccum;

@@ -43,8 +43,7 @@ const fieldMappings: FieldMapping[] = [
                           style="height: 32px; width: 32px; border-radius: 50%;vertical-align: middle;"
                           src=${imageUrl}
                       />
-
-                      `
+                  `
                 : html`
                       <svg
                           width="32"
@@ -179,7 +178,7 @@ export function getFieldFormatting(
     }
 }
 
-export function prettify(text: string){
+export function prettify(text: string) {
     const words = text.split(/(?=[A-Z])/);
     const phrase = words?.join(' ') ?? '';
     const Phrase = phrase.charAt(0).toUpperCase() + phrase.slice(1);

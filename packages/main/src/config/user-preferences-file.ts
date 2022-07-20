@@ -1,5 +1,6 @@
 import {extractMessage} from '@packages/common/src/augments/error';
 import {JiraView} from '@packages/common/src/data/jira-view/jira-view';
+import {updateJiraViews} from '@packages/common/src/data/jira-view/jira-view-update';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {
     emptyUserPreferences,
@@ -9,7 +10,6 @@ import {
 import {Writeable} from 'augment-vir';
 import {ensureDir, ensureFile} from 'fs-extra';
 import {dirname} from 'path';
-import {updateJiraViews} from '../../../common/src/data/jira-view/jira-view-update';
 import {HasGetPath} from '../augments/electron';
 import {readPackedJson, writePackedJson} from '../augments/file-system';
 import {getUserPreferencesFilePath} from './config-path';
