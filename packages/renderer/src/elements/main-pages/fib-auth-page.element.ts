@@ -51,7 +51,8 @@ export const FibAuthPage = defineFunctionalElement({
         :host {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: flex-start;
             box-sizing: border-box;
             width: 100%;
             height: 100%;
