@@ -14,12 +14,7 @@ async function getFieldVisibilityValues(
     userPreferences: UserPreferences,
     electronApi?: ElectronWindowInterface,
 ) {
-    if (userPreferences.fieldVisibility != {}) {
-        return userPreferences.fieldVisibility;
-    }
-
     const mappings: Record<keyof JiraIssueFields, boolean> = {};
-
     for (const key in userPreferences.fieldMapping) {
         mappings[key] = true;
     }
@@ -79,7 +74,11 @@ export const FibSettingsPage = defineFunctionalElement({
         }
     `,
     initCallback: async ({props, setProps}) => {
-        if (!props.userPreferences.fieldVisibility || props.userPreferences.fieldVisibility == {}) {
+        console.log('callback');
+        if (
+            !props.userPreferences.fieldVisibility ||
+            Object.keys(props.userPreferences.fieldVisibility).length === 0
+        ) {
             await getFieldVisibilityValues(props.userPreferences, props.electronApi);
         }
     },
