@@ -114,14 +114,14 @@ export const FibFullIssue = defineFunctionalElement({
                         const fieldValue = props.issue?.fields[fieldName];
                         const template = getFieldFormatting(fieldName, fieldValue, props.issue!);
                         const templateTooltip = typeof template === 'string' ? template : '';
+                        const formattedKey = fieldName.toLowerCase().replaceAll(' ', '');
+                        const isVisible =
+                            Object.keys(props.userPreferences.fieldVisibility).length === 0 ||
+                            props.userPreferences.fieldVisibility[formattedKey] == undefined ||
+                            props.userPreferences.fieldVisibility[formattedKey] == true;
                         const prettyName = prettify(fieldName);
 
-                        if (
-                            template &&
-                            fieldValue &&
-                            (props.userPreferences.fieldVisibility == {} ||
-                                props.userPreferences.fieldVisibility[fieldName] === true)
-                        ) {
+                        if (template && fieldValue && isVisible) {
                             return html`
                                 <div class="right-field">
                                     <div class="label ellipsis" title="${prettyName}">

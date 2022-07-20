@@ -16,7 +16,8 @@ async function getFieldVisibilityValues(
 ) {
     const mappings: Record<keyof JiraIssueFields, boolean> = {};
     for (const key in userPreferences.fieldMapping) {
-        mappings[key] = true;
+        const formattedKey = key.toLowerCase().replaceAll(' ', '');
+        mappings[formattedKey] = userPreferences.fieldVisibility[formattedKey] ?? true;
     }
 
     userPreferences.fieldVisibility = mappings;
@@ -74,10 +75,10 @@ export const FibSettingsPage = defineFunctionalElement({
         }
     `,
     initCallback: async ({props, setProps}) => {
-        console.log('callback');
         if (
             !props.userPreferences.fieldVisibility ||
-            Object.keys(props.userPreferences.fieldVisibility).length === 0
+            Object.keys(props.userPreferences.fieldVisibility).length !=
+                Object.keys(props.userPreferences.fieldMapping).length
         ) {
             await getFieldVisibilityValues(props.userPreferences, props.electronApi);
         }
@@ -183,21 +184,30 @@ export const FibSettingsPage = defineFunctionalElement({
                     <h3>Issue Fields</h3>
                     <p>Select which fields should be displayed when looking at issues</p>
                     <ul class="field-list">
-                        ${Object.keys(props.userPreferences.fieldVisibility)
+                        ${Object.keys(props.userPreferences.fieldMapping)
                             .sort()
                             .map((key) => {
+                                const formattedKey = key.toLowerCase().replaceAll(' ', '');
                                 return html`
                                     <li>
                                         <input
                                             class="test"
                                             type="checkbox"
-                                            id="checkbox-${key}"
-                                            ?checked=${props.userPreferences.fieldVisibility[key]}
-                                            name="${key}"
-                                            value="${props.userPreferences.fieldVisibility[key]}"
+                                            id="checkbox-${formattedKey}"
+                                            ?checked=${props.userPreferences.fieldVisibility[
+                                                formattedKey
+                                            ]}
+                                            name="${formattedKey}"
+                                            value="${props.userPreferences.fieldVisibility[
+                                                formattedKey
+                                            ]}"
                                             ${listen('change', async () => {
-                                                props.userPreferences.fieldVisibility[key] =
-                                                    !props.userPreferences.fieldVisibility[key];
+                                                props.userPreferences.fieldVisibility[
+                                                    formattedKey
+                                                ] =
+                                                    !props.userPreferences.fieldVisibility[
+                                                        formattedKey
+                                                    ];
                                                 await electronApi.apiRequest({
                                                     type: ApiRequestType.SavePreferences,
                                                     data: {
@@ -208,7 +218,7 @@ export const FibSettingsPage = defineFunctionalElement({
                                                 });
                                             })}
                                         />
-                                        <label for="${key}">${key}</label>
+                                        <label for="${formattedKey}">${key}</label>
                                         <br />
                                     </li>
                                 `;
