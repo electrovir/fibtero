@@ -57,7 +57,7 @@ export const FibAppElement = defineFunctionalElement({
     tagName: 'fib-app',
     props: {
         currentPage: MainRendererPage.Auth,
-        currentViewIndex: 0,
+        currentViewIndex: undefined as undefined | number,
         electronApi: getElectronWindowInterface(),
         currentFullIssue: undefined as undefined | FullJiraIssue,
         currentUserPreferences: Promise.resolve(emptyUserPreferences) as
@@ -195,6 +195,9 @@ export const FibAppElement = defineFunctionalElement({
         }
 
         const userPreferences: UserPreferences = props.currentUserPreferences;
+        if (props.currentViewIndex == undefined) {
+            setProps({currentViewIndex: userPreferences.lastViewIndex});
+        }
 
         let lockToFieldMapping: boolean = shouldLockToFieldMappingPage(
             props.currentPage,
@@ -329,6 +332,14 @@ export const FibAppElement = defineFunctionalElement({
                 })}
                 ${listen(ChangeCurrentViewIndexEvent, async (event) => {
                     setProps({currentViewIndex: event.detail});
+
+                    electronApi.apiRequest({
+                        type: ApiRequestType.SavePreferences,
+                        data: {
+                            ...userPreferences,
+                            lastViewIndex: event.detail,
+                        },
+                    });
                 })}
                 ${listen(ChangePageEvent, (event) => {
                     const newPage = event.detail;

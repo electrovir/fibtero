@@ -167,6 +167,17 @@ export const FibCreateView = defineFunctionalElement({
                                         ...props.viewDefinition,
                                     });
                                 })}
+                                ${listen(FibCreateViewSection.events.duplicateSection, () => {
+                                    props.viewDefinition.sections.splice(index + 1, 0, {
+                                        ...JSON.parse(JSON.stringify(viewSection)),
+                                        id: randomString(),
+                                    });
+
+                                    // update the dom
+                                    updateCreatedView({
+                                        ...props.viewDefinition,
+                                    });
+                                })}
                             ></${FibCreateViewSection}>
                         `;
                     },

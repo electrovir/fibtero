@@ -1,4 +1,3 @@
-import {JiraIssue} from '../jira-data';
 import {IssueDragging} from './view-issue-dragging';
 
 export enum ViewDirection {
@@ -9,6 +8,7 @@ export enum ViewDirection {
 export enum FilterType {
     Unique = 'Unique Field Values',
     Regex = 'RegExp String',
+    Includes = 'Includes',
 }
 
 export type JiraView = {
@@ -81,40 +81,40 @@ export function createEmptyViewSectionFilter(
     };
 }
 
-export function getFieldValue(value: any, fieldName: string | string[]): any {
+export function getFieldValue(fields: any, fieldName: string | string[]): any {
     try {
         if (Array.isArray(fieldName)) {
             if (!fieldName.length) {
-                return value;
+                return fields;
             } else {
-                return getFieldValue(value[fieldName[0]!], fieldName.slice(1));
+                return getFieldValue(fields[fieldName[0]!], fieldName.slice(1));
             }
         } else {
-            return getFieldValue(value.fields, fieldName.split('.'));
+            return getFieldValue(fields.fields, fieldName.split('.'));
         }
     } catch (error) {
         return undefined;
     }
 }
 
-export function matchesSectionFilters(issue: JiraIssue, section: JiraViewSection): string[] {
-    const sections = section.requirements.reduce((accum, filter) => {
-        const fieldValue = getFieldValue(issue, filter.fieldName);
-        if (!fieldValue) {
-            return accum;
+export function createFieldValue(issue: any, value: any, fieldName: string | string[]): any {
+    try {
+        if (Array.isArray(fieldName)) {
+            if (!fieldName.length) {
+                return value;
+            } else {
+                return {
+                    [fieldName[0]!]: createFieldValue(
+                        issue[fieldName[0]!],
+                        value,
+                        fieldName.slice(1),
+                    ),
+                };
+            }
+        } else {
+            return createFieldValue(issue.fields, value, fieldName.split('.'));
         }
-        switch (filter.filterType) {
-            case FilterType.Unique:
-                accum.push(fieldValue);
-                break;
-            default:
-                const filterRegExp = new RegExp(filter.filterRegExpString, 'i');
-                const match = !!String(fieldValue).match(filterRegExp);
-                if (match) {
-                    accum.push(section.name);
-                }
-        }
-        return accum;
-    }, [] as string[]);
-    return sections;
+    } catch (error) {
+        return;
+    }
 }

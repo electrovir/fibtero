@@ -4,7 +4,7 @@ import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/u
 
 const ignoreFields: Readonly<(keyof UserPreferences)[]> = [
     'lastPage',
-    'lastViewId',
+    'lastViewIndex',
     'startupWindowPosition',
 ] as const;
 

@@ -3,14 +3,16 @@ import {
     FilterType,
     getFieldValue,
     JiraView,
-    matchesSectionFilters,
+    JiraViewSection,
     ViewDirection,
 } from '@packages/common/src/data/jira-view/jira-view';
+import {matchesSectionFilters} from '@packages/common/src/data/jira-view/match-jira-issues';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isPromiseLike} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
-import {getMaybeCachedView} from '../../cache/jira-view-cache';
+import {getMaybeCachedView, updateCache} from '../../cache/jira-view-cache';
 import {ShowFullIssueEvent} from '../../global-events/show-full-issue.event';
+import {performDrop} from '../../perform-drop';
 import {FibIssueCard} from './fib-issue-card.element';
 
 type LoadedIssues<IssuesType> = {
@@ -36,6 +38,7 @@ export const FibViewDisplay = defineFunctionalElement({
             | {
                   issue: FullJiraIssue;
                   sectionName: string;
+                  section: JiraViewSection | undefined;
               },
         currentDraggingTo: '' as string,
     },
@@ -78,6 +81,7 @@ export const FibViewDisplay = defineFunctionalElement({
         }
 
         .issue-category {
+            flex-basis: 0;
             display: flex;
             position: relative;
             flex-direction: column;
@@ -240,15 +244,30 @@ export const FibViewDisplay = defineFunctionalElement({
         const issueSections = props.loadedViewIssues.issues.reduce(
             (accum, currentIssue) => {
                 let matchesASection = false;
-                props.view?.sections.forEach((section) => {
-                    const sections = matchesSectionFilters(currentIssue, section);
-                    if (sections.length) {
-                        matchesASection = true;
-                        sections.map((section) => {
-                            accum[section]?.issues.push(currentIssue);
-                        });
-                    }
-                });
+                const priorities =
+                    props.view?.sections
+                        .map((section) => {
+                            return matchesSectionFilters(currentIssue, section);
+                        })
+                        .filter((priority) => priority.length)
+                        .flat() ?? [];
+
+                if (priorities.length) {
+                    matchesASection = true;
+                    // lowest = best
+                    const lowestPriority = priorities.reduce((lowest, current) => {
+                        if (!lowest) {
+                            return current;
+                        }
+
+                        if (current.priority < lowest.priority) {
+                            return current;
+                        }
+                        return lowest;
+                    });
+                    accum[lowestPriority.sectionName]?.issues.push(currentIssue);
+                }
+
                 if (!matchesASection) {
                     accum[unMatchedSectionName]!.issues.push(currentIssue);
                 }
@@ -291,7 +310,6 @@ export const FibViewDisplay = defineFunctionalElement({
                             ? 'dragging-to-allowed'
                             : 'dragging-to-blocked'
                         : '';
-                    const allowsDraggingOut = !!section?.dragOut.length;
 
                     return html`
                         <section
@@ -299,13 +317,40 @@ export const FibViewDisplay = defineFunctionalElement({
                             ${listen('dragover', (event) => {
                                 if (canCurrentlyDropHere) {
                                     event.preventDefault();
-                                    event.dataTransfer!.dropEffect = 'move';
+                                    if (event.dataTransfer) {
+                                        event.dataTransfer.dropEffect = 'move';
+                                    }
                                     setProps({currentDraggingTo: sectionName});
                                 }
                             })}
-                            ${listen('drop', (event) => {
+                            ${listen('drop', async (event) => {
                                 if (canCurrentlyDropHere) {
                                     event.preventDefault();
+                                }
+                                if (section && props.currentlyDraggingFrom) {
+                                    console.log('performing drop');
+                                    await performDrop(
+                                        props.currentlyDraggingFrom.issue,
+                                        props.currentlyDraggingFrom.section,
+                                        section,
+                                        props.currentlyDraggingFrom.sectionName,
+                                        sectionName,
+                                        electronApi,
+                                        jiraAuth,
+                                        () => {
+                                            console.log('doing this');
+                                            if (Array.isArray(props.loadedViewIssues?.issues)) {
+                                                updateCache(
+                                                    jiraView,
+                                                    props.loadedViewIssues!.issues,
+                                                );
+                                            }
+                                            setProps({
+                                                currentDraggingTo: '',
+                                                currentlyDraggingFrom: undefined,
+                                            });
+                                        },
+                                    );
                                 }
                             })}
                         >
@@ -315,14 +360,12 @@ export const FibViewDisplay = defineFunctionalElement({
                                     return html`
                                         <${FibIssueCard}
                                             draggable="true"
-                                            ${listen('dragstart', (event) => {
-                                                if (!allowsDraggingOut) {
-                                                    event.preventDefault();
-                                                }
+                                            ${listen('dragstart', () => {
                                                 setProps({
                                                     currentlyDraggingFrom: {
                                                         issue,
                                                         sectionName,
+                                                        section,
                                                     },
                                                 });
                                             })}

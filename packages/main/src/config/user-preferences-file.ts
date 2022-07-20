@@ -19,7 +19,7 @@ function getDefaultUserPreferences(appPaths: HasGetPath): UserPreferences {
         startupWindowPosition: emptyUserPreferences.startupWindowPosition,
         views: [],
         lastPage: MainRendererPage.Auth,
-        lastViewId: '',
+        lastViewIndex: 0,
         fieldMapping: {},
         knownTypes: [] as string[],
     };
@@ -30,7 +30,7 @@ async function getUpdatedUserPreferences(appPaths: HasGetPath): Promise<UserPref
     await ensureFile(preferencesPath);
     const defaultPreferences = getDefaultUserPreferences(appPaths);
 
-    const rawFromFile = await readPackedJson(preferencesPath);
+    const rawFromFile = await readUserPreferences(appPaths);
     const preferencesFromFile: object =
         rawFromFile && typeof rawFromFile === 'object' ? rawFromFile : {};
 
@@ -58,13 +58,21 @@ export async function updateUserPreferences(appPaths: HasGetPath): Promise<UserP
 /** Just read the preferences file as is. */
 export async function readUserPreferences(appPaths: HasGetPath): Promise<UserPreferences> {
     const preferencesPath = getUserPreferencesFilePath(appPaths);
-    const fromFile = await readPackedJson(preferencesPath);
+    const fromFile: any = await readPackedJson(preferencesPath);
+
+    // add new attributes since last file save
+    let updated = updateJiraViews(fromFile.views as Writeable<JiraView[]>);
+    if ((fromFile as any).lastViewId) {
+        delete (fromFile as any).lastViewId;
+        fromFile.lastViewIndex = 0;
+        updated = true;
+    }
+
+    console.log({fromFile});
 
     if (!isValidUserPreferences(fromFile)) {
         throw new Error(`Read user preferences from file contents failed validation.`);
     }
-    // add new attributes since last file save
-    const updated = updateJiraViews(fromFile.views as Writeable<JiraView[]>);
 
     if (updated) {
         await saveUserPreferences(fromFile, appPaths);

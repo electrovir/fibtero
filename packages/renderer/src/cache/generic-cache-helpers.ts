@@ -20,6 +20,10 @@ function getStoredValue<T>(cacheKey: string): T | undefined {
     }
 }
 
+export function updateCacheValue(cacheKey: string, contents: string) {
+    window.localStorage.setItem(cacheKey, contents);
+}
+
 export type MakeRequestCallback = () => Promise<ApiFullResponse<any>>;
 
 async function makeCacheUpdate(inputs: GetMaybeCachedInputs) {
@@ -27,7 +31,7 @@ async function makeCacheUpdate(inputs: GetMaybeCachedInputs) {
         const response: ApiFullResponse<any> = await inputs.makeRequestCallback();
 
         if (response.success) {
-            window.localStorage.setItem(inputs.cacheKey, JSON.stringify(response.data));
+            updateCacheValue(inputs.cacheKey, JSON.stringify(response.data));
 
             return response.data;
         } else {

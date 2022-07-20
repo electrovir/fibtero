@@ -7,7 +7,7 @@ import {
 import {JiraView} from '@packages/common/src/data/jira-view/jira-view';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
-import {getMaybeCached} from './generic-cache-helpers';
+import {getMaybeCached, updateCacheValue} from './generic-cache-helpers';
 import {getMaybeCachedFields} from './jira-fields-cache';
 
 function generateViewKey(jiraView: JiraView) {
@@ -41,6 +41,11 @@ function combineCustomFieldsAndIssues(
             fields,
         };
     });
+}
+
+export function updateCache(jiraView: JiraView, issues: FullJiraIssue[]) {
+    console.log({cacheValuesToUpdate: issues});
+    updateCacheValue(generateViewKey(jiraView), JSON.stringify(issues));
 }
 
 export async function getMaybeCachedView(

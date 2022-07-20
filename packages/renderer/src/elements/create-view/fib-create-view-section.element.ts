@@ -18,6 +18,7 @@ export const FibCreateViewSection = defineFunctionalElement({
     events: {
         sectionChange: defineElementEvent<JiraViewSection>(),
         deleteSection: defineElementEvent<void>(),
+        duplicateSection: defineElementEvent<void>(),
     },
     styles: css`
         :host {
@@ -201,6 +202,13 @@ export const FibCreateViewSection = defineFunctionalElement({
                     `;
                 },
             )}
+            <button
+                ${listen('click', () => {
+                    dispatch(new events.duplicateSection());
+                })}
+            >
+                duplicate section
+            </button>
             <button
                 class="delete-button"
                 ${listen('click', () => {

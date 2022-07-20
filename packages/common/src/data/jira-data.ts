@@ -74,7 +74,9 @@ export type JiraAttachment = {
 export type FullJiraIssue = JiraIssue & {attachment: JiraAttachment[]};
 
 export type UpdateIssueRequest = JiraAuth & {
-    issue: Overwrite<JiraIssue, {fields: Overwrite<JiraIssueFields, {assignee: {id: string}}>}>;
+    issue: {id: string} & Partial<
+        Overwrite<JiraIssue, {fields: Overwrite<JiraIssueFields, {assignee: {id: string}}>}>
+    >;
 };
 
 export type UpdateIssueLabelsRequest = JiraAuth & {

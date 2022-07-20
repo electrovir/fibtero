@@ -42,6 +42,11 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
         }
     `,
     renderCallback: ({props, setProps, dispatch, events}) => {
+        const valueLabel =
+            props.filterDefinition.filterType === FilterType.Includes
+                ? 'Includes'
+                : 'RegExp string';
+
         return html`
             <label>
                 Filter Type
@@ -95,14 +100,14 @@ export const FibCreateViewSectionFilter = defineFunctionalElement({
                 class="name-input"
             ></${FibInput}>
             ${
-                props.filterDefinition.filterType === FilterType.Regex
+                props.filterDefinition.filterType !== FilterType.Unique
                     ? html`
                         <${FibInput}
                             ${assign(
                                 FibInput.props.value,
                                 props.filterDefinition.filterRegExpString,
                             )}
-                            ${assign(FibInput.props.label, 'RegExp string')}
+                            ${assign(FibInput.props.label, valueLabel)}
                             ${listen(FibInput.events.valueChange, (event) => {
                                 const filterRegExpString = event.detail;
                                 const newFilter = {

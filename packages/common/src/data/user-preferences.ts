@@ -15,7 +15,7 @@ export type UserPreferences = {
     };
     views: Readonly<Readonly<JiraView>[]>;
     lastPage: MainRendererPage;
-    lastViewId: string;
+    lastViewIndex: number;
     fieldMapping: Record<string, string>;
     knownTypes: string[];
 };
@@ -30,7 +30,7 @@ export const emptyUserPreferences: UserPreferences = {
     },
     views: [],
     lastPage: MainRendererPage.Auth,
-    lastViewId: '',
+    lastViewIndex: 0,
     fieldMapping: {},
     knownTypes: [] as string[],
 } as const;

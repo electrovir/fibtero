@@ -1,6 +1,6 @@
 import {join} from 'path';
 /** This file is sometimes run through vite directly, which doesn't know about tsconfig paths. */
-import {generateViteConfig} from '../../common/src/vite-config';
+import {generateViteConfig} from '@packages/common/src/vite-config';
 import {alwaysReloadPlugin} from './always-reload-plugin';
 
 const viteConfig = generateViteConfig({
