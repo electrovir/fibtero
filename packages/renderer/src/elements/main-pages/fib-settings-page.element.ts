@@ -14,8 +14,6 @@ async function getFieldVisibilityValues(
     userPreferences: UserPreferences,
     electronApi?: ElectronWindowInterface,
 ) {
-    console.log('HIIIII');
-    console.log(userPreferences.fieldVisibility);
     if (userPreferences.fieldVisibility != {}) {
         return userPreferences.fieldVisibility;
     }
