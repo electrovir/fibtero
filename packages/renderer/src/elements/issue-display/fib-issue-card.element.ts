@@ -1,6 +1,7 @@
 import {FullJiraIssue} from '@packages/common/src/data/jira-data';
 import {css, defineFunctionalElement, html} from 'element-vir';
 import {getFieldFormatting} from '../../field-formatting/field-formatting';
+import {storyPointsClasses} from '../../styles/story-points-classes';
 
 export const FibIssueCard = defineFunctionalElement({
     tagName: 'fib-issue-card',
@@ -64,16 +65,7 @@ export const FibIssueCard = defineFunctionalElement({
             width: 32px;
         }
 
-        .points {
-            background: #ddd;
-            font-weight: bold;
-            color: #333;
-            border-radius: 8px;
-            padding: 1px;
-            font-size: 0.8em;
-            min-width: 24px;
-            text-align: center;
-        }
+        ${storyPointsClasses}
     `,
     renderCallback: ({props}) => {
         if (!props.issue) {
@@ -98,7 +90,7 @@ export const FibIssueCard = defineFunctionalElement({
                       `
                     : ''}
                 ${props.issue.key}
-                <div class="points">${storyPoints}</div>
+                <div class="story-points">${storyPoints}</div>
             </div>
             <div class="title">${title}</div>
             <div class="faded">

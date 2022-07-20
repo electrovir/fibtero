@@ -37,12 +37,12 @@ const fieldMappings: FieldMapping[] = [
             const imageUrl = value?.avatarUrls['32x32'] ?? '';
             return imageUrl
                 ? html`
-                      <span title="${value?.displayName}">${value?.displayName}</span>
                       <img
                           title=${value?.displayName}
-                          style="height: 32px; width: 32px; border-radius: 50%;vertical-align: middle;"
+                          style="height: 32px; width: 32px; border-radius: 50%; vertical-align: middle; padding: 0px 4px;"
                           src=${imageUrl}
                       />
+                      <span title="${value?.displayName}">${value?.displayName}</span>
                   `
                 : html`
                       <svg
@@ -87,6 +87,18 @@ const fieldMappings: FieldMapping[] = [
             return formatDescription(fullIssue, value);
         },
     },
+    // story points
+    {
+        shouldUse(name) {
+            return name.toLowerCase() === 'story points';
+        },
+        formatValue(value: JiraIssueType) {
+            const storyPoints = value ?? '-';
+            return html`
+                <div class="story-points" title="${storyPoints}">${storyPoints}</div>
+            `;
+        },
+    },
     // null formatting
     {
         shouldUse(name, value) {
@@ -113,8 +125,28 @@ const fieldMappings: FieldMapping[] = [
         formatValue(value: JiraIssueType) {
             const typeImageUrl = value.iconUrl;
             return html`
-                <img style="height: 16px; width: 16px;" src=${typeImageUrl} />
-                ${value.name}
+                <img
+                    style="height: 16px; width: 16px; padding: 0px 4px 0px 0px;"
+                    src=${typeImageUrl}
+                    title="${value.name}"
+                />
+            `;
+        },
+    },
+    // priority
+    {
+        shouldUse(name) {
+            return name.toLowerCase() === 'priority';
+        },
+        formatValue(value: JiraIssueType) {
+            const typeImageUrl = value.iconUrl;
+            return html`
+                <img
+                    style="height: 16px; width: 16px; padding: 0px 4px;"
+                    src=${typeImageUrl}
+                    title="${value.name}"
+                />
+                <span title="${value.name}">${value.name}</span>
             `;
         },
     },

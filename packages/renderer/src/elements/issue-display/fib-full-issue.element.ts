@@ -2,7 +2,8 @@ import {FullJiraIssue} from '@packages/common/src/data/jira-data';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {css, defineFunctionalElement, html} from 'element-vir';
 import {getFieldFormatting, prettify} from '../../field-formatting/field-formatting';
-import {ellipsisClasses} from '../../styles/ellipsis';
+import {ellipsisClasses} from '../../styles/ellipsis-classes';
+import {storyPointsClasses} from '../../styles/story-points-classes';
 
 export const FibFullIssue = defineFunctionalElement({
     tagName: 'fib-full-issue',
@@ -21,8 +22,7 @@ export const FibFullIssue = defineFunctionalElement({
         }
         .header {
             font-weight: bold;
-            font-size: 125%;
-            padding: 8px 0px;
+            font-size: 115%;
         }
         .left {
             flex-grow: 1;
@@ -41,7 +41,7 @@ export const FibFullIssue = defineFunctionalElement({
         .summary {
             font-weight: bold;
             font-size: 115%;
-            padding: 8px 0px;
+            padding: 8px 0px 16px 0px;
         }
         a {
             font: inherit;
@@ -56,6 +56,7 @@ export const FibFullIssue = defineFunctionalElement({
             max-width: 50%;
         }
         ${ellipsisClasses}
+        ${storyPointsClasses}
     `,
     renderCallback: ({props}) => {
         if (!props.issue) {
@@ -68,6 +69,7 @@ export const FibFullIssue = defineFunctionalElement({
             'summary',
             'description',
             'Acceptance Criteria',
+            'issuetype',
         ];
         const fields = Object.keys(props.issue.fields).filter(
             (f) => fieldsSpecial.indexOf(f) == -1,
@@ -82,9 +84,17 @@ export const FibFullIssue = defineFunctionalElement({
             props.issue?.fields['Acceptance Criteria'],
             props.issue!,
         );
+        const issueTypeTemplate = getFieldFormatting(
+            'issuetype',
+            props.issue?.fields['issuetype'],
+            props.issue!,
+        );
 
         return html`
-            <a href=${browseUrl} target="_blank" class="header">${props.issue.key}:</a>
+            <div class="header">
+                ${issueTypeTemplate}
+                <a href=${browseUrl} target="_blank">${props.issue.key}:</a>
+            </div>
             <div class="summary">${props.issue?.fields['summary']}</div>
             <div class="container">
                 <div class="fields left">
