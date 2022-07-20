@@ -2,6 +2,7 @@ import {JiraAuth} from '@packages/common/src/data/jira-data';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-api/electron-window-interface';
+import {isTruthy} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
 import {ChangePageEvent} from '../../global-events/change-page.event';
 import {FibViewSelector} from '../fib-view-selector.element';
@@ -40,26 +41,24 @@ export const FibMyViews = defineFunctionalElement({
                 ? undefined
                 : props.userPreferences.views[props.selectedViewIndex];
 
+        const extraCommands = [
+            props.userPreferences.views.length
+                ? {text: 'edit', page: MainRendererPage.EditJiraView}
+                : undefined,
+            {text: 'new', page: MainRendererPage.CreateJiraView},
+            {text: 'export', page: MainRendererPage.ExportJiraView},
+            {text: 'import', page: MainRendererPage.ImportJiraView},
+        ].filter(isTruthy);
+
         return html`
             <${FibViewSelector}
                 ${assign(FibViewSelector.props.views, props.userPreferences.views)}
                 ${assign(FibViewSelector.props.selectedViewIndex, props.selectedViewIndex)}
-                ${assign(FibViewSelector.props.extraCommands, [
-                    {text: 'edit'},
-                    {text: 'new'},
-                    {text: 'export'},
-                    {text: 'import'},
-                ])}
+                ${assign(FibViewSelector.props.extraCommands, extraCommands)}
                 ${listen(FibViewSelector.events.extraCommandClicked, (event) => {
                     const index = event.detail;
-                    const pages = [
-                        MainRendererPage.EditJiraView,
-                        MainRendererPage.CreateJiraView,
-                        MainRendererPage.ExportJiraView,
-                        MainRendererPage.ImportJiraView,
-                    ];
 
-                    const newPage = pages[index];
+                    const newPage = extraCommands[index]!.page;
                     if (newPage) {
                         genericDispatch(new ChangePageEvent(newPage));
                     }

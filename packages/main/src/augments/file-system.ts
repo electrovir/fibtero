@@ -1,6 +1,5 @@
 import {ensureDirSync, ensureFile, existsSync, lstat, lstatSync} from 'fs-extra';
 import {readFile, writeFile} from 'fs/promises';
-import {pack, unpack} from 'jsonpack';
 
 /**
  * Check that a directory exists. If it does not, create the directory. Double check before
@@ -35,16 +34,13 @@ export async function readPackedJson(filePath: string): Promise<unknown> {
     if (!fileContents.trim()) {
         return undefined;
     }
-    try {
-        const unpackedContents = unpack(fileContents) as unknown;
-        return unpackedContents;
-    } catch (error) {
-        // fallback to normal JSON parsing
-        return JSON.parse(fileContents);
-    }
+    return JSON.parse(fileContents);
 }
 
 export async function writePackedJson(filePath: string, data: any): Promise<void> {
-    const packedContents = pack(data);
-    await writeFile(filePath, packedContents);
+    // const packedContents = pack(data);
+    if (typeof data !== 'string') {
+        data = JSON.stringify(data, null, 4);
+    }
+    await writeFile(filePath, data);
 }

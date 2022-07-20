@@ -40,6 +40,7 @@ function shouldLockToFieldMappingPage(
     currentPage: MainRendererPage,
     currentUserPreferences: UserPreferences,
 ): boolean {
+    return false;
     const hasFieldMappings: boolean = !!Object.keys(currentUserPreferences.fieldMapping).length;
     const hasKnownTypes: boolean = !!currentUserPreferences.knownTypes.length;
     return (
@@ -51,6 +52,23 @@ function shouldLockToFieldMappingPage(
             MainRendererPage.Auth,
         ].includes(currentPage)
     );
+}
+
+async function updateCurrentPage(
+    newPage: MainRendererPage,
+    setProps: Function,
+    electronApi: ElectronWindowInterface,
+    userPreferences: UserPreferences,
+) {
+    setProps({currentPage: newPage});
+    console.log('saving page');
+    await electronApi.apiRequest({
+        type: ApiRequestType.SavePreferences,
+        data: {
+            ...userPreferences,
+            lastPage: newPage,
+        },
+    });
 }
 
 export const FibAppElement = defineFunctionalElement({
@@ -215,7 +233,7 @@ export const FibAppElement = defineFunctionalElement({
             // default to home if an invalid page is given
             if (!isEnumValue(props.currentPage, MainRendererPage)) {
                 console.log(`Invalid page name: ${props.currentPage}`);
-                setProps({currentPage: MainRendererPage.MyViews});
+                updateCurrentPage(MainRendererPage.MyViews, setProps, electronApi, userPreferences);
             }
             lockToFieldMapping = shouldLockToFieldMappingPage(props.currentPage, userPreferences);
 
@@ -242,7 +260,12 @@ export const FibAppElement = defineFunctionalElement({
                                 authLoaded: true,
                             });
                             if (props.loaded) {
-                                setProps({jiraAuth: auth, currentPage: MainRendererPage.MyViews});
+                                updateCurrentPage(
+                                    MainRendererPage.MyViews,
+                                    setProps,
+                                    electronApi,
+                                    userPreferences,
+                                );
                             }
                         })}
                         ${assign(FibAuthPage.props.useCachedData, true)}
@@ -342,15 +365,7 @@ export const FibAppElement = defineFunctionalElement({
                     });
                 })}
                 ${listen(ChangePageEvent, async (event) => {
-                    const newPage = event.detail;
-                    setProps({currentPage: newPage});
-                    await electronApi.apiRequest({
-                        type: ApiRequestType.SavePreferences,
-                        data: {
-                            ...userPreferences,
-                            lastPage: newPage,
-                        },
-                    });
+                    await updateCurrentPage(event.detail, setProps, electronApi, userPreferences);
                 })}
             >
                 <div

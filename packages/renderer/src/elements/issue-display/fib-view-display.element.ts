@@ -119,10 +119,10 @@ export const FibViewDisplay = defineFunctionalElement({
             background-color: red;
         }
     `,
-    renderCallback: ({props, setProps, dispatch, genericDispatch, events}) => {
+    renderCallback: ({props, setProps, genericDispatch}) => {
         if (!props.view) {
             return html`
-                Select a view
+                Create or import a view
             `;
         }
         const jiraView = props.view;

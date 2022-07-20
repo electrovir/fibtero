@@ -61,7 +61,13 @@ export async function updateUserPreferences(appPaths: HasGetPath): Promise<UserP
 /** Just read the preferences file as is. */
 export async function readUserPreferences(appPaths: HasGetPath): Promise<UserPreferences> {
     const preferencesPath = getUserPreferencesFilePath(appPaths);
-    const fromFile: any = await readPackedJson(preferencesPath);
+    let fromFile: any;
+    try {
+        fromFile = await readPackedJson(preferencesPath);
+    } catch (error) {
+        console.error(error);
+        fromFile = emptyUserPreferences;
+    }
 
     // add new attributes since last file save
     let updated = updateJiraViews(fromFile.views as Writeable<JiraView[]>);
