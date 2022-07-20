@@ -12,6 +12,7 @@ import {ensureDir, ensureFile} from 'fs-extra';
 import {dirname} from 'path';
 import {HasGetPath} from '../augments/electron';
 import {readPackedJson, writePackedJson} from '../augments/file-system';
+import {backupConfig} from './config-backup';
 import {getUserPreferencesFilePath} from './config-path';
 
 function getDefaultUserPreferences(appPaths: HasGetPath): UserPreferences {
@@ -40,7 +41,9 @@ async function getUpdatedUserPreferences(appPaths: HasGetPath): Promise<UserPref
     };
 
     if (!isValidUserPreferences(parsedPreferences)) {
-        throw new Error(`Updated user preferences file contents failed validation.`);
+        await backupConfig(appPaths);
+        console.error(`Updated user preferences file contents failed validation.`);
+        return emptyUserPreferences;
     }
 
     return parsedPreferences;
@@ -71,7 +74,9 @@ export async function readUserPreferences(appPaths: HasGetPath): Promise<UserPre
     console.log({fromFile});
 
     if (!isValidUserPreferences(fromFile)) {
-        throw new Error(`Read user preferences from file contents failed validation.`);
+        await backupConfig(appPaths);
+        console.error(`Read user preferences from file contents failed validation.`);
+        return emptyUserPreferences;
     }
 
     if (updated) {

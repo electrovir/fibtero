@@ -341,10 +341,10 @@ export const FibAppElement = defineFunctionalElement({
                         },
                     });
                 })}
-                ${listen(ChangePageEvent, (event) => {
+                ${listen(ChangePageEvent, async (event) => {
                     const newPage = event.detail;
                     setProps({currentPage: newPage});
-                    electronApi.apiRequest({
+                    await electronApi.apiRequest({
                         type: ApiRequestType.SavePreferences,
                         data: {
                             ...userPreferences,
