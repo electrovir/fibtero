@@ -2,6 +2,7 @@ import {FullJiraIssue} from '@packages/common/src/data/jira-data';
 import {emptyUserPreferences} from '@packages/common/src/data/user-preferences';
 import {css, defineFunctionalElement, html} from 'element-vir';
 import {getFieldFormatting, prettify} from '../../field-formatting/field-formatting';
+import {ellipsisClasses} from '../../styles/ellipsis';
 
 export const FibFullIssue = defineFunctionalElement({
     tagName: 'fib-full-issue',
@@ -13,7 +14,7 @@ export const FibFullIssue = defineFunctionalElement({
         .fields {
             display: flex;
             flex-direction: column;
-            gap: 20px 20px;
+            gap: 16px 16px;
         }
         .label {
             font-weight: bold;
@@ -21,23 +22,40 @@ export const FibFullIssue = defineFunctionalElement({
         .header {
             font-weight: bold;
             font-size: 125%;
-        }
-        .link {
-            font-size: 75%;
+            padding: 8px 0px;
         }
         .left {
-            flex: 75%;
+            flex-grow: 1;
+            padding: 16px 16px 16px 0px;
+            border-right: 1px solid black;
         }
         .right {
-            flex: 25%;
+            flex-grow: 1;
+            max-width: 30%;
+            padding: 16px 0px 16px 16px;
         }
         .container {
             display: flex;
+            border-top: 1px solid black;
         }
         .summary {
             font-weight: bold;
             font-size: 115%;
+            padding: 8px 0px;
         }
+        a {
+            font: inherit;
+        }
+        .right-field {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .field-value {
+            flex-shrink: 1;
+            max-width: 50%;
+        }
+        ${ellipsisClasses}
     `,
     renderCallback: ({props}) => {
         if (!props.issue) {
@@ -66,35 +84,38 @@ export const FibFullIssue = defineFunctionalElement({
         );
 
         return html`
-            <div>
-                <span class="header">${props.issue.key}</span>
-                <a href=${browseUrl} target="_blank" class="link">view in browser</a>
-            </div>
-            <hr />
+            <a href=${browseUrl} target="_blank" class="header">${props.issue.key}:</a>
+            <div class="summary">${props.issue?.fields['summary']}</div>
             <div class="container">
                 <div class="fields left">
-                    <span class="summary">${props.issue?.fields['summary']}</span>
                     <span>
-                        <span class="label">Description</span>
-                        : ${descriptionTemplate}
+                        <div class="label ellipsis" title="Description">Description:</div>
+                        ${descriptionTemplate}
                     </span>
                     <span>
-                        <span class="label">Acceptance Criteria</span>
-                        : ${acTemplate}
+                        <div class="label ellipsis" title="Acceptance Criteria">
+                            Acceptance Criteria:
+                        </div>
+                        ${acTemplate}
                     </span>
                 </div>
                 <div class="fields right">
                     ${fields.map((fieldName) => {
                         const fieldValue = props.issue?.fields[fieldName];
                         const template = getFieldFormatting(fieldName, fieldValue, props.issue!);
+                        const templateTooltip = typeof template === 'string' ? template : '';
                         const prettyName = prettify(fieldName);
 
                         if (template) {
                             return html`
-                                <span>
-                                    <span class="label">${prettyName}</span>
-                                    : ${template}
-                                </span>
+                                <div class="right-field">
+                                    <div class="label ellipsis" title="${prettyName}">
+                                        ${prettyName}:
+                                    </div>
+                                    <div class="field-value ellipsis" title="${templateTooltip}">
+                                        ${template}
+                                    </div>
+                                </div>
                             `;
                         } else {
                             return '';

@@ -37,7 +37,7 @@ const fieldMappings: FieldMapping[] = [
             const imageUrl = value?.avatarUrls['32x32'] ?? '';
             return imageUrl
                 ? html`
-                      ${value?.displayName}
+                      <span title="${value?.displayName}">${value?.displayName}</span>
                       <img
                           title=${value?.displayName}
                           style="height: 32px; width: 32px; border-radius: 50%;vertical-align: middle;"
