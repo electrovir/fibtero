@@ -109,6 +109,8 @@ export const FibAppElement = defineFunctionalElement({
             /* improves blur performance */
             backface-visibility: hidden;
 
+            z-index: 999;
+
             position: absolute;
             top: 0;
             left: 0;

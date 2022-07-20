@@ -31,6 +31,13 @@ export const FibViewDisplay = defineFunctionalElement({
             | LoadedIssues<Readonly<Readonly<FullJiraIssue>[]>>
             | LoadedIssues<Promise<Readonly<Readonly<FullJiraIssue>[]>>>,
         error: '',
+        currentlyDraggingFrom: undefined as
+            | undefined
+            | {
+                  issue: FullJiraIssue;
+                  sectionName: string;
+              },
+        currentDraggingTo: '' as string,
     },
     styles: css`
         :host {
@@ -72,6 +79,7 @@ export const FibViewDisplay = defineFunctionalElement({
 
         .issue-category {
             display: flex;
+            position: relative;
             flex-direction: column;
         }
 
@@ -79,6 +87,32 @@ export const FibViewDisplay = defineFunctionalElement({
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .dragging-hover::after,
+        .dragging-to-allowed::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: calc(100% - 40px);
+            top: 0;
+            left: 0;
+            margin: 0;
+            margin-top: 40px;
+            pointer-events: none;
+            box-sizing: border-box;
+            background: rgba(30, 144, 255, 0.05);
+            z-index: 100;
+            border-radius: 8px;
+            transition: 80ms;
+            border: 2px solid dodgerblue;
+        }
+        .dragging-hover::after {
+            background: rgba(30, 144, 255, 0.2);
+            border-width: 4px;
+        }
+        .dragging-to-blocked {
+            background-color: red;
         }
     `,
     renderCallback: ({props, setProps, dispatch, genericDispatch, events}) => {
@@ -169,7 +203,12 @@ export const FibViewDisplay = defineFunctionalElement({
 
         const issues = props.loadedViewIssues.issues;
 
-        const sectionMap = props.view.sections.reduce((accum, section) => {
+        type FilteredIssueSections = Record<
+            string,
+            {issues: FullJiraIssue[]; sectionIndex: number}
+        >;
+
+        const sectionNamesMapping = props.view.sections.reduce((accum, section, sectionIndex) => {
             const requirementSections = section.requirements.reduce(
                 (requirementAccum, requirement) => {
                     if (requirement.filterType == FilterType.Unique) {
@@ -184,19 +223,19 @@ export const FibViewDisplay = defineFunctionalElement({
 
                         const newFields = unique.reduce((fieldAccum, field) => {
                             if (field) {
-                                fieldAccum[field] = [];
+                                fieldAccum[field] = {issues: [], sectionIndex};
                             }
                             return fieldAccum;
                         }, requirementAccum);
                         return newFields;
                     }
-                    requirementAccum[section.name] = [];
+                    requirementAccum[section.name] = {issues: [], sectionIndex};
                     return requirementAccum;
                 },
                 accum,
             );
             return requirementSections;
-        }, {} as Record<string, string[]>);
+        }, {} as FilteredIssueSections);
 
         const issueSections = props.loadedViewIssues.issues.reduce(
             (accum, currentIssue) => {
@@ -205,17 +244,23 @@ export const FibViewDisplay = defineFunctionalElement({
                     const sections = matchesSectionFilters(currentIssue, section);
                     if (sections.length) {
                         matchesASection = true;
-                        sections.map((s) => {
-                            accum[s]?.push(currentIssue);
+                        sections.map((section) => {
+                            accum[section]?.issues.push(currentIssue);
                         });
                     }
                 });
                 if (!matchesASection) {
-                    accum[unMatchedSectionName]!.push(currentIssue);
+                    accum[unMatchedSectionName]!.issues.push(currentIssue);
                 }
                 return accum;
             },
-            {...sectionMap, [unMatchedSectionName]: []} as Record<string, FullJiraIssue[]>,
+            {
+                ...sectionNamesMapping,
+                [unMatchedSectionName]: {
+                    issues: [],
+                    sectionIndex: -1,
+                },
+            } as FilteredIssueSections,
         );
 
         return html`
@@ -226,18 +271,64 @@ export const FibViewDisplay = defineFunctionalElement({
                     : ''}"
             >
                 ${Object.keys(issueSections).map((sectionName) => {
-                    const issues = issueSections[sectionName]!;
+                    const sectionData = issueSections[sectionName]!;
+                    const issues = sectionData.issues;
                     if (!issues.length && sectionName === unMatchedSectionName) {
                         // ignore unmatched issues if there are none
                         return '';
                     }
+                    const section = jiraView.sections[sectionData.sectionIndex];
+                    const allowsDraggingTo = !!section?.dragIn.length;
+
+                    const canCurrentlyDropHere =
+                        props.currentlyDraggingFrom &&
+                        props.currentlyDraggingFrom.sectionName !== sectionName;
+
+                    const draggingClass = canCurrentlyDropHere
+                        ? props.currentDraggingTo === sectionName
+                            ? 'dragging-hover'
+                            : allowsDraggingTo
+                            ? 'dragging-to-allowed'
+                            : 'dragging-to-blocked'
+                        : '';
+                    const allowsDraggingOut = !!section?.dragOut.length;
+
                     return html`
-                        <section class="issue-category">
+                        <section
+                            class="issue-category ${draggingClass}"
+                            ${listen('dragover', (event) => {
+                                if (canCurrentlyDropHere) {
+                                    event.preventDefault();
+                                    event.dataTransfer!.dropEffect = 'move';
+                                    setProps({currentDraggingTo: sectionName});
+                                }
+                            })}
+                            ${listen('drop', (event) => {
+                                if (canCurrentlyDropHere) {
+                                    event.preventDefault();
+                                }
+                            })}
+                        >
                             <h4>${sectionName} (${issues.length})</h4>
                             <div class="issues">
                                 ${issues.map((issue) => {
                                     return html`
                                         <${FibIssueCard}
+                                            draggable="true"
+                                            ${listen('dragstart', (event) => {
+                                                if (!allowsDraggingOut) {
+                                                    event.preventDefault();
+                                                }
+                                                setProps({
+                                                    currentlyDraggingFrom: {
+                                                        issue,
+                                                        sectionName,
+                                                    },
+                                                });
+                                            })}
+                                            ${listen('dragend', (event) => {
+                                                setProps({currentlyDraggingFrom: undefined});
+                                            })}
                                             ${listen('click', () => {
                                                 genericDispatch(new ShowFullIssueEvent(issue));
                                             })}
