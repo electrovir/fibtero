@@ -1,3 +1,4 @@
+import {JiraIssueFields} from '@packages/common/src/data/jira-data';
 import {MainRendererPage} from '@packages/common/src/data/main-renderer-page';
 import {emptyUserPreferences, UserPreferences} from '@packages/common/src/data/user-preferences';
 import {ApiRequestType} from '@packages/common/src/electron-renderer-api/api-request-type';
@@ -5,7 +6,6 @@ import {ElectronWindowInterface} from '@packages/common/src/electron-renderer-ap
 import {GetPathType} from '@packages/common/src/electron-renderer-api/get-path-type';
 import {ResetType} from '@packages/common/src/electron-renderer-api/reset';
 import {css, defineFunctionalElement, html, listen} from 'element-vir';
-import {JiraIssueFields} from '../../../../common/src/data/jira-data';
 import {ChangePageEvent} from '../../global-events/change-page.event';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
 import {isValidImportablePreferences, serializeForExport} from '../../preferences-import';
