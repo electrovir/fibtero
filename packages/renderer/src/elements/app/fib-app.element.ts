@@ -8,6 +8,7 @@ import {
 } from '@packages/common/src/electron-renderer-api/electron-window-interface';
 import {isEnumValue, isPromiseLike, wait} from 'augment-vir';
 import {assign, css, defineFunctionalElement, html, listen} from 'element-vir';
+import {getMaybeCachedFields} from '../../cache/jira-fields-cache';
 import {ChangeCurrentViewIndexEvent} from '../../global-events/change-current-view-index.event';
 import {ChangePageEvent} from '../../global-events/change-page.event';
 import {ReloadUserPreferencesEvent} from '../../global-events/reload-user-preferences.event';
@@ -69,6 +70,28 @@ async function updateCurrentPage(
             lastPage: newPage,
         },
     });
+}
+
+async function updateFieldMappings(
+    electronApi: ElectronWindowInterface,
+    jiraAuth: JiraAuth,
+    userPreferences: UserPreferences,
+    setProps: Function,
+) {
+    const fields = await getMaybeCachedFields(electronApi, jiraAuth, () => {});
+    console.log({fields});
+    await electronApi.apiRequest({
+        type: ApiRequestType.SavePreferences,
+        data: {
+            ...userPreferences,
+            fieldMapping: fields.reduce((accum, field) => {
+                accum[field.name] = field.key;
+                return accum;
+            }, {} as Record<string, string>),
+        },
+    });
+    const result = await loadUserPreferences(electronApi);
+    setProps({currentUserPreferences: result});
 }
 
 export const FibAppElement = defineFunctionalElement({
@@ -213,6 +236,11 @@ export const FibAppElement = defineFunctionalElement({
         }
 
         const userPreferences: UserPreferences = props.currentUserPreferences;
+
+        if (!Object.keys(userPreferences.fieldMapping).length) {
+            updateFieldMappings(electronApi, props.jiraAuth, userPreferences, setProps);
+        }
+
         if (props.currentViewIndex == undefined) {
             setProps({currentViewIndex: userPreferences.lastViewIndex});
         }
