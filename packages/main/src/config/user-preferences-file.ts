@@ -69,13 +69,15 @@ export async function readUserPreferences(appPaths: HasGetPath): Promise<UserPre
         console.error(error);
         fromFile = emptyUserPreferences;
     }
-
-    // add new attributes since last file save
-    let updated = updateJiraViews(fromFile.views as Writeable<JiraView[]>);
-    if ((fromFile as any).lastViewId) {
-        delete (fromFile as any).lastViewId;
-        fromFile.lastViewIndex = 0;
-        updated = true;
+    let updated = false;
+    if (fromFile?.views) {
+        // add new attributes since last file save
+        updated = updateJiraViews(fromFile.views as Writeable<JiraView[]>);
+        if ((fromFile as any).lastViewId) {
+            delete (fromFile as any).lastViewId;
+            fromFile.lastViewIndex = 0;
+            updated = true;
+        }
     }
 
     console.log({fromFile});

@@ -237,10 +237,6 @@ export const FibAppElement = defineFunctionalElement({
 
         const userPreferences: UserPreferences = props.currentUserPreferences;
 
-        if (!Object.keys(userPreferences.fieldMapping).length) {
-            updateFieldMappings(electronApi, props.jiraAuth, userPreferences, setProps);
-        }
-
         if (props.currentViewIndex == undefined) {
             setProps({currentViewIndex: userPreferences.lastViewIndex});
         }
@@ -272,6 +268,9 @@ export const FibAppElement = defineFunctionalElement({
                 console.log('going to field mapping cause no field mappings');
                 setProps({currentPage: MainRendererPage.FieldMappingView});
             }
+        }
+        if (!Object.keys(userPreferences.fieldMapping).length && props.jiraAuth) {
+            updateFieldMappings(electronApi, props.jiraAuth, userPreferences, setProps);
         }
 
         const pageTemplate =
