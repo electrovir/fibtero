@@ -2,10 +2,12 @@ import {
     createEmptyViewSectionFilter,
     JiraViewSection,
 } from '@packages/common/src/data/jira-view/jira-view';
+import {createEmptyIssueDragging} from '@packages/common/src/data/jira-view/view-issue-dragging';
 import {randomString} from 'augment-vir';
 import {assign, css, defineElementEvent, defineFunctionalElement, html, listen} from 'element-vir';
 import {repeat} from 'lit/directives/repeat.js';
 import {FibInput} from '../core-elements/fib-input.element';
+import {FibCreateDragOperation} from './fib-create-drag-operation.element';
 import {FibCreateViewSectionFilter} from './fib-create-section-filter.element';
 
 export const FibCreateViewSection = defineFunctionalElement({
@@ -27,7 +29,7 @@ export const FibCreateViewSection = defineFunctionalElement({
             gap: 8px;
         }
 
-        ${FibCreateViewSectionFilter} {
+        ${FibCreateViewSectionFilter}, ${FibCreateDragOperation} {
             margin-left: 16px;
         }
 
@@ -61,6 +63,96 @@ export const FibCreateViewSection = defineFunctionalElement({
                 })}
                 class="name-input"
             ></${FibInput}>
+            <b>
+                Drag in operations
+                <button
+                    ${listen('click', () => {
+                        setProps({
+                            sectionDefinition: {
+                                ...props.sectionDefinition,
+                                dragIn: [
+                                    ...props.sectionDefinition.dragIn,
+                                    createEmptyIssueDragging(randomString),
+                                ],
+                            },
+                        });
+                        dispatch(new events.sectionChange(props.sectionDefinition));
+                    })}
+                >
+                    + Add operation
+                </button>
+            </b>
+            ${repeat(
+                props.sectionDefinition.dragIn,
+                (item) => item.id,
+                (dragInOperation, index) => {
+                    return html`
+                        <${FibCreateDragOperation}
+                            ${assign(FibCreateDragOperation.props.dragOperation, dragInOperation)}
+                            ${listen(FibCreateDragOperation.events.dragOperationChange, (event) => {
+                                props.sectionDefinition.dragIn[index] = event.detail;
+                                dispatch(new events.sectionChange(props.sectionDefinition));
+                            })}
+                            ${listen(FibCreateDragOperation.events.deleteDragOperation, () => {
+                                // remove it
+                                props.sectionDefinition.dragIn.splice(index, 1);
+
+                                // update the dom
+                                setProps({
+                                    sectionDefinition: {
+                                        ...props.sectionDefinition,
+                                    },
+                                });
+                            })}
+                        ></${FibCreateDragOperation}>
+                    `;
+                },
+            )}
+            <b>
+                Drag out operations
+                <button
+                    ${listen('click', () => {
+                        setProps({
+                            sectionDefinition: {
+                                ...props.sectionDefinition,
+                                dragOut: [
+                                    ...props.sectionDefinition.dragOut,
+                                    createEmptyIssueDragging(randomString),
+                                ],
+                            },
+                        });
+                        dispatch(new events.sectionChange(props.sectionDefinition));
+                    })}
+                >
+                    + Add operation
+                </button>
+            </b>
+            ${repeat(
+                props.sectionDefinition.dragOut,
+                (item) => item.id,
+                (dragOutOperation, index) => {
+                    return html`
+                        <${FibCreateDragOperation}
+                            ${assign(FibCreateDragOperation.props.dragOperation, dragOutOperation)}
+                            ${listen(FibCreateDragOperation.events.dragOperationChange, (event) => {
+                                props.sectionDefinition.dragOut[index] = event.detail;
+                                dispatch(new events.sectionChange(props.sectionDefinition));
+                            })}
+                            ${listen(FibCreateDragOperation.events.deleteDragOperation, () => {
+                                // remove it
+                                props.sectionDefinition.dragOut.splice(index, 1);
+
+                                // update the dom
+                                setProps({
+                                    sectionDefinition: {
+                                        ...props.sectionDefinition,
+                                    },
+                                });
+                            })}
+                        ></${FibCreateDragOperation}>
+                    `;
+                },
+            )}
             <b>
                 Filters
                 <button
