@@ -21,6 +21,7 @@ function getDefaultUserPreferences(appPaths: HasGetPath): UserPreferences {
         views: [],
         lastPage: MainRendererPage.Auth,
         lastViewIndex: 0,
+        fieldVisibility: {},
         fieldMapping: {},
         knownTypes: [] as string[],
     };

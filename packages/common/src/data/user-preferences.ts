@@ -1,3 +1,4 @@
+import {JiraIssueFields} from './jira-data';
 import {JiraView} from './jira-view/jira-view';
 import {MainRendererPage} from './main-renderer-page';
 import {matchesShallowObjectSignature} from './object-validator';
@@ -17,6 +18,7 @@ export type UserPreferences = {
     lastPage: MainRendererPage;
     lastViewIndex: number;
     fieldMapping: Record<string, string>;
+    fieldVisibility: Record<keyof JiraIssueFields, boolean>;
     knownTypes: string[];
 };
 
@@ -32,6 +34,7 @@ export const emptyUserPreferences: UserPreferences = {
     lastPage: MainRendererPage.Auth,
     lastViewIndex: 0,
     fieldMapping: {},
+    fieldVisibility: {},
     knownTypes: [] as string[],
 } as const;
 

@@ -106,7 +106,12 @@ export const FibFullIssue = defineFunctionalElement({
                         const templateTooltip = typeof template === 'string' ? template : '';
                         const prettyName = prettify(fieldName);
 
-                        if (template) {
+                        if (
+                            template &&
+                            fieldValue &&
+                            (props.userPreferences.fieldVisibility == {} ||
+                                props.userPreferences.fieldVisibility[fieldName] === true)
+                        ) {
                             return html`
                                 <div class="right-field">
                                     <div class="label ellipsis" title="${prettyName}">

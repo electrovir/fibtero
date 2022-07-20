@@ -28,7 +28,7 @@ export function setupApiHandlers(devMode: boolean, electronApp: ElectronApp) {
         try {
             const requestType = requestDetails.type;
             if (devMode && apiOptions.allowLogging) {
-                console.info('Receiving request:', requestDetails);
+                // console.info('Receiving request:', requestDetails);
             }
 
             if (!isEnumValue(requestType, ApiRequestType)) {
@@ -51,10 +51,10 @@ export function setupApiHandlers(devMode: boolean, electronApp: ElectronApp) {
             try {
                 response = await handler(requestDetails.data, electronApp);
                 if (devMode && apiOptions.allowLogging) {
-                    console.info(
-                        `Responding to request ${requestDetails.type} ${requestDetails.requestId}:`,
-                        response,
-                    );
+                    // console.info(
+                    //     `Responding to request ${requestDetails.type} ${requestDetails.requestId}:`,
+                    //     response,
+                    // );
                 }
             } catch (error) {
                 throw new Error(
